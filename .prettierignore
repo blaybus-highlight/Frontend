@@ -1,0 +1,10 @@
+# 빌드 결과물
+dist
+build
+
+# 의존성
+node_modules
+
+# 기타 제외 파일
+coverage
+.github
