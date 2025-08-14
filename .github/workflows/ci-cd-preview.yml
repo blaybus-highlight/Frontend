@@ -13,18 +13,16 @@ env:
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
-    env:
-      NEXT_PUBLIC_OAUTH_APP_KEY: ${{ secrets.NEXT_PUBLIC_OAUTH_APP_KEY }}
-      NEXT_PUBLIC_APP_URL: ${{ secrets.NEXT_PUBLIC_APP_URL }}
+    
     defaults:
       run:
-        working-directory: ./global-nomad
+        working-directory: ./Frontend
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
-          path: global-nomad
+          path: Frontend
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
@@ -36,7 +34,7 @@ jobs:
         with:
           node-version: 18
           cache: 'pnpm'
-          cache-dependency-path: global-nomad/pnpm-lock.yaml
+          cache-dependency-path: Frontend/pnpm-lock.yaml
 
       - name: Install dependencies
         run: pnpm install
@@ -48,7 +46,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: build-artifact
-          path: global-nomad/
+          path: Frontend/
 
   deploy-preview:
     runs-on: ubuntu-latest

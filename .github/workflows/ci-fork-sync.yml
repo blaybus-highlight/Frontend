@@ -27,5 +27,5 @@ jobs:
 
       - name: Push changes to fork
         run: |
-          git remote add fork git@github.com:Yun-Jinwoo/global-nomad.git
+          git remote add fork git@github.com:Yun-Jinwoo/blaybus-highlight.git
           git push fork ${GITHUB_REF#refs/heads/} --force
