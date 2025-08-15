@@ -83,6 +83,10 @@ export default function SignupPage() {
       alert('비밀번호가 일치하지 않습니다.');
       return;
     }
+    if (formData.nickname.length < 2 || formData.nickname.length > 20) {
+      alert('닉네임은 2자 이상 20자 이하로 입력해주세요.');
+      return;
+    }
     // Validate required terms
     if (!formData.ageAgreed || !formData.termsAgreed) {
       alert('필수 약관에 동의해야 합니다.');
