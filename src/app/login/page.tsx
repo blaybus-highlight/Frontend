@@ -1,10 +1,11 @@
 'use client';
 
-import { useState } from 'react';
-import Link from 'next/link';
 import Image from 'next/image';
-import eyeopen from '@/assets/eye-open.svg';
+import Link from 'next/link';
+import { useState } from 'react';
+
 import eyeclose from '@/assets/eye-close.svg';
+import eyeopen from '@/assets/eye-open.svg';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
@@ -24,37 +25,37 @@ export default function LoginPage() {
         <h1 className='pb-[8px] text-center text-[36px]/[40px] font-bold text-[#0D141C]'>
           로그인
         </h1>
-        <form onSubmit={handleSubmit} className='flex flex-col gap-[24px]'>
+        <form className='flex flex-col gap-[24px]' onSubmit={handleSubmit}>
           <div className='space-y-[8px]'>
-            <label htmlFor='email' className='block text-[16px]/[22px]'>
+            <label className='block text-[16px]/[22px]' htmlFor='email'>
               이메일
             </label>
             <input
+              required
+              autoComplete='email'
+              className='w-full border border-[#E0E0E0] px-[16px] py-[10px] text-[16px]/[22px] placeholder-[#9E9E9E]'
               id='email'
               name='email'
-              type='email'
-              autoComplete='email'
               placeholder='이메일 입력'
-              required
+              type='email'
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className='w-full border border-[#E0E0E0] px-[16px] py-[10px] text-[16px]/[22px] placeholder-[#9E9E9E]'
             />
           </div>
           <div className='relative space-y-[8px]'>
-            <label htmlFor='password' className='block text-[16px]/[22px]'>
+            <label className='block text-[16px]/[22px]' htmlFor='password'>
               비밀번호
             </label>
             <input
+              required
+              autoComplete='current-password'
+              className='w-full border border-[#E0E0E0] px-[16px] py-[10px] text-[16px]/[22px] placeholder-[#9E9E9E]'
               id='password'
               name='password'
-              type={showPassword ? 'password' : 'text'}
               placeholder='비밀번호 입력'
-              autoComplete='current-password'
-              required
+              type={showPassword ? 'password' : 'text'}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className='w-full border border-[#E0E0E0] px-[16px] py-[10px] text-[16px]/[22px] placeholder-[#9E9E9E]'
             />
             <button
               className='absolute top-[39px] right-[16px]'
@@ -62,31 +63,31 @@ export default function LoginPage() {
               onClick={() => setShowPassword((prev) => !prev)}
             >
               {showPassword ? (
-                <Image src={eyeclose} width={24} height={24} alt='비밀번호 보기' />
+                <Image alt='비밀번호 보기' height={24} src={eyeclose} width={24} />
               ) : (
-                <Image src={eyeopen} width={24} height={24} alt='비밀번호 보기' />
+                <Image alt='비밀번호 보기' height={24} src={eyeopen} width={24} />
               )}
             </button>
           </div>
           <div>
             <button
-              type='submit'
               className='h-[56px] w-full bg-black text-[16px]/[22px] font-bold text-white'
+              type='submit'
             >
               로그인
             </button>
           </div>
         </form>
         <div className='flex items-center justify-center gap-[16px] text-center text-[14px]/[20px]'>
-          <Link href='/find-id' className='font-medium'>
+          <Link className='font-medium' href='/find-id'>
             아이디 찾기
           </Link>
           <span className='text-[12px]/[12px] text-[#E0E0E0]'>|</span>
-          <Link href='/find-password' className='font-medium'>
+          <Link className='font-medium' href='/find-password'>
             비밀번호 찾기
           </Link>
           <span className='text-[12px]/[12px] text-[#E0E0E0]'>|</span>
-          <Link href='/signup' className='font-medium'>
+          <Link className='font-medium' href='/signup'>
             회원가입
           </Link>
         </div>

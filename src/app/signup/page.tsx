@@ -1,10 +1,11 @@
 'use client';
 
-import { useState } from 'react';
-import Link from 'next/link';
 import Image from 'next/image';
-import eyeopen from '@/assets/eye-open.svg';
+import Link from 'next/link';
+import { useState } from 'react';
+
 import eyeclose from '@/assets/eye-close.svg';
+import eyeopen from '@/assets/eye-open.svg';
 
 export default function SignupPage() {
   const [formData, setFormData] = useState({
@@ -99,75 +100,75 @@ export default function SignupPage() {
         <h1 className='pb-[8px] text-center text-[36px]/[40px] font-bold text-[#0D141C]'>
           회원가입
         </h1>
-        <form onSubmit={handleSubmit} className='flex flex-col gap-[24px]'>
+        <form className='flex flex-col gap-[24px]' onSubmit={handleSubmit}>
           {/* Phone Number and Verification Code */}
           <div className='space-y-[8px]'>
-            <label htmlFor='phone' className='block text-[16px]/[22px]'>
+            <label className='block text-[16px]/[22px]' htmlFor='phone'>
               휴대폰 번호
             </label>
             <div className='flex gap-[6px]'>
               <input
+                required
+                className='w-full flex-grow border border-[#E0E0E0] px-[16px] py-[10px] text-[16px]/[22px] placeholder-[#9E9E9E]'
                 id='phone'
                 name='phone'
+                placeholder='전화번호 입력'
                 type='tel'
-                required
                 value={formData.phone}
                 onChange={handleChange}
-                placeholder='전화번호 입력'
-                className='w-full flex-grow border border-[#E0E0E0] px-[16px] py-[10px] text-[16px]/[22px] placeholder-[#9E9E9E]'
               />
               <button
+                className='h-[44px] shrink-0 bg-gray-800 px-4 text-[14px] font-bold text-white'
                 type='button'
                 onClick={handleVerify}
-                className='h-[44px] shrink-0 bg-gray-800 px-4 text-[14px] font-bold text-white'
               >
                 인증하기
               </button>
             </div>
             <input
+              required
+              className='mt-[4px] w-full border border-[#E0E0E0] px-[16px] py-[10px] text-[16px]/[22px] placeholder-[#9E9E9E]'
               id='verificationCode'
               name='verificationCode'
+              placeholder='인증번호 입력'
               type='text'
-              required
               value={formData.verificationCode}
               onChange={handleChange}
-              placeholder='인증번호 입력'
-              className='mt-[4px] w-full border border-[#E0E0E0] px-[16px] py-[10px] text-[16px]/[22px] placeholder-[#9E9E9E]'
             />
           </div>
 
           {/* Email */}
           <div className='space-y-[8px]'>
-            <label htmlFor='email' className='block text-[16px]/[22px]'>
+            <label className='block text-[16px]/[22px]' htmlFor='email'>
               이메일
             </label>
             <input
+              required
+              className='w-full border border-[#E0E0E0] px-[16px] py-[10px] text-[16px]/[22px] placeholder-[#9E9E9E]'
               id='email'
               name='email'
+              placeholder='abd@email.com'
               type='email'
-              required
               value={formData.email}
               onChange={handleChange}
-              placeholder='abd@email.com'
-              className='w-full border border-[#E0E0E0] px-[16px] py-[10px] text-[16px]/[22px] placeholder-[#9E9E9E]'
             />
           </div>
 
           {/* Password and Password Confirm */}
           <div>
             <div className='relative flex flex-col gap-[8px]'>
-              <label htmlFor='password' className='block text-[16px]/[22px]'>
+              <label className='block text-[16px]/[22px]' htmlFor='password'>
                 비밀번호
               </label>
               <input
+                required
+                className='w-full border border-[#E0E0E0] px-[16px] py-[10px] text-[16px]/[22px] placeholder-[#9E9E9E]'
                 id='password'
                 name='password'
+                placeholder='비밀번호 입력'
                 type={showPassword ? 'text' : 'password'}
-                required
                 value={formData.password}
                 onChange={handleChange}
-                placeholder='비밀번호 입력'
-                className='w-full border border-[#E0E0E0] px-[16px] py-[10px] text-[16px]/[22px] placeholder-[#9E9E9E]'
               />
               <button
                 className='absolute top-[39px] right-[16px]'
@@ -176,31 +177,31 @@ export default function SignupPage() {
               >
                 {showPassword ? (
                   <Image
+                    alt='비밀번호 숨기기'
+                    height={24}
                     src={eyeopen}
                     width={24}
-                    height={24}
-                    alt='비밀번호 숨기기'
                   />
                 ) : (
                   <Image
+                    alt='비밀번호 보기'
+                    height={24}
                     src={eyeclose}
                     width={24}
-                    height={24}
-                    alt='비밀번호 보기'
                   />
                 )}
               </button>
             </div>
             <div className='relative mt-[4px]'>
               <input
+                required
+                className='mt-[8px] w-full border border-[#E0E0E0] px-[16px] py-[10px] text-[16px]/[22px] placeholder-[#9E9E9E]'
                 id='passwordConfirm'
                 name='passwordConfirm'
+                placeholder='비밀번호 재입력'
                 type={showPasswordConfirm ? 'text' : 'password'}
-                required
                 value={formData.passwordConfirm}
                 onChange={handleChange}
-                placeholder='비밀번호 재입력'
-                className='mt-[8px] w-full border border-[#E0E0E0] px-[16px] py-[10px] text-[16px]/[22px] placeholder-[#9E9E9E]'
               />
               <button
                 className='absolute top-[17px] right-[16px]'
@@ -209,17 +210,17 @@ export default function SignupPage() {
               >
                 {showPasswordConfirm ? (
                   <Image
+                    alt='비밀번호 숨기기'
+                    height={24}
                     src={eyeopen}
                     width={24}
-                    height={24}
-                    alt='비밀번호 숨기기'
                   />
                 ) : (
                   <Image
+                    alt='비밀번호 보기'
+                    height={24}
                     src={eyeclose}
                     width={24}
-                    height={24}
-                    alt='비밀번호 보기'
                   />
                 )}
               </button>
@@ -228,18 +229,18 @@ export default function SignupPage() {
 
           {/* Nickname */}
           <div className='space-y-[8px]'>
-            <label htmlFor='nickname' className='block text-[16px]/[22px]'>
+            <label className='block text-[16px]/[22px]' htmlFor='nickname'>
               닉네임
             </label>
             <input
+              required
+              className='w-full border border-[#E0E0E0] px-[16px] py-[10px] text-[16px]/[22px] placeholder-[#9E9E9E]'
               id='nickname'
               name='nickname'
+              placeholder='별명 (2~20자)'
               type='text'
-              required
               value={formData.nickname}
               onChange={handleChange}
-              placeholder='별명 (2~20자)'
-              className='w-full border border-[#E0E0E0] px-[16px] py-[10px] text-[16px]/[22px] placeholder-[#9E9E9E]'
             />
           </div>
 
@@ -251,16 +252,16 @@ export default function SignupPage() {
             <div className='border border-[#E0E0E0] px-[16px] py-[24px]'>
               <div className='flex items-center'>
                 <input
+                  checked={formData.allAgreed}
+                  className='size-[16px] rounded border-[#E5E5E5] focus:ring-black'
                   id='allAgreed'
                   name='allAgreed'
                   type='checkbox'
-                  checked={formData.allAgreed}
                   onChange={handleAllAgreedChange}
-                  className='size-[16px] rounded border-[#E5E5E5] focus:ring-black'
                 />
                 <label
-                  htmlFor='allAgreed'
                   className='ml-[6px] block text-[16px]/[20px] font-medium'
+                  htmlFor='allAgreed'
                 >
                   전체동의
                 </label>
@@ -273,16 +274,16 @@ export default function SignupPage() {
                 {/* Age */}
                 <div className='flex items-center'>
                   <input
+                    checked={formData.ageAgreed}
+                    className='size-[16px] rounded border-[#E5E5E5] focus:ring-black'
                     id='ageAgreed'
                     name='ageAgreed'
                     type='checkbox'
-                    checked={formData.ageAgreed}
                     onChange={handleIndividualChange}
-                    className='size-[16px] rounded border-[#E5E5E5] focus:ring-black'
                   />
                   <label
-                    htmlFor='ageAgreed'
                     className='ml-[6px] block text-[16px]/[20px]'
+                    htmlFor='ageAgreed'
                   >
                     만 14세 이상입니다{' '}
                     <span className='text-[14px] text-[#6C918B]'>(필수)</span>
@@ -292,16 +293,16 @@ export default function SignupPage() {
                 {/* Terms of Service */}
                 <div className='flex items-center'>
                   <input
+                    checked={formData.termsAgreed}
+                    className='size-[16px] rounded border-[#E5E5E5] focus:ring-black'
                     id='termsAgreed'
                     name='termsAgreed'
                     type='checkbox'
-                    checked={formData.termsAgreed}
                     onChange={handleIndividualChange}
-                    className='size-[16px] rounded border-[#E5E5E5] focus:ring-black'
                   />
                   <label
-                    htmlFor='termsAgreed'
                     className='ml-[6px] block text-[16px]/[20px]'
+                    htmlFor='termsAgreed'
                   >
                     이용약관{' '}
                     <span className='text-[14px] text-[#6C918B]'>(필수)</span>
@@ -311,16 +312,16 @@ export default function SignupPage() {
                 {/* Marketing */}
                 <div className='flex items-center'>
                   <input
+                    checked={formData.marketingAgreed}
+                    className='size-[16px] rounded border-[#E5E5E5] focus:ring-black'
                     id='marketingAgreed'
                     name='marketingAgreed'
                     type='checkbox'
-                    checked={formData.marketingAgreed}
                     onChange={handleIndividualChange}
-                    className='size-[16px] rounded border-[#E5E5E5] focus:ring-black'
                   />
                   <label
-                    htmlFor='marketingAgreed'
                     className='ml-[6px] block text-[16px]/[20px]'
+                    htmlFor='marketingAgreed'
                   >
                     개인정보 마케팅 활용 동의{' '}
                     <span className='text-[14px] text-[#BDBDBD]'>(선택)</span>
@@ -330,16 +331,16 @@ export default function SignupPage() {
                 {/* Event/Coupon */}
                 <div className='flex items-center'>
                   <input
+                    checked={formData.eventAgreed}
+                    className='size-[16px] rounded border-[#E5E5E5] focus:ring-black'
                     id='eventAgreed'
                     name='eventAgreed'
                     type='checkbox'
-                    checked={formData.eventAgreed}
                     onChange={handleIndividualChange}
-                    className='size-[16px] rounded border-[#E5E5E5] focus:ring-black'
                   />
                   <label
-                    htmlFor='eventAgreed'
                     className='ml-[6px] block text-[16px]/[20px]'
+                    htmlFor='eventAgreed'
                   >
                     이벤트, 쿠폰, 특가 알림 메일 및 SMS 등 수신{' '}
                     <span className='text-[14px] text-[#BDBDBD]'>(선택)</span>
@@ -352,8 +353,8 @@ export default function SignupPage() {
           {/* Submit Button */}
           <div>
             <button
-              type='submit'
               className='h-[56px] w-full bg-black text-[16px]/[22px] font-bold text-white'
+              type='submit'
             >
               가입하기
             </button>
@@ -363,7 +364,7 @@ export default function SignupPage() {
         <div className='pt-[16px] text-center'>
           <p className='text-[16px]/[24px] text-[#424242]'>
             이미 아이디가 있으신가요?
-            <Link href='/login' className='px-[16px] font-semibold underline'>
+            <Link className='px-[16px] font-semibold underline' href='/login'>
               로그인
             </Link>
           </p>

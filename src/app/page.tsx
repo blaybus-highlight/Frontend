@@ -4,7 +4,7 @@ export default function Home() {
   return (
     <main className="flex min-h-screen flex-col items-center justify-center p-24">
       <h1 className="text-4xl font-bold mb-8">메인 페이지</h1>
-      <Link href="/login" className="text-blue-500 hover:underline">
+      <Link className="text-blue-500 hover:underline" href="/login">
         로그인 페이지로 이동
       </Link>
     </main>
