@@ -2,6 +2,9 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
+import eyeopen from '@/assets/eye-open.svg';
+import eyeclose from '@/assets/eye-close.svg';
 
 export default function SignupPage() {
   const [formData, setFormData] = useState({
@@ -11,15 +14,61 @@ export default function SignupPage() {
     password: '',
     passwordConfirm: '',
     nickname: '',
-    termsAccepted: false,
+    // Updated terms agreement states
+    allAgreed: false,
+    ageAgreed: false,
+    termsAgreed: false,
+    marketingAgreed: false,
+    eventAgreed: false,
   });
+
+  const [showPassword, setShowPassword] = useState(false);
+  const [showPasswordConfirm, setShowPasswordConfirm] = useState(false);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type, checked } = e.target;
-    setFormData(prevState => ({
+    setFormData((prevState) => ({
       ...prevState,
       [name]: type === 'checkbox' ? checked : value,
     }));
+  };
+
+  // New handler for "전체동의" checkbox
+  const handleAllAgreedChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const checked = e.target.checked;
+    setFormData((prevState) => ({
+      ...prevState,
+      allAgreed: checked,
+      ageAgreed: checked,
+      termsAgreed: checked,
+      marketingAgreed: checked,
+      eventAgreed: checked,
+    }));
+  };
+
+  // Modified handleChange to handle individual checkboxes and update allAgreed
+  const handleIndividualChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, type, checked } = e.target;
+    setFormData((prevState) => {
+      const newState = {
+        ...prevState,
+        [name]:
+          type === 'checkbox'
+            ? checked
+            : prevState[name as keyof typeof prevState], // Keep value for non-checkboxes
+      };
+
+      // Update allAgreed based on individual checkboxes
+      const allChecked =
+        newState.ageAgreed &&
+        newState.termsAgreed &&
+        newState.marketingAgreed &&
+        newState.eventAgreed;
+      return {
+        ...newState,
+        allAgreed: allChecked,
+      };
+    });
   };
 
   const handleVerify = () => {
@@ -34,8 +83,9 @@ export default function SignupPage() {
       alert('비밀번호가 일치하지 않습니다.');
       return;
     }
-    if (!formData.termsAccepted) {
-      alert('약관에 동의해야 합니다.');
+    // Validate required terms
+    if (!formData.ageAgreed || !formData.termsAgreed) {
+      alert('필수 약관에 동의해야 합니다.');
       return;
     }
     // TODO: Implement actual signup logic
@@ -44,80 +94,280 @@ export default function SignupPage() {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-100">
-      <div className="w-full max-w-lg p-8 space-y-6 bg-white rounded-lg shadow-md my-8">
-        <h1 className="text-3xl font-bold text-center text-gray-900">
+    <div className='flex min-h-screen items-center justify-center py-12'>
+      <div className='w-full max-w-[448px] space-y-[24px]'>
+        <h1 className='pb-[8px] text-center text-[36px]/[40px] font-bold text-[#0D141C]'>
           회원가입
         </h1>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          {/* Phone Number */}
-          <div>
-            <label htmlFor="phone" className="block text-sm font-medium text-gray-700">
+        <form onSubmit={handleSubmit} className='flex flex-col gap-[24px]'>
+          {/* Phone Number and Verification Code */}
+          <div className='space-y-[8px]'>
+            <label htmlFor='phone' className='block text-[16px]/[22px]'>
               휴대폰 번호
             </label>
-            <div className="flex space-x-2 mt-1">
-              <input id="phone" name="phone" type="tel" required value={formData.phone} onChange={handleChange} className="flex-grow w-full px-3 py-2 placeholder-gray-500 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"/>
-              <button type="button" onClick={handleVerify} className="px-4 py-2 text-sm font-medium text-white bg-gray-600 border border-transparent rounded-md hover:bg-gray-700">
+            <div className='flex gap-[6px]'>
+              <input
+                id='phone'
+                name='phone'
+                type='tel'
+                required
+                value={formData.phone}
+                onChange={handleChange}
+                placeholder='전화번호 입력'
+                className='w-full flex-grow border border-[#E0E0E0] px-[16px] py-[10px] text-[16px]/[22px] placeholder-[#9E9E9E]'
+              />
+              <button
+                type='button'
+                onClick={handleVerify}
+                className='h-[44px] shrink-0 bg-gray-800 px-4 text-[14px] font-bold text-white'
+              >
                 인증하기
+              </button>
+            </div>
+            <input
+              id='verificationCode'
+              name='verificationCode'
+              type='text'
+              required
+              value={formData.verificationCode}
+              onChange={handleChange}
+              placeholder='인증번호 입력'
+              className='mt-[4px] w-full border border-[#E0E0E0] px-[16px] py-[10px] text-[16px]/[22px] placeholder-[#9E9E9E]'
+            />
+          </div>
+
+          {/* Email */}
+          <div className='space-y-[8px]'>
+            <label htmlFor='email' className='block text-[16px]/[22px]'>
+              이메일
+            </label>
+            <input
+              id='email'
+              name='email'
+              type='email'
+              required
+              value={formData.email}
+              onChange={handleChange}
+              placeholder='abd@email.com'
+              className='w-full border border-[#E0E0E0] px-[16px] py-[10px] text-[16px]/[22px] placeholder-[#9E9E9E]'
+            />
+          </div>
+
+          {/* Password and Password Confirm */}
+          <div>
+            <div className='relative flex flex-col gap-[8px]'>
+              <label htmlFor='password' className='block text-[16px]/[22px]'>
+                비밀번호
+              </label>
+              <input
+                id='password'
+                name='password'
+                type={showPassword ? 'text' : 'password'}
+                required
+                value={formData.password}
+                onChange={handleChange}
+                placeholder='비밀번호 입력'
+                className='w-full border border-[#E0E0E0] px-[16px] py-[10px] text-[16px]/[22px] placeholder-[#9E9E9E]'
+              />
+              <button
+                className='absolute top-[39px] right-[16px]'
+                type='button'
+                onClick={() => setShowPassword((prev) => !prev)}
+              >
+                {showPassword ? (
+                  <Image
+                    src={eyeopen}
+                    width={24}
+                    height={24}
+                    alt='비밀번호 숨기기'
+                  />
+                ) : (
+                  <Image
+                    src={eyeclose}
+                    width={24}
+                    height={24}
+                    alt='비밀번호 보기'
+                  />
+                )}
+              </button>
+            </div>
+            <div className='relative mt-[4px]'>
+              <input
+                id='passwordConfirm'
+                name='passwordConfirm'
+                type={showPasswordConfirm ? 'text' : 'password'}
+                required
+                value={formData.passwordConfirm}
+                onChange={handleChange}
+                placeholder='비밀번호 재입력'
+                className='mt-[8px] w-full border border-[#E0E0E0] px-[16px] py-[10px] text-[16px]/[22px] placeholder-[#9E9E9E]'
+              />
+              <button
+                className='absolute top-[17px] right-[16px]'
+                type='button'
+                onClick={() => setShowPasswordConfirm((prev) => !prev)}
+              >
+                {showPasswordConfirm ? (
+                  <Image
+                    src={eyeopen}
+                    width={24}
+                    height={24}
+                    alt='비밀번호 숨기기'
+                  />
+                ) : (
+                  <Image
+                    src={eyeclose}
+                    width={24}
+                    height={24}
+                    alt='비밀번호 보기'
+                  />
+                )}
               </button>
             </div>
           </div>
 
-          {/* Verification Code */}
-          <div>
-            <label htmlFor="verificationCode" className="block text-sm font-medium text-gray-700">
-              인증번호
-            </label>
-            <input id="verificationCode" name="verificationCode" type="text" required value={formData.verificationCode} onChange={handleChange} className="w-full px-3 py-2 mt-1 placeholder-gray-500 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"/>
-          </div>
-
-          {/* Email */}
-          <div>
-            <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-              이메일
-            </label>
-            <input id="email" name="email" type="email" required value={formData.email} onChange={handleChange} className="w-full px-3 py-2 mt-1 placeholder-gray-500 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"/>
-          </div>
-
-          {/* Password */}
-          <div>
-            <label htmlFor="password" className="block text-sm font-medium text-gray-700">
-              비밀번호
-            </label>
-            <input id="password" name="password" type="password" required value={formData.password} onChange={handleChange} className="w-full px-3 py-2 mt-1 placeholder-gray-500 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"/>
-          </div>
-
-          {/* Password Confirm */}
-          <div>
-            <label htmlFor="passwordConfirm" className="block text-sm font-medium text-gray-700">
-              비밀번호 확인
-            </label>
-            <input id="passwordConfirm" name="passwordConfirm" type="password" required value={formData.passwordConfirm} onChange={handleChange} className="w-full px-3 py-2 mt-1 placeholder-gray-500 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"/>
-          </div>
-
           {/* Nickname */}
-          <div>
-            <label htmlFor="nickname" className="block text-sm font-medium text-gray-700">
+          <div className='space-y-[8px]'>
+            <label htmlFor='nickname' className='block text-[16px]/[22px]'>
               닉네임
             </label>
-            <input id="nickname" name="nickname" type="text" required value={formData.nickname} onChange={handleChange} className="w-full px-3 py-2 mt-1 placeholder-gray-500 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"/>
+            <input
+              id='nickname'
+              name='nickname'
+              type='text'
+              required
+              value={formData.nickname}
+              onChange={handleChange}
+              placeholder='별명 (2~20자)'
+              className='w-full border border-[#E0E0E0] px-[16px] py-[10px] text-[16px]/[22px] placeholder-[#9E9E9E]'
+            />
           </div>
 
-          {/* Terms Agreement */}
-          <div className="flex items-center">
-            <input id="termsAccepted" name="termsAccepted" type="checkbox" checked={formData.termsAccepted} onChange={handleChange} className="w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"/>
-            <label htmlFor="termsAccepted" className="ml-2 block text-sm text-gray-900">
-              <Link href="/terms" className="text-indigo-600 hover:text-indigo-500">이용약관</Link>에 동의합니다.
-            </label>
+          {/* Terms Agreement Section */}
+          <div className='space-y-[12px]'>
+            <label className='block text-[16px]/[22px]'>약관동의</label>
+
+            {/* All Agree Checkbox */}
+            <div className='border border-[#E0E0E0] px-[16px] py-[24px]'>
+              <div className='flex items-center'>
+                <input
+                  id='allAgreed'
+                  name='allAgreed'
+                  type='checkbox'
+                  checked={formData.allAgreed}
+                  onChange={handleAllAgreedChange}
+                  className='size-[16px] rounded border-[#E5E5E5] focus:ring-black'
+                />
+                <label
+                  htmlFor='allAgreed'
+                  className='ml-[6px] block text-[16px]/[20px] font-medium'
+                >
+                  전체동의
+                </label>
+              </div>
+
+              <hr className='mt-[12px] mb-[19px] border-[#E0E0E0]' />
+
+              {/* Individual Checkboxes */}
+              <div className='space-y-[12px]'>
+                {/* Age */}
+                <div className='flex items-center'>
+                  <input
+                    id='ageAgreed'
+                    name='ageAgreed'
+                    type='checkbox'
+                    checked={formData.ageAgreed}
+                    onChange={handleIndividualChange}
+                    className='size-[16px] rounded border-[#E5E5E5] focus:ring-black'
+                  />
+                  <label
+                    htmlFor='ageAgreed'
+                    className='ml-[6px] block text-[16px]/[20px]'
+                  >
+                    만 14세 이상입니다{' '}
+                    <span className='text-[14px] text-[#6C918B]'>(필수)</span>
+                  </label>
+                </div>
+
+                {/* Terms of Service */}
+                <div className='flex items-center'>
+                  <input
+                    id='termsAgreed'
+                    name='termsAgreed'
+                    type='checkbox'
+                    checked={formData.termsAgreed}
+                    onChange={handleIndividualChange}
+                    className='size-[16px] rounded border-[#E5E5E5] focus:ring-black'
+                  />
+                  <label
+                    htmlFor='termsAgreed'
+                    className='ml-[6px] block text-[16px]/[20px]'
+                  >
+                    이용약관{' '}
+                    <span className='text-[14px] text-[#6C918B]'>(필수)</span>
+                  </label>
+                </div>
+
+                {/* Marketing */}
+                <div className='flex items-center'>
+                  <input
+                    id='marketingAgreed'
+                    name='marketingAgreed'
+                    type='checkbox'
+                    checked={formData.marketingAgreed}
+                    onChange={handleIndividualChange}
+                    className='size-[16px] rounded border-[#E5E5E5] focus:ring-black'
+                  />
+                  <label
+                    htmlFor='marketingAgreed'
+                    className='ml-[6px] block text-[16px]/[20px]'
+                  >
+                    개인정보 마케팅 활용 동의{' '}
+                    <span className='text-[14px] text-[#BDBDBD]'>(선택)</span>
+                  </label>
+                </div>
+
+                {/* Event/Coupon */}
+                <div className='flex items-center'>
+                  <input
+                    id='eventAgreed'
+                    name='eventAgreed'
+                    type='checkbox'
+                    checked={formData.eventAgreed}
+                    onChange={handleIndividualChange}
+                    className='size-[16px] rounded border-[#E5E5E5] focus:ring-black'
+                  />
+                  <label
+                    htmlFor='eventAgreed'
+                    className='ml-[6px] block text-[16px]/[20px]'
+                  >
+                    이벤트, 쿠폰, 특가 알림 메일 및 SMS 등 수신{' '}
+                    <span className='text-[14px] text-[#BDBDBD]'>(선택)</span>
+                  </label>
+                </div>
+              </div>
+            </div>
           </div>
 
           {/* Submit Button */}
           <div>
-            <button type="submit" className="w-full px-4 py-2 font-medium text-white bg-indigo-600 border border-transparent rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+            <button
+              type='submit'
+              className='h-[56px] w-full bg-black text-[16px]/[22px] font-bold text-white'
+            >
               가입하기
             </button>
           </div>
         </form>
+
+        <div className='pt-[16px] text-center'>
+          <p className='text-[16px]/[24px] text-[#424242]'>
+            이미 아이디가 있으신가요?
+            <Link href='/login' className='px-[16px] font-semibold underline'>
+              로그인
+            </Link>
+          </p>
+        </div>
       </div>
     </div>
   );
