@@ -9,7 +9,7 @@ import eyeclose from '@/assets/eye-close.svg';
 export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [isPassword, setIsPassword] = useState(true);
+  const [showPassword, setShowPassword] = useState(true);
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -48,7 +48,7 @@ export default function LoginPage() {
             <input
               id='password'
               name='password'
-              type={isPassword ? 'password' : 'text'}
+              type={showPassword ? 'password' : 'text'}
               placeholder='비밀번호 입력'
               autoComplete='current-password'
               required
@@ -59,9 +59,9 @@ export default function LoginPage() {
             <button
               className='absolute top-[39px] right-[16px]'
               type='button'
-              onClick={() => setIsPassword((prev) => !prev)}
+              onClick={() => setShowPassword((prev) => !prev)}
             >
-              {isPassword ? (
+              {showPassword ? (
                 <Image src={eyeclose} size={24} alt='비밀번호 보기' />
               ) : (
                 <Image src={eyeopen} size={24} alt='비밀번호 보기' />
