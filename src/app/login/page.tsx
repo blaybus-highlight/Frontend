@@ -1,11 +1,10 @@
 'use client';
 
-import Image from 'next/image';
 import Link from 'next/link';
 import { useState } from 'react';
 
-import eyeclose from '@/assets/eye-close.svg';
-import eyeopen from '@/assets/eye-open.svg';
+import EyeClose from '@/assets/eye-close.svg';
+import EyeOpen from '@/assets/eye-open.svg';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
@@ -63,9 +62,9 @@ export default function LoginPage() {
               onClick={() => setShowPassword((prev) => !prev)}
             >
               {showPassword ? (
-                <Image alt='비밀번호 보기' height={24} src={eyeclose} width={24} />
+                <EyeClose alt='비밀번호 보기' height={24} width={24} />
               ) : (
-                <Image alt='비밀번호 보기' height={24} src={eyeopen} width={24} />
+                <EyeOpen alt='비밀번호 보기' height={24} width={24} />
               )}
             </button>
           </div>
