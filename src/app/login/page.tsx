@@ -62,9 +62,9 @@ export default function LoginPage() {
               onClick={() => setShowPassword((prev) => !prev)}
             >
               {showPassword ? (
-                <Image src={eyeclose} size={24} alt='비밀번호 보기' />
+                <Image src={eyeclose} width={24} height={24} alt='비밀번호 보기' />
               ) : (
-                <Image src={eyeopen} size={24} alt='비밀번호 보기' />
+                <Image src={eyeopen} width={24} height={24} alt='비밀번호 보기' />
               )}
             </button>
           </div>
