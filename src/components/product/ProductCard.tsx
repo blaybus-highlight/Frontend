@@ -48,8 +48,8 @@ const ProductCard = ({ product }: ProductCardProps) => {
         {/* Product Image */}
         <div className='relative h-[208px] w-full'>
           <Image
-            alt={product.name}
             fill
+            alt={product.name}
             className='object-cover'
             sizes='100vw'
             src={product.imageUrl}
