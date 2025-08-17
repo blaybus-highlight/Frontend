@@ -1,30 +1,141 @@
-import Link from 'next/link';
+import { MainBanner } from '@/components/main/MainBanner';
+import { NoticeBanner } from '@/components/main/NoticeBanner';
+import { ProductGrid } from '@/components/main/ProductGrid';
+
+// 임시 데이터 - 나중에 API로 교체
+const todayAuctions = [
+  {
+    id: '1',
+    name: '담요 ㅁ-ㅁ0',
+    startPrice: 25000,
+    buyNowPrice: 50000,
+    image: '/images/sofa.png',
+    isPremium: true,
+    biddingTime: '00간 입찰',
+    timeLeft: '10시간 남음',
+    zipFileName: 'geun_k.zip',
+    showAlarm: false,
+  },
+  {
+    id: '2',
+    name: '담요 ㅁ-ㅁ0',
+    startPrice: 25000,
+    buyNowPrice: 50000,
+    image: '/images/sofa.png',
+    isPremium: false,
+    biddingTime: '00간 입찰',
+    timeLeft: '10시간 남음',
+    zipFileName: 'geun_k.zip',
+    showAlarm: false,
+  },
+  {
+    id: '3',
+    name: '담요 ㅁ-ㅁ0',
+    startPrice: 25000,
+    buyNowPrice: 50000,
+    image: '/images/sofa.png',
+    isPremium: true,
+    biddingTime: '00간 입찰',
+    timeLeft: '10시간 남음',
+    zipFileName: 'geun_k.zip',
+    showAlarm: false,
+  },
+  {
+    id: '4',
+    name: '담요 ㅁ-ㅁ0',
+    startPrice: 25000,
+    buyNowPrice: 50000,
+    image: '/images/sofa.png',
+    isPremium: false,
+    biddingTime: '00간 입찰',
+    timeLeft: '1시간 남음',
+    zipFileName: 'geun_k.zip',
+    showAlarm: false,
+  },
+  {
+    id: '5',
+    name: '담요 ㅁ-ㅁ0',
+    startPrice: 25000,
+    buyNowPrice: 50000,
+    image: '/images/sofa.png',
+    isPremium: true,
+    biddingTime: '00간 입찰',
+    timeLeft: '10시간 남음',
+    zipFileName: 'geun_k.zip',
+    showAlarm: false,
+  },
+];
+
+const upcomingAuctions = [
+  {
+    id: '6',
+    name: '담요 ㅁ-ㅁ0',
+    startPrice: 25000,
+    buyNowPrice: 50000,
+    image: '/images/sofa.png',
+    isPremium: false,
+    biddingTime: '00간 입찰',
+    timeLeft: '마감',
+    zipFileName: 'geun_k.zip',
+    showAlarm: true,
+  },
+  {
+    id: '7',
+    name: '담요 ㅁ-ㅁ0',
+    startPrice: 25000,
+    buyNowPrice: 50000,
+    image: '/images/sofa.png',
+    isPremium: false,
+    biddingTime: '00간 입찰',
+    timeLeft: '마감',
+    zipFileName: 'geun_k.zip',
+    showAlarm: true,
+  },
+  {
+    id: '8',
+    name: '담요 ㅁ-ㅁ0',
+    startPrice: 25000,
+    buyNowPrice: 50000,
+    image: '/images/sofa.png',
+    isPremium: true,
+    biddingTime: '00간 입찰',
+    timeLeft: '마감',
+    zipFileName: 'geun_k.zip',
+    showAlarm: true,
+  },
+  {
+    id: '9',
+    name: '담요 ㅁ-ㅁ0',
+    startPrice: 25000,
+    buyNowPrice: 50000,
+    image: '/images/sofa.png',
+    isPremium: false,
+    biddingTime: '00간 입찰',
+    timeLeft: '마감',
+    zipFileName: 'geun_k.zip',
+    showAlarm: true,
+  },
+  {
+    id: '10',
+    name: '담요 ㅁ-ㅁ0',
+    startPrice: 25000,
+    buyNowPrice: 50000,
+    image: '/images/sofa.png',
+    isPremium: false,
+    biddingTime: '00간 입찰',
+    timeLeft: '마감',
+    zipFileName: 'geun_k.zip',
+    showAlarm: true,
+  },
+];
 
 export default function Home() {
   return (
-    <main className='flex min-h-screen flex-col items-center justify-center p-24'>
-      <h1 className='mb-8 text-4xl font-bold'>메인 페이지 (구현예정)</h1>
-      <Link className='text-blue-500 hover:underline' href='/login'>
-        로그인 페이지로 이동
-      </Link>
-      <Link className='text-blue-500 hover:underline' href='/signup'>
-        회원가입 페이지로 이동
-      </Link>
-      <Link className='text-blue-500 hover:underline' href='/product/1'>
-        제품 상세 페이지로 이동 (진행중)
-      </Link>
-      <Link className='text-blue-500 hover:underline' href='/product/2'>
-        제품 상세 페이지로 이동 (예정)
-      </Link>
-      <Link className='text-blue-500 hover:underline' href='/product/3'>
-        제품 상세 페이지로 이동 (마감)
-      </Link>
-      <Link className='text-blue-500 hover:underline' href='/product/4'>
-        제품 상세 페이지로 이동 (마감임박)
-      </Link>
-      <Link className='text-blue-500 hover:underline' href='/product/5'>
-        제품 상세 페이지로 이동 (프리미엄)
-      </Link>
+    <main className='min-h-screen bg-gray-50'>
+      <NoticeBanner />
+      <MainBanner />
+      <ProductGrid products={todayAuctions} title='오늘의 경매 상품' />
+      <ProductGrid products={upcomingAuctions} title='경매 예정 상품' />
     </main>
   );
 }
