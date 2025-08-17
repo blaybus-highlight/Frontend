@@ -1,3 +1,7 @@
+/**
+ * description : MainBanner 컴포넌트는 메인 페이지 상단에 배너를 표시하며, 프리미엄 음료, 패션 컬렉션, 스낵 컬렉션의 이미지를 포함합니다.
+ */
+
 import Image from 'next/image';
 
 export function MainBanner() {
