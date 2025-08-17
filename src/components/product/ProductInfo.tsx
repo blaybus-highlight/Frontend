@@ -232,7 +232,9 @@ const ProductInfo = ({ product: productDetails }: ProductInfoProps) => {
                 </div>
               )}
               {activeTab === 'graph' && (
-                <div className='rounded-lg border p-4'>그래프</div>
+                <div className='rounded-lg border p-4'>
+                  추후 데이터 생기면 구현 예정
+                </div>
               )}
               {productDetails.premium && (
                 <div

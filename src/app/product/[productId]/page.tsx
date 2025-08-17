@@ -209,12 +209,13 @@ const products: Product[] = [
   },
 ];
 
-const ProductDetailPage = ({ params }: { params: { productId: string } }) => {
-  const product = products.find((p) => p.id === params.productId);
+export default async function ProductDetailPage({ params }: PageProps) {
+  const { productId } = await params;
+  const product = products.find((p) => p.id === productId);
 
   // Filter out the current product and get up to 4 related products
   const relatedProducts = products
-    .filter((p) => p.id !== params.productId)
+    .filter((p) => p.id !== productId)
     .slice(0, 4);
 
   if (!product) {
@@ -240,6 +241,4 @@ const ProductDetailPage = ({ params }: { params: { productId: string } }) => {
       </section>
     </div>
   );
-};
-
-export default ProductDetailPage;
+}
