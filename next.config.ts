@@ -7,7 +7,12 @@ const nextConfig: NextConfig = {
         protocol: 'https',
         hostname: 'via.placeholder.com',
       },
+      {
+        protocol: 'https',
+        hostname: 'example.com',
+      },
     ],
+    unoptimized: true,
   },
   webpack(config) {
     config.module.rules.push({

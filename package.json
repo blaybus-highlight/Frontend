@@ -38,6 +38,7 @@
     "@next/eslint-plugin-next": "^15.4.1",
     "@svgr/webpack": "^8.1.0",
     "@tailwindcss/postcss": "^4",
+    "@tanstack/react-query-devtools": "^5.85.3",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",

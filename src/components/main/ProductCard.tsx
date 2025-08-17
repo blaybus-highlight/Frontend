@@ -4,13 +4,13 @@ import Link from 'next/link';
 interface ProductCardProps {
   id: string;
   name: string;
-  startPrice: number;
-  buyNowPrice: number;
+  startPrice: number | null;
+  buyNowPrice: number | null;
   image: string;
+  bidCount?: number;
+  timeLeft?: string;
   isLiked?: boolean;
   isPremium?: boolean;
-  biddingTime?: string;
-  timeLeft?: string;
   zipFileName?: string;
   showAlarm?: boolean;
 }
@@ -21,10 +21,10 @@ export function ProductCard({
   startPrice,
   buyNowPrice,
   image,
+  bidCount = 0,
+  timeLeft = '10시간 남음',
   isLiked = false,
   isPremium = false,
-  biddingTime = '00간 입찰',
-  timeLeft = '10시간 남음',
   zipFileName = 'geun_k.zip',
   showAlarm = false,
 }: ProductCardProps) {
@@ -55,7 +55,7 @@ export function ProductCard({
             </span>
           )}
           <span className='ml-auto rounded bg-green-50 px-2 py-1 text-sm text-gray-600'>
-            {biddingTime}
+            {bidCount}건 입찰
           </span>
         </div>
         <div className='relative'>
@@ -107,13 +107,13 @@ export function ProductCard({
             <div className='flex items-center justify-between'>
               <span className='text-sm text-gray-600'>시작가</span>
               <span className='text-lg font-bold text-gray-900'>
-                {startPrice.toLocaleString()} 원
+                {(startPrice || 0).toLocaleString()} 원
               </span>
             </div>
             <div className='flex items-center justify-between'>
               <span className='text-sm text-gray-400'>즉시 구매가</span>
               <span className='text-sm text-gray-400'>
-                {buyNowPrice.toLocaleString()} 원
+                {(buyNowPrice || 0).toLocaleString()} 원
               </span>
             </div>
           </div>
