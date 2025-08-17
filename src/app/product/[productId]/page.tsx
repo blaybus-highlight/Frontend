@@ -228,7 +228,7 @@ export default async function ProductDetailPage({ params }: PageProps) {
   }
 
   return (
-    <div className='mx-auto p-[64px]'>
+    <div className='mx-auto px-[100px] py-[64px]'>
       <section>
         <ProductInfo product={product} />
       </section>

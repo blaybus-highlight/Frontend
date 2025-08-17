@@ -46,15 +46,16 @@ const ProductCard = ({ product }: ProductCardProps) => {
     <Link passHref href={`/product/${product.id}`}>
       <div className='relative min-h-[385px] w-full min-w-[278px] cursor-pointer'>
         {/* Product Image */}
-        <div className='relative h-[200px] w-full'>
+        <div className='relative h-[208px] w-full'>
           <Image
             alt={product.name}
-            layout='fill'
-            objectFit='cover'
+            fill
+            className='object-cover'
+            sizes='100vw'
             src={product.imageUrl}
           />
           {/* Bids Count Overlay */}
-          <div className='absolute top-0 right-0 px-[12px] py-[4px] text-[12px]/[16px] font-semibold text-[#212121]'>
+          <div className='absolute top-0 right-0 bg-[#F4FEFC] px-[12px] py-[4px] text-[12px]/[16px] font-semibold text-[#212121]'>
             {product.bidCount}건 입찰
           </div>
           {product.premium && (
