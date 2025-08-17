@@ -1,10 +1,11 @@
 'use client';
-import React from 'react';
 import Image from 'next/image';
 import Link from 'next/link'; // Import Link
-import Leaf from '@/assets/leaf-icon.svg';
+import React from 'react';
+
 import Bell from '@/assets/bell-icon.svg';
 import HeartSelected from '@/assets/heart-selected.svg';
+import Leaf from '@/assets/leaf-icon.svg';
 import { Product } from '@/types/product';
 
 interface ProductCardProps {
@@ -42,15 +43,15 @@ const ProductCard = ({ product }: ProductCardProps) => {
   };
 
   return (
-    <Link href={`/product/${product.id}`} passHref>
+    <Link passHref href={`/product/${product.id}`}>
       <div className='relative min-h-[385px] w-full min-w-[278px] cursor-pointer'>
         {/* Product Image */}
         <div className='relative h-[200px] w-full'>
           <Image
-            src={product.imageUrl}
             alt={product.name}
             layout='fill'
             objectFit='cover'
+            src={product.imageUrl}
           />
           {/* Bids Count Overlay */}
           <div className='absolute top-0 right-0 px-[12px] py-[4px] text-[12px]/[16px] font-semibold text-[#212121]'>

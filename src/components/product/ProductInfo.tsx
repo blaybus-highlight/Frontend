@@ -1,14 +1,14 @@
 'use client';
 
-import React, { useState } from 'react';
 import Image from 'next/image';
+import React, { useState } from 'react';
+
 import Clock from '@/assets/clock-icon.svg';
-import Info from '@/assets/info-icon.svg';
 import HeartSelected from '@/assets/heart-selected.svg';
-import HeartUnselected from '@/assets/heart-unselected.svg';
+import Info from '@/assets/info-icon.svg';
+import Leaf from '@/assets/leaf-icon.svg';
 import Share from '@/assets/share-icon.svg';
 import { Product } from '@/types/product';
-import Leaf from '@/assets/leaf-icon.svg';
 
 interface ProductInfoProps {
   product: Product;
@@ -26,11 +26,11 @@ const ProductInfo = ({ product: productDetails }: ProductInfoProps) => {
       {/* Left Column: Image Only */}
       <div className='relative w-full'>
         <Image
-          src={productDetails.imageUrl}
           alt={productDetails.name}
-          width={676}
-          height={676}
           className='h-auto w-full rounded-2xl object-cover'
+          height={676}
+          src={productDetails.imageUrl}
+          width={676}
         />
         {productDetails.premium && (
           <div className='absolute top-0 flex h-[40px] w-[140px] items-center justify-center gap-[4px] rounded-tl-2xl bg-black text-[12px]/[14px] font-semibold text-white'>
@@ -54,8 +54,8 @@ const ProductInfo = ({ product: productDetails }: ProductInfoProps) => {
               </h1>
             </div>
             <div className='flex items-center justify-center gap-[20px]'>
-              <HeartSelected width={20} height={20} />
-              <Share width={20} height={20} />
+              <HeartSelected height={20} width={20} />
+              <Share height={20} width={20} />
             </div>
           </div>
           <div className='mt-[12px] flex flex-col gap-[12px]'>
@@ -75,7 +75,7 @@ const ProductInfo = ({ product: productDetails }: ProductInfoProps) => {
               ))}
             </div>
             <div className='flex items-center gap-[12px] text-[16px] text-[#616161]'>
-              <Clock width={20} height={20} />
+              <Clock height={20} width={20} />
               <span>입찰 {productDetails.bidCount}회</span>
             </div>
           </div>
@@ -113,11 +113,11 @@ const ProductInfo = ({ product: productDetails }: ProductInfoProps) => {
                   상품 상태
                 </span>
                 <div className='group'>
-                  <Info width={20} height={20} />
+                  <Info height={20} width={20} />
                   <div className='absolute top-7 -left-1 hidden group-hover:block'>
                     <div className='relative rounded-[8px] bg-black px-[12px] py-[8px] text-[12px]/[18px] font-semibold text-white'>
                       NafaL의 엄격한 품질 가이드
-                      <div className='absolute -top-1 left-1/2 h-0 w-0 -translate-x-1/2 border-r-6 border-b-6 border-l-6 border-transparent border-b-black'></div>
+                      <div className='absolute -top-1 left-1/2 h-0 w-0 -translate-x-1/2 border-r-6 border-b-6 border-l-6 border-transparent border-b-black' />
                     </div>
                   </div>
                 </div>
@@ -155,9 +155,9 @@ const ProductInfo = ({ product: productDetails }: ProductInfoProps) => {
                   <span className='text-[16px]/[24px]'>입찰가</span>
                   <div className='flex gap-[6px]'>
                     <input
-                      type='number'
-                      placeholder='1,000원 단위로 입력해주세요.'
                       className='w-full flex-grow border border-[#E0E0E0] px-[16px] py-[10px] text-[16px]/[22px] placeholder-[#9E9E9E]'
+                      placeholder='1,000원 단위로 입력해주세요.'
+                      type='number'
                     />
                     <button
                       className='h-[44px] shrink-0 bg-black px-4 text-[14px] font-bold text-white'
@@ -181,14 +181,14 @@ const ProductInfo = ({ product: productDetails }: ProductInfoProps) => {
               {/* Tab Buttons */}
               <div className='mb-[16px] flex rounded-[8px] bg-[#EEE] p-[4px]'>
                 <button
-                  onClick={() => setActiveTab('history')}
                   className={`w-1/2 rounded-[8px] py-[8px] text-[14px]/[20px] font-semibold transition-colors ${activeTab === 'history' ? 'bg-white' : 'bg-transparent'}`}
+                  onClick={() => setActiveTab('history')}
                 >
                   거래 내역
                 </button>
                 <button
-                  onClick={() => setActiveTab('graph')}
                   className={`w-1/2 rounded-[8px] py-[8px] text-[14px]/[20px] font-semibold transition-colors ${activeTab === 'graph' ? 'bg-white' : 'bg-transparent'}`}
+                  onClick={() => setActiveTab('graph')}
                 >
                   그래프
                 </button>
@@ -298,10 +298,10 @@ const ProductInfo = ({ product: productDetails }: ProductInfoProps) => {
           <div className='flex flex-col items-start'>
             <div className='flex items-end gap-[12px] py-[16px]'>
               <Image
-                src={productDetails.seller.profileImageUrl}
                 alt={productDetails.seller.name}
-                width={80}
                 height={80}
+                src={productDetails.seller.profileImageUrl}
+                width={80}
               />
               <div>
                 <h4 className='text-[22px]/[28px] font-bold text-[#0D141C]'>

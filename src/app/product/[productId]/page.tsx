@@ -1,6 +1,7 @@
 import React from 'react';
-import ProductInfo from '@/components/product/ProductInfo';
+
 import ProductCard from '@/components/product/ProductCard'; // Import ProductCard
+import ProductInfo from '@/components/product/ProductInfo';
 import { Product } from '@/types/product';
 
 const products: Product[] = [
@@ -208,6 +209,10 @@ const products: Product[] = [
     },
   },
 ];
+
+interface PageProps {
+  params: Promise<{ productId: string }>;
+}
 
 export default async function ProductDetailPage({ params }: PageProps) {
   const { productId } = await params;

@@ -73,7 +73,6 @@ export default function SignupPage() {
 
   const handleVerify = () => {
     // TODO: Implement phone verification logic
-    console.log('Verification request for:', formData.phone);
     alert('인증번호가 발송되었습니다. (실제 기능 구현 필요)');
   };
 
@@ -93,7 +92,6 @@ export default function SignupPage() {
       return;
     }
     // TODO: Implement actual signup logic
-    console.log('Signup attempt with:', formData);
     alert('회원가입 시도: ' + formData.email);
   };
 
@@ -121,7 +119,7 @@ export default function SignupPage() {
                 onChange={handleChange}
               />
               <button
-                className='h-[44px] shrink-0 bg-gray-800 px-4 text-[14px] font-bold text-white'
+                className='h-[44px] shrink-0 bg-black px-4 text-[14px] font-bold text-white'
                 type='button'
                 onClick={handleVerify}
               >

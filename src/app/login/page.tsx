@@ -14,7 +14,6 @@ export default function LoginPage() {
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     // TODO: Implement actual login logic
-    console.log('Login attempt with:', { email, password });
     alert('로그인 시도: ' + email);
   };
 
