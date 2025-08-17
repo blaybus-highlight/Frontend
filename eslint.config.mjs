@@ -31,7 +31,6 @@ const eslintConfig = [
       // 기본 스타일 규칙
       'no-console': ['warn', { allow: ['warn', 'error'] }], // console.warn, console.error는 허용
       'prefer-const': 'warn', // 재할당 없는 let은 const로
-      'no-nested-ternary': 'warn', // 삼항 연산자 중첩 금지
       '@typescript-eslint/no-unused-vars': [
         'error',
         {
