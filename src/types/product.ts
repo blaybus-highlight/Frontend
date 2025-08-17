@@ -5,6 +5,8 @@ export interface Product {
   popupTitle: string;
   name: string;
   status: '진행중' | '마감' | '예정' | '마감임박';
+  openDate?: string;
+  deadline?: string;
   tags: string[];
   bidCount: number;
   description: string;

@@ -1,5 +1,6 @@
 import React from 'react';
 import ProductInfo from '@/components/product/ProductInfo';
+import ProductCard from '@/components/product/ProductCard'; // Import ProductCard
 import { Product } from '@/types/product';
 
 const products: Product[] = [
@@ -10,6 +11,7 @@ const products: Product[] = [
     popupTitle: '라이프집 첫 번째 오프라인 팝업',
     name: '라이프집 라운지 패브릭 쇼파 (1)',
     status: '진행중',
+    deadline: new Date(Date.now() + 1000 * 60 * 60 * 24).toISOString(), // 24 hours from now
     tags: ['그레이', '라운지'],
     bidCount: 24,
     description: "2025년 여름 성수에서 열린 '라이프집 집들1' 팝업 스토어.",
@@ -91,6 +93,7 @@ const products: Product[] = [
     popupTitle: '라이프집 세 번째 오프라인 팝업',
     name: '라이프집 라운지 패브릭 쇼파 (3)',
     status: '예정',
+    openDate: '2025년 9월 1일 오픈 예정',
     tags: ['화이트', '모던'],
     bidCount: 0,
     description: "2025년 가을, '라이프집 집들3'에서 만나요.",
@@ -125,6 +128,7 @@ const products: Product[] = [
     popupTitle: '라이프집 네 번째 오프라인 팝업',
     name: '라이프집 라운지 패브릭 쇼파 (4)',
     status: '마감임박',
+    deadline: new Date(Date.now() + 1000 * 60 * 60).toISOString(), // 1 hour from now
     tags: ['베이지', '미니멀'],
     bidCount: 42,
     description: "곧 마감되는 '라이프집 집들4' 팝업 스토어!",
@@ -167,6 +171,7 @@ const products: Product[] = [
     popupTitle: '라이프집 다섯 번째 오프라인 팝업',
     name: '라이프집 라운지 패브릭 쇼파 (5)',
     status: '진행중',
+    deadline: new Date(Date.now() + 1000 * 60 * 60 * 48).toISOString(), // 48 hours from now
     tags: ['레드', '프리미엄'],
     bidCount: 50,
     description: "프리미엄 고객을 위한 '라이프집 집들5' 팝업 스토어!",
@@ -207,6 +212,11 @@ const products: Product[] = [
 const ProductDetailPage = ({ params }: { params: { productId: string } }) => {
   const product = products.find((p) => p.id === params.productId);
 
+  // Filter out the current product and get up to 4 related products
+  const relatedProducts = products
+    .filter((p) => p.id !== params.productId)
+    .slice(0, 4);
+
   if (!product) {
     return <div>상품을 찾을 수 없습니다.</div>;
   }
@@ -215,6 +225,18 @@ const ProductDetailPage = ({ params }: { params: { productId: string } }) => {
     <div className='mx-auto p-[64px]'>
       <section>
         <ProductInfo product={product} />
+      </section>
+
+      {/* Related Products Section */}
+      <section className='mt-[40px]'>
+        <h2 className='mb-[40px] text-[20px] font-bold text-[#333]'>
+          📦 다른 고객이 함께 본 상품
+        </h2>
+        <div className='grid grid-cols-1 gap-[8px] lg:grid-cols-4'>
+          {relatedProducts.map((relatedProduct) => (
+            <ProductCard key={relatedProduct.id} product={relatedProduct} />
+          ))}
+        </div>
       </section>
     </div>
   );

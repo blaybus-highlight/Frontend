@@ -33,7 +33,7 @@ const ProductInfo = ({ product: productDetails }: ProductInfoProps) => {
           className='h-auto w-full rounded-2xl object-cover'
         />
         {productDetails.premium && (
-          <div className='absolute top-0 flex h-[40px] w-[140px] items-center justify-center gap-[4px] rounded-tl-2xl bg-black text-white'>
+          <div className='absolute top-0 flex h-[40px] w-[140px] items-center justify-center gap-[4px] rounded-tl-2xl bg-black text-[12px]/[14px] font-semibold text-white'>
             <Leaf />
             Premium
           </div>
