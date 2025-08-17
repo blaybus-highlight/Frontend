@@ -1,3 +1,7 @@
+/**
+ * description : NoticeBanner 컴포넌트는 경매에서 낙찰된 상품에 대한 알림 배너를 표시합니다.
+ */
+
 export function NoticeBanner() {
   return (
     <div className='mx-0 mt-0 mb-8 overflow-hidden bg-sky-100 shadow-sm'>

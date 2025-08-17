@@ -17,7 +17,10 @@ interface ProductGridProps {
   title: string;
   products: Product[];
 }
-
+/**
+ *
+ * ProductGrid 컴포넌트는 상품 목록을 그리드 형태로 표시합니다.
+ */
 export function ProductGrid({ title, products }: ProductGridProps) {
   return (
     <section className='px-6 py-12'>
