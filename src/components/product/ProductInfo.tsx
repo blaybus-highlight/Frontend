@@ -83,7 +83,7 @@ const ProductInfo = ({ product: productDetails }: ProductInfoProps) => {
             {productDetails.description}
           </p>
 
-          <div className='rounded[12px] mt-[16px] flex flex-col gap-[13px] bg-[#F9F9F9] p-[20px]'>
+          <div className='mt-[16px] flex flex-col gap-[13px] rounded-[12px] bg-[#F9F9F9] p-[20px]'>
             <div className='flex items-center justify-between'>
               <span className='text-[16px]/[24px] text-[#666]'>현재가</span>
               <span className='text-[26px] font-bold text-[#333]'>
