@@ -1,3 +1,7 @@
+export const API_BASE_URL =
+  process.env.NEXT_PUBLIC_API_URL ||
+  'http://ec2-52-78-128-131.ap-northeast-2.compute.amazonaws.com:8085';
+
 export interface Product {
   id: number;
   thumbnailUrl: string;
