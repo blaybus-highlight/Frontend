@@ -1,29 +1,34 @@
 'use client';
 
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 
+import { signUpUser } from '@/api/signup';
+import { verificationPhoneNumber } from '@/api/signup/VerificationNumberRequest';
+import { verify_number } from '@/api/signup/VerificationNumberResponse';
 import EyeClose from '@/assets/eye-close.svg';
 import EyeOpen from '@/assets/eye-open.svg';
 
 export default function SignupPage() {
+  const router = useRouter();
   const [formData, setFormData] = useState({
-    phone: '',
+    phoneNumber: '',
     verificationCode: '',
-    email: '',
+    userId: '',
     password: '',
     passwordConfirm: '',
     nickname: '',
-    // Updated terms agreement states
     allAgreed: false,
-    ageAgreed: false,
-    termsAgreed: false,
-    marketingAgreed: false,
-    eventAgreed: false,
+    isOver14: false,
+    agreedToTerms: false,
+    marketingEnabled: false,
+    eventSnsEnabled: false,
   });
 
   const [showPassword, setShowPassword] = useState(false);
   const [showPasswordConfirm, setShowPasswordConfirm] = useState(false);
+  const [isphoneNumberVerified, setIsphoneNumberVerified] = useState(false);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type, checked } = e.target;
@@ -33,37 +38,32 @@ export default function SignupPage() {
     }));
   };
 
-  // New handler for "전체동의" checkbox
   const handleAllAgreedChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const checked = e.target.checked;
+    const { checked } = e.target;
     setFormData((prevState) => ({
       ...prevState,
       allAgreed: checked,
-      ageAgreed: checked,
-      termsAgreed: checked,
-      marketingAgreed: checked,
-      eventAgreed: checked,
+      isOver14: checked,
+      agreedToTerms: checked,
+      marketingEnabled: checked,
+      eventSnsEnabled: checked,
     }));
   };
 
-  // Modified handleChange to handle individual checkboxes and update allAgreed
   const handleIndividualChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, type, checked } = e.target;
+    const { name, checked } = e.target;
     setFormData((prevState) => {
       const newState = {
         ...prevState,
-        [name]:
-          type === 'checkbox'
-            ? checked
-            : prevState[name as keyof typeof prevState], // Keep value for non-checkboxes
+        [name]: checked,
       };
 
-      // Update allAgreed based on individual checkboxes
       const allChecked =
-        newState.ageAgreed &&
-        newState.termsAgreed &&
-        newState.marketingAgreed &&
-        newState.eventAgreed;
+        newState.isOver14 &&
+        newState.agreedToTerms &&
+        newState.marketingEnabled &&
+        newState.eventSnsEnabled;
+
       return {
         ...newState,
         allAgreed: allChecked,
@@ -71,13 +71,52 @@ export default function SignupPage() {
     });
   };
 
-  const handleVerify = () => {
-    // TODO: Implement phone verification logic
-    alert('인증번호가 발송되었습니다. (실제 기능 구현 필요)');
+  const handleVerify = async () => {
+    const { phoneNumber } = formData;
+    if (!phoneNumber) {
+      alert('휴대폰 번호를 입력해주세요.');
+      return;
+    }
+
+    try {
+      alert('인증번호가 발송되었습니다.');
+      const data = await verificationPhoneNumber({ phoneNumber });
+      console.log('인증번호 발송 응답:', data);
+    } catch (error) {
+      alert('인증번호 발송에 실패했습니다. 잠시 후 다시 시도해주세요.');
+      console.error('인증번호 발송 에러:', error);
+    }
   };
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleConfirmCode = async () => {
+    const { phoneNumber, verificationCode } = formData;
+    if (!verificationCode) {
+      alert('인증번호를 입력해주세요.');
+      return;
+    }
+
+    try {
+      const data = await verify_number({ phoneNumber, verificationCode });
+      if (data.success) {
+        setIsphoneNumberVerified(true);
+        alert('휴대폰 인증이 완료되었습니다.');
+      } else {
+        alert(data.message || '인증에 실패했습니다. 번호를 다시 확인해주세요.');
+      }
+    } catch (error) {
+      alert('인증에 실패했습니다. 번호를 다시 확인해주세요.');
+      console.error('인증 확인 에러:', error);
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+
+    if (!isphoneNumberVerified) {
+      alert('휴대폰 인증을 완료해야 합니다.');
+      return;
+    }
+
     if (formData.password !== formData.passwordConfirm) {
       alert('비밀번호가 일치하지 않습니다.');
       return;
@@ -86,13 +125,29 @@ export default function SignupPage() {
       alert('닉네임은 2자 이상 20자 이하로 입력해주세요.');
       return;
     }
-    // Validate required terms
-    if (!formData.ageAgreed || !formData.termsAgreed) {
+    if (!formData.isOver14 || !formData.agreedToTerms) {
       alert('필수 약관에 동의해야 합니다.');
       return;
     }
-    // TODO: Implement actual signup logic
-    alert('회원가입 시도: ' + formData.email);
+
+    try {
+      const { passwordConfirm, allAgreed, ...signUpData } = formData;
+      const response = await signUpUser(signUpData);
+
+      if (response.success) {
+        alert('회원가입이 완료되었습니다. 로그인 페이지로 이동합니다.');
+        router.push('/login');
+      } else {
+        alert(response.message || '회원가입에 실패했습니다.');
+      }
+    } catch (error) {
+      if (error instanceof Error) {
+        alert(error.message);
+      } else {
+        alert('알 수 없는 오류가 발생했습니다.');
+      }
+      console.error('회원가입 에러:', error);
+    }
   };
 
   return (
@@ -102,60 +157,73 @@ export default function SignupPage() {
           회원가입
         </h1>
         <form className='flex flex-col gap-[24px]' onSubmit={handleSubmit}>
-          {/* Phone Number and Verification Code */}
           <div className='space-y-[8px]'>
-            <label className='block text-[16px]/[22px]' htmlFor='phone'>
+            <label className='block text-[16px]/[22px]' htmlFor='phoneNumber'>
               휴대폰 번호
             </label>
             <div className='flex gap-[6px]'>
               <input
-                required
                 className='w-full flex-grow border border-[#E0E0E0] px-[16px] py-[10px] text-[16px]/[22px] placeholder-[#9E9E9E]'
-                id='phone'
-                name='phone'
-                placeholder='전화번호 입력'
+                id='phoneNumber'
+                name='phoneNumber'
+                placeholder='전화번호 입력 (- 없이)'
                 type='tel'
-                value={formData.phone}
+                value={formData.phoneNumber}
                 onChange={handleChange}
+                disabled={isphoneNumberVerified}
               />
               <button
-                className='h-[44px] shrink-0 bg-black px-4 text-[14px] font-bold text-white'
+                className='h-[44px] shrink-0 bg-black px-4 text-[14px] font-bold text-white disabled:bg-gray-400'
                 type='button'
                 onClick={handleVerify}
+                disabled={isphoneNumberVerified}
               >
                 인증하기
               </button>
             </div>
-            <input
-              required
-              className='mt-[4px] w-full border border-[#E0E0E0] px-[16px] py-[10px] text-[16px]/[22px] placeholder-[#9E9E9E]'
-              id='verificationCode'
-              name='verificationCode'
-              placeholder='인증번호 입력'
-              type='text'
-              value={formData.verificationCode}
-              onChange={handleChange}
-            />
+            <div className='mt-[4px] flex gap-[6px]'>
+              <input
+                className='w-full flex-grow border border-[#E0E0E0] px-[16px] py-[10px] text-[16px]/[22px] placeholder-[#9E9E9E]'
+                id='verificationCode'
+                name='verificationCode'
+                placeholder='인증번호 입력'
+                type='text'
+                value={formData.verificationCode}
+                onChange={handleChange}
+                disabled={isphoneNumberVerified}
+              />
+              <button
+                className='h-[44px] shrink-0 bg-black px-4 text-[14px] font-bold text-white disabled:bg-gray-400'
+                type='button'
+                onClick={handleConfirmCode}
+                disabled={isphoneNumberVerified}
+              >
+                인증 확인
+              </button>
+            </div>
+            {isphoneNumberVerified && (
+              <p className='mt-2 text-sm text-green-600'>
+                ✅ 휴대폰 인증이 완료되었습니다.
+              </p>
+            )}
           </div>
 
-          {/* Email */}
           <div className='space-y-[8px]'>
-            <label className='block text-[16px]/[22px]' htmlFor='email'>
-              이메일
+            <label className='block text-[16px]/[22px]' htmlFor='userId'>
+              아이디
             </label>
             <input
               required
               className='w-full border border-[#E0E0E0] px-[16px] py-[10px] text-[16px]/[22px] placeholder-[#9E9E9E]'
-              id='email'
-              name='email'
-              placeholder='abd@email.com'
-              type='email'
-              value={formData.email}
+              id='userId'
+              name='userId'
+              placeholder='아아디 입력 2~20자 (영문, 숫자, 특수문자 가능)'
+              type='userId'
+              value={formData.userId}
               onChange={handleChange}
             />
           </div>
 
-          {/* Password and Password Confirm */}
           <div>
             <div className='relative flex flex-col gap-[8px]'>
               <label className='block text-[16px]/[22px]' htmlFor='password'>
@@ -208,7 +276,6 @@ export default function SignupPage() {
             </div>
           </div>
 
-          {/* Nickname */}
           <div className='space-y-[8px]'>
             <label className='block text-[16px]/[22px]' htmlFor='nickname'>
               닉네임
@@ -225,11 +292,9 @@ export default function SignupPage() {
             />
           </div>
 
-          {/* Terms Agreement Section */}
           <div className='space-y-[12px]'>
             <label className='block text-[16px]/[22px]'>약관동의</label>
 
-            {/* All Agree Checkbox */}
             <div className='border border-[#E0E0E0] px-[16px] py-[24px]'>
               <div className='flex items-center'>
                 <input
@@ -250,78 +315,73 @@ export default function SignupPage() {
 
               <hr className='mt-[12px] mb-[19px] border-[#E0E0E0]' />
 
-              {/* Individual Checkboxes */}
               <div className='space-y-[12px]'>
-                {/* Age */}
                 <div className='flex items-center'>
                   <input
-                    checked={formData.ageAgreed}
+                    checked={formData.isOver14}
                     className='size-[16px] rounded border-[#E5E5E5] focus:ring-black'
-                    id='ageAgreed'
-                    name='ageAgreed'
+                    id='isOver14'
+                    name='isOver14'
                     type='checkbox'
                     onChange={handleIndividualChange}
                   />
                   <label
                     className='ml-[6px] block text-[16px]/[20px]'
-                    htmlFor='ageAgreed'
+                    htmlFor='isOver14'
                   >
                     만 14세 이상입니다{' '}
                     <span className='text-[14px] text-[#6C918B]'>(필수)</span>
                   </label>
                 </div>
 
-                {/* Terms of Service */}
                 <div className='flex items-center'>
                   <input
-                    checked={formData.termsAgreed}
+                    checked={formData.agreedToTerms}
                     className='size-[16px] rounded border-[#E5E5E5] focus:ring-black'
-                    id='termsAgreed'
-                    name='termsAgreed'
+                    id='agreedToTerms'
+                    name='agreedToTerms'
                     type='checkbox'
                     onChange={handleIndividualChange}
                   />
                   <label
                     className='ml-[6px] block text-[16px]/[20px]'
-                    htmlFor='termsAgreed'
+                    htmlFor='agreedToTerms'
                   >
                     이용약관{' '}
                     <span className='text-[14px] text-[#6C918B]'>(필수)</span>
                   </label>
                 </div>
 
-                {/* Marketing */}
                 <div className='flex items-center'>
                   <input
-                    checked={formData.marketingAgreed}
+                    checked={formData.marketingEnabled}
                     className='size-[16px] rounded border-[#E5E5E5] focus:ring-black'
-                    id='marketingAgreed'
-                    name='marketingAgreed'
+                    id='marketingEnabled'
+                    name='marketingEnabled'
                     type='checkbox'
                     onChange={handleIndividualChange}
                   />
                   <label
                     className='ml-[6px] block text-[16px]/[20px]'
-                    htmlFor='marketingAgreed'
+                    htmlFor='marketingEnabled'
                   >
                     개인정보 마케팅 활용 동의{' '}
                     <span className='text-[14px] text-[#BDBDBD]'>(선택)</span>
                   </label>
                 </div>
 
-                {/* Event/Coupon */}
                 <div className='flex items-center'>
                   <input
-                    checked={formData.eventAgreed}
+                    checked={formData.eventSnsEnabled}
                     className='size-[16px] rounded border-[#E5E5E5] focus:ring-black'
-                    id='eventAgreed'
-                    name='eventAgreed'
+                    id='eventSnsEnabled'
+                    name='eventSnsEnabled'
                     type='checkbox'
                     onChange={handleIndividualChange}
                   />
                   <label
                     className='ml-[6px] block text-[16px]/[20px]'
-                    htmlFor='eventAgreed'
+                    htmlFor='eventSnsEnabled'
                   >
                     이벤트, 쿠폰, 특가 알림 메일 및 SMS 등 수신{' '}
                     <span className='text-[14px] text-[#BDBDBD]'>(선택)</span>
@@ -331,7 +391,6 @@ export default function SignupPage() {
             </div>
           </div>
 
-          {/* Submit Button */}
           <div>
             <button
               className='h-[56px] w-full bg-black text-[16px]/[22px] font-bold text-white'

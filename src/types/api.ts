@@ -265,3 +265,23 @@ export interface WishlistItem {
 }
 
 export type WishlistResponse = ApiResponse<WishlistItem>;
+
+export interface SignUpRequest {
+  userId: string;
+  password: string;
+  nickname: string;
+  phoneNumber: string;
+  isOver14: boolean;
+  agreedToTerms: boolean;
+  marketingEnabled: boolean;
+  eventSnsEnabled: boolean;
+}
+
+export interface SignUpResponse {
+  userId: string;
+  nickname: string;
+  accessToken: string;
+  refreshToken: string;
+}
+
+export type SignUpApiResponse = ApiResponse<SignUpResponse>;
