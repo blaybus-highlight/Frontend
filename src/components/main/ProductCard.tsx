@@ -1,5 +1,6 @@
 import Image from 'next/image';
 import Link from 'next/link';
+import { useWishlistStatus, useWishlistToggle } from '@/hooks/useWishlist';
 
 interface ProductCardProps {
   id: string;
@@ -8,7 +9,7 @@ interface ProductCardProps {
   startPrice: number | null;
   buyNowPrice: number | null;
   image: string;
-  isLiked?: boolean;
+  isLiked?: boolean; // 더 이상 사용하지 않음 (API에서 가져옴)
   bidCount?: number;
   timeLeft?: string;
 }
@@ -24,10 +25,32 @@ export function ProductCard({
   startPrice = 25000,
   buyNowPrice = 25000,
   image = '/blanket.jpg', // 실제 이미지 경로로 교체 필요
-  isLiked = true, // 이미지는 '좋아요'가 눌린 상태
+  isLiked, // 더 이상 기본값 사용 안함
   bidCount = 0,
   timeLeft = '10시간 남음',
 }: ProductCardProps) {
+  // 찜 상태 조회 및 토글 기능
+  const { data: wishlistData, isLoading: isWishlistLoading } = useWishlistStatus(
+    parseInt(id)
+  );
+  const wishlistToggle = useWishlistToggle();
+
+  // 찜 토글 핸들러
+  const handleWishlistToggle = (e: React.MouseEvent) => {
+    e.preventDefault(); // Link 내비게이션 방지
+    e.stopPropagation();
+    
+    if (!id) {
+      alert('상품 정보를 찾을 수 없습니다.');
+      return;
+    }
+
+    wishlistToggle.mutate(parseInt(id));
+  };
+
+  // 현재 찜 상태 (기본 prop보다 API 데이터 우선)
+  const currentWishlistStatus = wishlistData?.data?.wishlisted ?? isLiked ?? false;
+
   const getTimeStyle = () => {
     if (timeLeft === '마감') {
       return 'bg-gray-100 text-gray-500';
@@ -57,11 +80,20 @@ export function ProductCard({
         </div>
 
         {/* 좋아요 버튼: 카드 콘텐츠 영역 우측으로 이동 */}
-        <button className='absolute top-[195px] right-3 z-10 rounded-full bg-white/80 p-1.5 shadow-sm transition-colors hover:bg-white'>
+        <button 
+          onClick={handleWishlistToggle}
+          disabled={wishlistToggle.isPending || isWishlistLoading}
+          className={`absolute top-[195px] right-3 z-10 rounded-full bg-white/80 p-1.5 shadow-sm transition-all duration-200 ${
+            wishlistToggle.isPending || isWishlistLoading
+              ? 'opacity-50 cursor-not-allowed'
+              : 'hover:bg-white hover:scale-110'
+          }`}
+          title={currentWishlistStatus ? '찜 취소' : '찜하기'}
+        >
           <svg
-            fill={isLiked ? '#ef4444' : 'none'}
+            fill={currentWishlistStatus ? '#ef4444' : 'none'}
             height='20'
-            stroke={isLiked ? '#ef4444' : '#6b7280'}
+            stroke={currentWishlistStatus ? '#ef4444' : '#6b7280'}
             strokeWidth='2'
             viewBox='0 0 24 24'
             width='20'
