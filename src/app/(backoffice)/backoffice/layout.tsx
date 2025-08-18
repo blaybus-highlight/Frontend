@@ -1,6 +1,7 @@
 "use client"
 
 import { ReactNode, useState } from "react"
+import { usePathname } from "next/navigation"
 import DashboardHeader from "@/components/backoffice/DashboardHeader"
 import DashboardSidebar from "@/components/backoffice/DashboardSidebar"
 import {
@@ -14,9 +15,15 @@ import {
 } from "@/components/ui/alert-dialog"
 
 export default function BackofficeLayout({ children }: { children: ReactNode }) {
+	const pathname = usePathname()
 	const [activeMenu, setActiveMenu] = useState<string>("홈")
 	const [alertOpen, setAlertOpen] = useState<boolean>(false)
 	const [alertMessage, setAlertMessage] = useState<string>("")
+
+	// 로그인 페이지에서는 헤더/사이드바 레이아웃을 적용하지 않음
+	if (pathname === "/backoffice/login") {
+		return <>{children}</>
+	}
 
 	return (
 		<div className="flex h-screen flex-col">
