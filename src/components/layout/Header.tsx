@@ -1,8 +1,12 @@
 'use client';
 
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 
 export function Header() {
+  const pathname = usePathname();
+  const isBackoffice = pathname.startsWith('/backoffice');
+
   return (
     <header className='fixed top-0 right-0 left-0 z-50 bg-black'>
       <div className='px-6 py-3'>
@@ -11,7 +15,7 @@ export function Header() {
             className='text-xl font-bold text-white transition-colors hover:text-gray-300'
             href='/'
           >
-            Nafal
+            {isBackoffice ? 'Nafal | 판매자센터' : 'Nafal'}
           </Link>
           <div className='flex items-center space-x-4'>
             <Link
