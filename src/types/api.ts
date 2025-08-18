@@ -8,6 +8,7 @@ export interface Product {
   productName: string;
   currentPrice: number;
   buyNowPrice: number;
+  minimumBid: number;
   bidCount: number;
   endTime: string;
   auctionStatus: string;

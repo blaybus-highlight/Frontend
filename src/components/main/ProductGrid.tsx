@@ -69,7 +69,7 @@ export function ProductGrid({ title, searchParams = {} }: ProductGridProps) {
                 id={String(product.id)}
                 image={product.thumbnailUrl}
                 productName={product.productName}
-                startPrice={product.currentPrice}
+                startPrice={product.minimumBid}
                 timeLeft={product.endTime}
                 category={product.category}
               />
