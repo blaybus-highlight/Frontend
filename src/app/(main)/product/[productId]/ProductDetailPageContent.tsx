@@ -7,6 +7,7 @@ import Link from 'next/link';
 import { useAuctionDetail } from '@/hooks/useAuctionDetail';
 import { useRecommendedProducts } from '@/hooks/useRecommendedProducts';
 import ProductInfo from '@/components/product/ProductInfo';
+import { ProductCard } from '@/components/main/ProductCard';
 
 interface ProductDetailPageContentProps {
   productId: string;
@@ -73,43 +74,20 @@ export default function ProductDetailPageContent({ productId }: ProductDetailPag
             <span className='ml-2 text-gray-500'>추천 상품 로딩 중...</span>
           </div>
         ) : recommendedData?.data?.content && recommendedData.data.content.length > 0 ? (
-          <div className='grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4'>
+          <div className='grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-5'>
             {recommendedData.data.content.map((product) => (
-              <Link
+              <ProductCard
                 key={product.id}
-                href={`/product/${product.id}`}
-                className='group block overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm transition-all hover:shadow-md'
-              >
-                <div className='aspect-square relative overflow-hidden'>
-                  <Image
-                    src={product.primaryImageUrl || '/placeholder.jpg'}
-                    alt={product.productName}
-                    fill
-                    className='object-cover transition-transform group-hover:scale-105'
-                  />
-                  {product.isPremium && (
-                    <div className='absolute top-2 left-2 bg-black text-white text-xs px-2 py-1 rounded'>
-                      Premium
-                    </div>
-                  )}
-                </div>
-                <div className='p-4'>
-                  <h3 className='font-semibold text-[#333] text-sm mb-1 line-clamp-2'>
-                    {product.productName}
-                  </h3>
-                  <p className='text-gray-500 text-xs mb-2 line-clamp-2'>
-                    {product.shortDescription}
-                  </p>
-                  <div className='flex items-center justify-between'>
-                    <span className='text-xs text-gray-400'>
-                      {product.category}
-                    </span>
-                    <span className='text-xs font-medium text-blue-600'>
-                      자세히 보기
-                    </span>
-                  </div>
-                </div>
-              </Link>
+                id={String(product.id)}
+                brand="IN_PROGRESS" // 추천 상품은 기본적으로 진행중으로 처리
+                productName={product.productName}
+                startPrice={150000} // 임시 가격 - 실제 API에서 가져와야 함
+                buyNowPrice={250000} // 임시 가격 - 실제 API에서 가져와야 함
+                image={product.primaryImageUrl || '/placeholder.jpg'}
+                bidCount={Math.floor(Math.random() * 20)} // 임시 입찰수
+                timeLeft="5시간 남음" // 임시 시간
+                category={product.category}
+              />
             ))}
           </div>
         ) : (

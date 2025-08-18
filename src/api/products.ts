@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-import type { AuctionDetailResponse, ProductSearchParams, ProductsResponse, SellerDetailResponse, RecommendedProductsResponse, BidHistoryResponse, BidCreateRequest, BidCreateApiResponse, BuyItNowRequest, BuyItNowApiResponse, AuctionResultResponse, AuctionStatusResponse, WishlistResponse } from '@/types/api';
+import type { AuctionDetailResponse, ProductSearchParams, ProductsResponse, SellerDetailResponse, RecommendedProductsResponse, BidHistoryResponse, BidCreateRequest, BidCreateApiResponse, BuyItNowRequest, BuyItNowApiResponse, AuctionResultResponse, AuctionStatusResponse, WishlistResponse, NotificationStatusResponse } from '@/types/api';
 import { API_BASE_URL } from '@/types/api';
 
 const api = axios.create({
@@ -183,6 +183,35 @@ export const productsApi = {
       status: response.status,
       productId,
       wishlisted: response.data?.data?.wishlisted,
+      message: response.data?.message,
+    });
+
+    return response.data;
+  },
+
+  getNotificationStatus: async (productId: number): Promise<NotificationStatusResponse> => {
+    console.log('🚀 알림 상태 조회 API 호출:', { productId });
+
+    const response = await api.get(`/api/user/notifications/products/${productId}`);
+
+    console.log('✅ 알림 상태 조회 API 응답 성공:', {
+      status: response.status,
+      productId,
+      active: response.data?.data?.active,
+    });
+
+    return response.data;
+  },
+
+  toggleNotification: async (productId: number): Promise<NotificationStatusResponse> => {
+    console.log('🚀 알림 토글 API 호출:', { productId });
+
+    const response = await api.post(`/api/user/notifications/products/${productId}/toggle`);
+
+    console.log('✅ 알림 토글 API 응답 성공:', {
+      status: response.status,
+      productId,
+      active: response.data?.data?.active,
       message: response.data?.message,
     });
 

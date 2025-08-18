@@ -64,13 +64,14 @@ export function ProductGrid({ title, searchParams = {} }: ProductGridProps) {
               <ProductCard
                 key={product.id}
                 bidCount={product.bidCount}
-                brand={product.auctionStatus}
+                brand={title === '경매 예정 상품' ? 'SCHEDULED' : product.auctionStatus}
                 buyNowPrice={product.buyNowPrice}
                 id={String(product.id)}
                 image={product.thumbnailUrl}
                 productName={product.productName}
                 startPrice={product.currentPrice}
                 timeLeft={product.endTime}
+                category={product.category}
               />
             ))}
           </div>

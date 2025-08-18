@@ -11,6 +11,7 @@ export interface Product {
   bidCount: number;
   endTime: string;
   auctionStatus: string;
+  category?: string;
 }
 
 export interface PageResponse<T> {
@@ -92,6 +93,7 @@ export interface AuctionDetail {
   maxBid: number;
   minimumBid: number;
   totalBids: number;
+  tags?: string[]; // 판매자가 등록한 태그들
 }
 
 export type AuctionDetailResponse = ApiResponse<AuctionDetail>;
@@ -285,3 +287,18 @@ export interface SignUpResponse {
 }
 
 export type SignUpApiResponse = ApiResponse<SignUpResponse>;
+
+export interface NotificationStatus {
+  id: number;
+  userId: number;
+  productId: number;
+  productName: string;
+  productImageUrl: string;
+  notificationType: string;
+  notificationTypeDescription: string;
+  lastNotifiedAt: string;
+  createdAt: string;
+  active: boolean;
+}
+
+export type NotificationStatusResponse = ApiResponse<NotificationStatus>;

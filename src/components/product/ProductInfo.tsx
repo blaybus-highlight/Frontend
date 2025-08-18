@@ -342,6 +342,52 @@ const ProductInfo = ({ product, auction }: ProductInfoProps) => {
     buyItNowPrice: auction?.buyItNowPrice
   });
 
+  // 경매 상태 표시 텍스트 및 스타일
+  const getAuctionStatusDisplay = () => {
+    const status = liveStatus?.status || auction?.status;
+    const statusDescription = liveStatus?.statusDescription || auction?.statusDescription;
+    
+    switch (status) {
+      case 'SCHEDULED':
+        return { text: '경매 예정', color: 'bg-blue-100 text-blue-800' };
+      case 'IN_PROGRESS':
+        return { text: '진행중', color: 'bg-green-100 text-green-800' };
+      case 'ENDING_SOON':
+        return { text: '마감 임박', color: 'bg-red-100 text-red-800' };
+      case 'ENDED':
+        return { text: '마감', color: 'bg-gray-100 text-gray-800' };
+      case 'CANCELLED':
+        return { text: '취소됨', color: 'bg-gray-100 text-gray-800' };
+      default:
+        return { text: statusDescription || '진행중', color: 'bg-green-100 text-green-800' };
+    }
+  };
+
+  const auctionStatusDisplay = getAuctionStatusDisplay();
+
+  // 카테고리 한국어 변환 (백엔드에서 이미 한국어로 올 수도 있음)
+  const getCategoryDisplay = (category?: string) => {
+    if (!category) return '카테고리';
+    
+    // 이미 한국어면 그대로 반환
+    if (['소품', '가구', '가전', '조형', '패션', '도예', '회화'].includes(category)) {
+      return category;
+    }
+    
+    // 영어 코드면 한국어로 변환
+    const categoryMap: { [key: string]: string } = {
+      'PROPS': '소품',
+      'FURNITURE': '가구',
+      'HOME_APPLIANCES': '가전',
+      'SCULPTURE': '조형',
+      'FASHION': '패션',
+      'CERAMICS': '도예',
+      'PAINTING': '회화'
+    };
+    
+    return categoryMap[category] || category;
+  };
+
   const formatPrice = (price: number) => {
     return price.toLocaleString('ko-KR');
   };
@@ -371,7 +417,7 @@ const ProductInfo = ({ product, auction }: ProductInfoProps) => {
           src={auction ? (auction.images[0]?.imageUrl || '/placeholder.jpg') : (product?.imageUrl || '/placeholder.jpg')}
           width={676}
         />
-        {auction?.categoryName === 'Premium' && (
+        {auction?.category === 'Premium' && (
           <div className='absolute top-0 flex h-[40px] w-[140px] items-center justify-center gap-[4px] rounded-tl-2xl bg-black text-[12px]/[14px] font-semibold text-white'>
             <Leaf />
             Premium
@@ -386,7 +432,7 @@ const ProductInfo = ({ product, auction }: ProductInfoProps) => {
           <div className='flex justify-between'>
             <div className='flex flex-col gap-[4px]'>
               <p className='text-[14px] font-medium text-[#666]'>
-                {auction ? auction.categoryName : (product?.popupTitle || '')}
+                {auction ? getCategoryDisplay(auction.category) : (product?.popupTitle || '')}
               </p>
               <h1 className='text-[24px]/[28px] font-bold text-[#333]'>
                 {auction ? auction.productName : (product?.name || '')}
@@ -415,15 +461,21 @@ const ProductInfo = ({ product, auction }: ProductInfoProps) => {
           <div className='mt-[12px] flex flex-col gap-[12px]'>
             <div className='flex flex-wrap gap-2'>
               <span
-                className={`rounded-[8px] bg-[#B5F5EB] p-[8px] text-[16px]/[16px] text-[#2C2C2C]`}
+                className={`rounded-[8px] p-[8px] text-[16px]/[16px] ${auctionStatusDisplay.color}`}
               >
-                진행중
+                {auctionStatusDisplay.text}
               </span>
-              <span
-                className='rounded-[8px] bg-[#F5F5F5] p-[8px] text-[16px]/[16px] text-[#2C2C2C]'
-              >
-                # {auction?.categoryName || '카테고리'}
-              </span>
+              {/* 판매자가 등록한 태그들 표시 */}
+              {auction?.tags && auction.tags.length > 0 && (
+                auction.tags.map((tag, index) => (
+                  <span
+                    key={index}
+                    className='rounded-[8px] bg-[#F5F5F5] p-[8px] text-[16px]/[16px] text-[#2C2C2C]'
+                  >
+                    {tag.startsWith('#') ? tag : `#${tag}`}
+                  </span>
+                ))
+              )}
             </div>
             <div className='flex items-center gap-[12px] text-[16px] text-[#616161]'>
               <Clock height={20} width={20} />
@@ -434,31 +486,6 @@ const ProductInfo = ({ product, auction }: ProductInfoProps) => {
                   <span className='text-red-600 font-medium'>
                     {liveStatus?.totalBidders || activeBidders}명 참여 중
                   </span>
-                </div>
-              )}
-              {/* 실시간 상태 표시 */}
-              {liveStatus && (
-                <div className={`px-3 py-1 rounded-full text-xs font-medium ${
-                  liveStatus.status === 'IN_PROGRESS' 
-                    ? 'bg-green-500 text-white animate-pulse'
-                    : liveStatus.status === 'SCHEDULED'
-                    ? 'bg-blue-500 text-white'
-                    : liveStatus.status === 'ENDED'
-                    ? 'bg-gray-500 text-white'
-                    : 'bg-red-500 text-white'
-                }`}>
-                  {liveStatus.statusDescription}
-                </div>
-              )}
-              {timeLeft && (
-                <div className={`ml-auto px-3 py-1 rounded-full text-sm font-medium ${
-                  timeLeft === '경매 종료' 
-                    ? 'bg-gray-500 text-white' 
-                    : timeLeft.includes('분') && !timeLeft.includes('시간') && !timeLeft.includes('일')
-                    ? 'bg-red-500 text-white animate-pulse'  // 1시간 미만일 때 빨간색
-                    : 'bg-blue-500 text-white'
-                }`}>
-                  ⏰ {timeLeft}
                 </div>
               )}
             </div>
@@ -526,7 +553,7 @@ const ProductInfo = ({ product, auction }: ProductInfoProps) => {
               <span className='text-[16px]/[24px] text-[#666]'>적립</span>
               <div className='flex flex-col items-end gap-[11px]'>
                 <span className='text-[16px]/[24px] font-semibold'>
-                  100P
+                  100그루
                 </span>
                 <span className='text-[14px]/[20px] text-[#616161]'>
                   폐기 대신 재사용하여 CO2 절감
@@ -543,11 +570,6 @@ const ProductInfo = ({ product, auction }: ProductInfoProps) => {
                 <div className='flex flex-col gap-[8px]'>
                   <div className='flex items-center justify-between'>
                     <span className='text-[16px]/[24px]'>입찰가</span>
-                    {liveStatus?.bidUnit && (
-                      <span className='text-xs text-gray-500'>
-                        (입찰 단위: {formatPrice(liveStatus.bidUnit)}원)
-                      </span>
-                    )}
                   </div>
                   <div className='flex gap-[6px]'>
                     <input
@@ -841,12 +863,6 @@ const ProductInfo = ({ product, auction }: ProductInfoProps) => {
               <p className='w-[60px] text-[#666]'>배송비</p>
               <p>{liveStatus?.shippingFee ? formatPrice(liveStatus.shippingFee) + '원' : '5,000원'}</p>
             </div>
-            {liveStatus?.isPickupAvailable && (
-              <div className='flex gap-[4px] text-[14px]'>
-                <p className='w-[60px] text-[#666]'>직접수령</p>
-                <p className='text-green-600'>가능</p>
-              </div>
-            )}
           </div>
         </div>
 
