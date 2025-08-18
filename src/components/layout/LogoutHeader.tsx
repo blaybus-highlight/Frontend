@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 
-export function Header() {
+export function LogoutHeader() {
   return (
     <header className='fixed top-0 right-0 left-0 z-50 bg-black'>
       <div className='px-6 py-3'>
