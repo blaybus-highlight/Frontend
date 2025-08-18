@@ -1,27 +1,51 @@
-import nafalSidebarLogo from "@/assets/nafal-sidebar-logo.png";
+"use client"
 
-const DashboardSidebar = () => {
-  const menuItems = ["경매", "상품", "고객", "권한", "설정"];
+import { useRouter } from "next/navigation"
+
+interface SidebarProps {
+  activeMenu: string
+  onMenuClick: (menu: string) => void
+}
+
+export default function Sidebar({ activeMenu, onMenuClick }: SidebarProps) {
+  const router = useRouter()
+  const menus = ["경매", "상품", "고객", "권한", "설정"]
+  const menuToPath: Record<string, string> = {
+    "경매": "/backoffice/auction",
+    "상품": "/backoffice/products",
+    "고객": "/backoffice/customers",
+    "권한": "/backoffice/roles",
+    "설정": "/backoffice/settings",
+  }
 
   return (
-    <div className="flex flex-col shrink-0 items-start bg-background pt-8 pb-[647px] gap-4">
+    <div className="flex flex-col shrink-0 items-start bg-white pt-8 pb-[1131px]">
       <img
-        src={nafalSidebarLogo.src}
-        alt="NAFAL"
-        className="w-[168px] h-10 mx-4 object-fill"
+        src="https://storage.googleapis.com/tagjs-prod.appspot.com/v1/MOVF8BjaY8/jz9fow6c_expires_30_days.png"
+        className="w-[168px] h-10 mb-[15px] mx-4 object-fill cursor-pointer"
+        alt="홈 아이콘"
+        onClick={() => {
+          onMenuClick("홈")
+          router.push("/backoffice/dashboard")
+        }}
       />
-      {menuItems.map((item) => (
+      {menus.map((menu) => (
         <div
-          key={item}
-          className="flex flex-col items-center bg-background pt-2 pb-[9px] pl-3 pr-[121px] mx-4"
+          key={menu}
+          className={`flex flex-col items-center py-2 pl-3 pr-[121px] mb-4 mx-4 hover:bg-[#F4FEFC] cursor-pointer ${
+            activeMenu === menu ? "bg-[#F4FEFC]" : "bg-white"
+          }`}
+          onClick={() => {
+            onMenuClick(menu)
+            const targetPath = menuToPath[menu]
+            if (targetPath) router.push(targetPath)
+          }}
         >
-          <span className="text-nafal-gray text-xl font-bold">
-            {item}
+          <span className={`text-xl font-bold ${activeMenu === menu ? "text-[#111416]" : "text-[#9E9E9E]"}`}>
+            {menu}
           </span>
         </div>
       ))}
     </div>
-  );
-};
-
-export default DashboardSidebar;
+  )
+}
