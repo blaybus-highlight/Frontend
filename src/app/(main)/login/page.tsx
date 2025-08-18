@@ -10,7 +10,7 @@ import EyeClose from '@/assets/eye-close.svg';
 import EyeOpen from '@/assets/eye-open.svg';
 
 export default function LoginPage() {
-  const [user_id, setuser_id] = useState('');
+  const [userId, setUserId] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
@@ -18,14 +18,14 @@ export default function LoginPage() {
   const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    console.log('로그인 시도:', { user_id, password });
+    console.log('로그인 시도:', { userId, password });
     e.preventDefault();
     setIsLoading(true);
     setError('');
 
     try {
       // 분리된 API 함수를 호출합니다.
-      const data = await loginUser({ user_id, password });
+      const data = await loginUser({ userId, password });
     
       console.log('로그인 성공:', data);
       const token = data.data.accessToken; 
@@ -60,18 +60,18 @@ export default function LoginPage() {
         </h1>
         <form className='flex flex-col gap-[24px]' onSubmit={handleSubmit}>
           <div className='space-y-[8px]'>
-            <label className='block text-[16px]/[22px]' htmlFor='user_id'>
+            <label className='block text-[16px]/[22px]' htmlFor='userId'>
               이메일
             </label>
             <input
-              autoComplete='user_id'
+              autoComplete='userId'
               className='w-full border border-[#E0E0E0] px-[16px] py-[10px] text-[16px]/[22px] placeholder-[#9E9E9E]'
-              id='user_id'
-              name='user_id'
+              id='userId'
+              name='userId'
               placeholder='아이디 입력'
-              type='user_id'
-              value={user_id}
-              onChange={(e) => setuser_id(e.target.value)}
+              type='text'
+              value={userId}
+              onChange={(e) => setUserId(e.target.value)}
             />
           </div>
           <div className='relative space-y-[8px]'>

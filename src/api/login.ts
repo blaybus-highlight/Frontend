@@ -2,7 +2,7 @@ import { API_BASE_URL } from "@/types/api";
 
 // 로그인 요청에 필요한 인자 타입을 정의합니다.
 interface LoginCredentials {
-  user_id: string;
+  userId: string;
   password: string;
 }
 
@@ -12,14 +12,14 @@ interface LoginCredentials {
  * @returns {Promise<any>} 로그인 성공 시 서버로부터 받은 데이터
  * @throws {Error} 로그인 실패 시 에러
  */
-export const loginUser = async ({ user_id, password }: LoginCredentials) => {
+export const loginUser = async ({ userId, password }: LoginCredentials) => {
 
   const response = await fetch(`${API_BASE_URL}/api/public/login`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify({ user_id, password }),
+    body: JSON.stringify({ userId, password }),
   });
 
   // 응답이 성공적이지 않을 경우

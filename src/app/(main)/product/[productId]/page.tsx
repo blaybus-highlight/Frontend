@@ -3,11 +3,11 @@ import React from 'react';
 import ProductDetailPageContent from './ProductDetailPageContent';
 
 interface PageProps {
-  params: Promise<{ productId: string }>;
+  params: { productId: string };
 }
 
-export default async function ProductDetailPage({ params }: PageProps) {
-  const { productId } = await params;
+export default function ProductDetailPage({ params }: PageProps) {
+  const { productId } = params;
 
   return <ProductDetailPageContent productId={productId} />;
 }

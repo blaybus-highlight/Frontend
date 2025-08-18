@@ -1,5 +1,3 @@
-import DashboardHeader from "@/components/backoffice/DashboardHeader";
-import DashboardSidebar from "@/components/backoffice/DashboardSidebar";
 import vintageWatch from "@/assets/vintage-watch.png";
 
 const Dashboard = () => {

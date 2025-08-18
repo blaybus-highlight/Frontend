@@ -218,7 +218,7 @@ export default function SignupPage() {
               id='userId'
               name='userId'
               placeholder='아아디 입력 2~20자 (영문, 숫자, 특수문자 가능)'
-              type='userId'
+              type='text'
               value={formData.userId}
               onChange={handleChange}
             />
