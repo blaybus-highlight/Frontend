@@ -9,7 +9,6 @@ export default function Home() {
       <NoticeBanner />
       <ProductGrid searchParams={{ size: 5, status: 'IN_PROGRESS' }} title='오늘의 경매 상품' />
       <ProductGrid searchParams={{ size: 5, status: 'SCHEDULED' }} title='경매 예정 상품' />
-
     </main>
   );
 }
