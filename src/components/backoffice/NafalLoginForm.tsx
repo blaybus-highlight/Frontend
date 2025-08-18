@@ -8,10 +8,10 @@ const NafalLoginForm = () => {
   const [showPassword, setShowPassword] = useState(false);
   const router = useRouter();
 
-  const handleLogin = () => {
+const handleLogin = () => {
     // Navigate to dashboard after login
     router.push('/backoffice/Dashboard');
-  };
+};
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
 
