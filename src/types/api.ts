@@ -302,3 +302,19 @@ export interface NotificationStatus {
 }
 
 export type NotificationStatusResponse = ApiResponse<NotificationStatus>;
+
+export interface ViewTogetherProduct {
+  id: number;
+  productName: string;
+  category: string;
+  primaryImageUrl: string;
+  startPrice: number;
+  buyNowPrice: number;
+  brand: string;
+  auctionStatus: 'SCHEDULED' | 'IN_PROGRESS' | 'ENDED';
+  endTime: string;
+  bidCount: number;
+  associationScore: number;
+}
+
+export type ViewTogetherProductsResponse = ApiResponse<PageResponse<ViewTogetherProduct>>;

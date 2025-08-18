@@ -5,7 +5,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 
 import { useAuctionDetail } from '@/hooks/useAuctionDetail';
-import { useRecommendedProducts } from '@/hooks/useRecommendedProducts';
+import { useViewTogetherProducts } from '@/hooks/useViewTogetherProducts';
 import ProductInfo from '@/components/product/ProductInfo';
 import { ProductCard } from '@/components/main/ProductCard';
 
@@ -16,7 +16,7 @@ interface ProductDetailPageContentProps {
 export default function ProductDetailPageContent({ productId }: ProductDetailPageContentProps) {
   const auctionId = parseInt(productId);
   const { data, isLoading, error } = useAuctionDetail(auctionId);
-  const { data: recommendedData, isLoading: isRecommendedLoading } = useRecommendedProducts(auctionId, 4);
+  const { data: viewTogetherData, isLoading: isViewTogetherLoading } = useViewTogetherProducts(auctionId, 4);
 
   if (isLoading) {
     return (
@@ -68,32 +68,32 @@ export default function ProductDetailPageContent({ productId }: ProductDetailPag
           📦 다른 고객이 함께 본 상품
         </h2>
         
-        {isRecommendedLoading ? (
+        {isViewTogetherLoading ? (
           <div className='flex items-center justify-center py-8'>
             <div className='h-6 w-6 animate-spin rounded-full border-2 border-gray-300 border-t-blue-600'></div>
-            <span className='ml-2 text-gray-500'>추천 상품 로딩 중...</span>
+            <span className='ml-2 text-gray-500'>함께 본 상품 로딩 중...</span>
           </div>
-        ) : recommendedData?.data?.content && recommendedData.data.content.length > 0 ? (
+        ) : viewTogetherData?.data?.content && viewTogetherData.data.content.length > 0 ? (
           <div className='grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-5'>
-            {recommendedData.data.content.map((product) => (
+            {viewTogetherData.data.content.map((product) => (
               <ProductCard
                 key={product.id}
                 id={String(product.id)}
-                brand="IN_PROGRESS" // 추천 상품은 기본적으로 진행중으로 처리
+                brand={product.auctionStatus}
                 productName={product.productName}
-                startPrice={150000} // 임시 가격 - 실제 API에서 가져와야 함
-                buyNowPrice={250000} // 임시 가격 - 실제 API에서 가져와야 함
+                startPrice={product.startPrice}
+                buyNowPrice={product.buyNowPrice}
                 image={product.primaryImageUrl || '/placeholder.jpg'}
-                bidCount={Math.floor(Math.random() * 20)} // 임시 입찰수
-                timeLeft="5시간 남음" // 임시 시간
+                bidCount={product.bidCount}
+                timeLeft={product.endTime}
                 category={product.category}
               />
             ))}
           </div>
         ) : (
           <div className='text-center text-gray-500 py-8'>
-            <p>추천 상품이 없습니다.</p>
-            <p className='text-sm mt-1'>DB에 관련 상품 데이터가 부족합니다.</p>
+            <p>함께 본 상품이 없습니다.</p>
+            <p className='text-sm mt-1'>아직 충분한 사용자 데이터가 수집되지 않았습니다.</p>
           </div>
         )}
       </section>
