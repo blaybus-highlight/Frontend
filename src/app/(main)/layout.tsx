@@ -1,4 +1,4 @@
-import './globals.css';
+import '../globals.css';
 import { ReactNode } from 'react';
 import { cookies } from 'next/headers'; // 1. next/headers에서 cookies를 가져옵니다.
 import { LoginHeader } from '@/components/layout/LoginHeader'; // 로그인 시 보여줄 헤더
