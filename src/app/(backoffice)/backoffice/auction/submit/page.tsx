@@ -5,7 +5,13 @@ import { useState } from "react"
 // --- 재사용 컴포넌트 정의 ---
 
 // 1. 일반 텍스트 입력 컴포넌트 (한 줄 입력)
-const FormInput = ({ label, name, value, onChange, placeholder }) => (
+const FormInput = ({ label, name, value, onChange, placeholder }: { 
+  label: string | React.ReactNode, 
+  name: string, 
+  value: string, 
+  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void, 
+  placeholder: string 
+}) => (
   <div className="flex flex-col flex-1">
     <span className="text-[#111416] text-base mb-1">{label}</span>
     <input
@@ -20,7 +26,13 @@ const FormInput = ({ label, name, value, onChange, placeholder }) => (
 );
 
 // 2. 드롭다운 선택 컴포넌트
-const FormSelect = ({ label, name, value, onChange, options }) => (
+const FormSelect = ({ label, name, value, onChange, options }: { 
+  label: string | React.ReactNode, 
+  name: string, 
+  value: string, 
+  onChange: (e: React.ChangeEvent<HTMLSelectElement>) => void, 
+  options: { value: string, label: string }[] 
+}) => (
   <div className="flex flex-col flex-1">
     <span className="text-[#111416] text-base mb-1">{label}</span>
     <select
@@ -42,7 +54,21 @@ const FormSelect = ({ label, name, value, onChange, options }) => (
 );
 
 // 3. 여러 줄 텍스트 입력 컴포넌트 (높이가 큰 박스)
-const FormTextArea = ({ label, name, value, onChange, placeholder, rows = 2 }) => (
+const FormTextArea = ({ 
+  label, 
+  name, 
+  value, 
+  onChange, 
+  placeholder, 
+  rows = 2 
+}: { 
+  label: string | React.ReactNode, 
+  name: string, 
+  value: string, 
+  onChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => void, 
+  placeholder: string, 
+  rows?: number 
+}) => (
     <div className="flex flex-col w-full">
         <span className="text-[#111416] text-base mb-1">{label}</span>
         <textarea
@@ -80,7 +106,29 @@ const productConditionOptions = [
 
 // --- 폼 구조를 데이터로 정의 ---
 // 폼의 각 행과 필드를 객체 배열로 설정하여, JSX를 직접 수정하지 않고 이 배열만으로 폼을 동적으로 생성합니다.
-const formConfig = [
+
+interface FormField {
+  component: React.ComponentType<any>;
+  name: string;
+  label: string | React.ReactNode;
+  placeholder?: string;
+  options?: { value: string; label: string }[];
+  rows?: number;
+}
+
+interface FormConfigRow {
+  type: 'row';
+  fields: FormField[];
+}
+
+interface FormConfigFull {
+  type: 'full';
+  field: FormField;
+}
+
+type FormConfig = FormConfigRow | FormConfigFull;
+
+const formConfig: FormConfig[] = [
   // 한 행에 두 개의 필드가 있는 경우
   {
     type: 'row', fields: [
@@ -127,14 +175,13 @@ const formConfig = [
   }
 ];
 
-
 // --- 메인 페이지 컴포넌트 ---
 export default function AuctionSubmitPage() {
   // '개별 등록', '일괄 등록' 탭 상태 관리
   const [activeTab, setActiveTab] = useState("individual");
   
   // 모든 폼 입력 값을 하나의 객체로 관리
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<Record<string, string>>({
     salesCategory: "", productCategory: "", productName: "", size: "",
     quantity: "", material: "", productionYear: "", brandName: "",
     productCondition: "", conditionDescription: "", productDescription: "",
@@ -142,7 +189,7 @@ export default function AuctionSubmitPage() {
   });
 
   // 어떤 입력 필드든 값이 변경될 때 호출되는 단일 이벤트 핸들러
-  const handleChange = (e) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
@@ -177,7 +224,7 @@ export default function AuctionSubmitPage() {
                     <div key={index} className="flex flex-row items-center w-full gap-4">
                       {config.fields.map(field => {
                         const Component = field.component;
-                        return <Component key={field.name} {...field} value={formData[field.name]} onChange={handleChange} />;
+                        return <Component key={field.name} {...field} value={formData[field.name] || ''} onChange={handleChange} />;
                       })}
                     </div>
                   );
@@ -185,7 +232,7 @@ export default function AuctionSubmitPage() {
                 // type이 'full'인 경우, 한 행에 하나의 필드를 렌더링
                 if (config.type === 'full') {
                   const Component = config.field.component;
-                  return <Component key={config.field.name} {...config.field} value={formData[config.field.name]} onChange={handleChange} />;
+                  return <Component key={config.field.name} {...config.field} value={formData[config.field.name] || ''} onChange={handleChange} />;
                 }
                 return null;
               })}

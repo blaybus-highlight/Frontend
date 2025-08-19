@@ -10,7 +10,7 @@ import Share from '@/assets/share-icon.svg';
 import { Product } from '@/types/product';
 import { AuctionDetail, BuyItNowRequest, AuctionResult } from '@/types/api';
 import { useBidHistory } from '@/hooks/useBidHistory';
-import { useWebSocket } from '@/hooks/useWebSocket';
+import { useSTOMPSocket } from '@/hooks/useSTOMPSocket';
 import { useAuctionStatus } from '@/hooks/useAuctionStatus';
 import { useWishlistStatus, useWishlistToggle } from '@/hooks/useWishlist';
 import { productsApi } from '@/api/products';
@@ -51,6 +51,18 @@ const ProductInfo = ({ product, auction }: ProductInfoProps) => {
   
   // 입찰 내역 조회
   const { data: bidHistoryData, isLoading: isBidHistoryLoading } = useBidHistory(auction?.auctionId || 0);
+  
+  // Debug: 입찰 내역 데이터 확인 (한 번만 로그)
+  useEffect(() => {
+    if (!isBidHistoryLoading) {
+      console.log('입찰 내역 데이터 로딩 완료:', {
+        bidHistoryData,
+        auctionId: auction?.auctionId,
+        content: bidHistoryData?.data?.content,
+        contentLength: bidHistoryData?.data?.content?.length
+      });
+    }
+  }, [bidHistoryData, isBidHistoryLoading]);
 
   // 실시간 경매 상태 조회
   const { data: auctionStatusData } = useAuctionStatus(auction?.auctionId || 0);
@@ -76,9 +88,9 @@ const ProductInfo = ({ product, auction }: ProductInfoProps) => {
     checkAuctionResult();
   }, [auction?.auctionId]);
 
-  // WebSocket 연결
-  const { isConnected: isWebSocketConnected, sendMessage } = useWebSocket({
-    url: 'wss://ec2-52-78-128-131.ap-northeast-2.compute.amazonaws.com:8085/ws',
+  // STOMP WebSocket 연결
+  const { isConnected: isWebSocketConnected, subscribe, unsubscribe } = useSTOMPSocket({
+    url: 'http://ec2-52-78-128-131.ap-northeast-2.compute.amazonaws.com:8085/ws',
     onMessage: (message) => {
       if (message.data?.auctionId !== auction?.auctionId) return;
 
@@ -122,19 +134,25 @@ const ProductInfo = ({ product, auction }: ProductInfoProps) => {
           setActiveBidders(message.data.count);
           break;
 
+        case 'AUCTION_STATUS_UPDATE':
+          // 상태 업데이트는 자주 오므로 로그 생략
+          // 실시간 상태 업데이트를 위해 캐시 무효화
+          queryClient.invalidateQueries({ queryKey: ['auctionStatus', auction?.auctionId] });
+          break;
+
         default:
           console.log('📨 기타 메시지:', message);
       }
     },
-    onOpen: () => {
-      // 해당 경매 채널 구독
+    onConnect: () => {
+      console.log('🔌 STOMP 연결 성공, 경매 채널 구독 시작');
+      // 특정 경매 채널 구독
       if (auction?.auctionId) {
         setTimeout(() => {
-          sendMessage({
-            type: 'SUBSCRIBE',
-            auctionId: auction.auctionId,
+          subscribe(`/topic/auction/${auction.auctionId}`, (message) => {
+            // 메시지 처리는 onMessage에서 함
           });
-        }, 100); // 연결 안정화 후 구독
+        }, 500); // 연결 안정화 후 구독
       }
     },
   });
@@ -335,12 +353,16 @@ const ProductInfo = ({ product, auction }: ProductInfoProps) => {
     wishlistToggle.mutate(auction.auctionId);
   };
 
-  // Debug: 가격 정보 확인
-  console.log('가격 정보:', {
-    currentHighestBid: auction?.currentHighestBid,
-    minimumBid: auction?.minimumBid,
-    buyItNowPrice: auction?.buyItNowPrice
-  });
+  // Debug: 가격 정보 확인 (초기 로딩 시 한 번만)
+  useEffect(() => {
+    if (auction) {
+      console.log('가격 정보 초기화:', {
+        currentHighestBid: auction.currentHighestBid,
+        minimumBid: auction.minimumBid,
+        buyItNowPrice: auction.buyItNowPrice
+      });
+    }
+  }, [auction?.auctionId]); // auctionId가 변경될 때만
 
   // 경매 상태 표시 텍스트 및 스타일
   const getAuctionStatusDisplay = () => {
