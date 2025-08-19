@@ -2,7 +2,7 @@ export function Footer() {
   return (
     <footer className='border-t border-gray-200 bg-white'>
       <div className='mx-auto max-w-7xl px-6 py-12'>
-        <div className='grid grid-cols-1 gap-8 md:grid-cols-3'>
+        <div className='grid grid-cols-1 gap-4 md:grid-cols-[6fr_1fr_1fr]'>
           {/* Company Info */}
           <div>
             <h3 className='mb-4 text-xl font-bold text-gray-900'>Nafal</h3>
@@ -54,7 +54,7 @@ export function Footer() {
           </div>
 
           {/* Services */}
-          <div>
+          <div className="ml-auto">  
             <h4 className='mb-4 text-lg font-semibold text-gray-900'>서비스</h4>
             <ul className='space-y-2'>
               <li>
@@ -78,7 +78,7 @@ export function Footer() {
                   className='text-sm text-gray-600 transition-colors hover:text-gray-900'
                   href='#'
                 >
-                  배달디정책
+                  페널티정책
                 </a>
               </li>
               <li>
