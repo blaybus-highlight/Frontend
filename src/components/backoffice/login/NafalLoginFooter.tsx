@@ -1,4 +1,4 @@
-export function ManagerLoginFooter() {
+export default function NafalLoginFooter() {
     return (
       <footer className="bg-white border-t border-gray-200">
         <div className="max-w-7xl mx-auto px-6 py-12">
