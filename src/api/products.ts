@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-import type { AuctionDetailResponse, ProductSearchParams, ProductsResponse, SellerDetailResponse, RecommendedProductsResponse, BidHistoryResponse, BidCreateRequest, BidCreateApiResponse, BuyItNowRequest, BuyItNowApiResponse, AuctionResultResponse, AuctionStatusResponse, WishlistResponse, NotificationStatusResponse } from '@/types/api';
+import type { AuctionDetailResponse, ProductSearchParams, ProductsResponse, SellerDetailResponse, RecommendedProductsResponse, BidHistoryResponse, BidCreateRequest, BidCreateApiResponse, BuyItNowRequest, BuyItNowApiResponse, AuctionResultResponse, AuctionStatusResponse, WishlistResponse, NotificationStatusResponse, ViewTogetherProductsResponse } from '@/types/api';
 import { API_BASE_URL } from '@/types/api';
 
 const api = axios.create({
@@ -213,6 +213,22 @@ export const productsApi = {
       productId,
       active: response.data?.data?.active,
       message: response.data?.message,
+    });
+
+    return response.data;
+  },
+
+  getViewTogetherProducts: async (productId: number, size: number = 4): Promise<ViewTogetherProductsResponse> => {
+    console.log('🚀 함께 본 상품 API 호출:', { productId, size });
+
+    const response = await api.get(`/api/public/products/${productId}/viewed-together`, {
+      params: { size },
+    });
+
+    console.log('✅ 함께 본 상품 API 응답 성공:', {
+      status: response.status,
+      productId,
+      viewTogetherCount: response.data?.data?.content?.length || 0,
     });
 
     return response.data;
