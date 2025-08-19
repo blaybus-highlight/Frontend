@@ -25,6 +25,8 @@ export default function BackofficeLayout({ children }: { children: ReactNode }) 
 		return <>{children}</>
 	}
 
+	const showSidebar = pathname !== "/backoffice/auction/submit"; // New condition
+
 	return (
 		<div className="flex h-screen flex-col">
 			<div className="sticky top-0 z-10">
@@ -41,8 +43,8 @@ export default function BackofficeLayout({ children }: { children: ReactNode }) 
 			</div>
 
 			<div className="flex flex-1 min-h-0">
-				<DashboardSidebar activeMenu={activeMenu} onMenuClick={setActiveMenu} />
-				<main className="p-4 bg-white flex-1 overflow-y-auto">{children}</main>
+				{showSidebar && <DashboardSidebar activeMenu={activeMenu} onMenuClick={setActiveMenu} />}
+				<main className={`p-4 bg-white overflow-y-auto ${showSidebar ? "flex-1" : "w-full"}`}>{children}</main>
 			</div>
 
 			<AlertDialog open={alertOpen} onOpenChange={setAlertOpen}>
