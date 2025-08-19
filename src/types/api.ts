@@ -287,6 +287,18 @@ export interface SignUpResponse {
   refreshToken: string;
 }
 
+export interface BackOfficeSignUpRequest {
+  adminId: string;
+  password: string;
+}
+
+export interface BackOfficeSignUpResponse {
+  data: string;
+  message: string;
+}
+
+
+
 export type SignUpApiResponse = ApiResponse<SignUpResponse>;
 
 export interface NotificationStatus {

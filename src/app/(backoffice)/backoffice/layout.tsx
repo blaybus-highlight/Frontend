@@ -21,7 +21,7 @@ export default function BackofficeLayout({ children }: { children: ReactNode }) 
 	const [alertMessage, setAlertMessage] = useState<string>("")
 
 	// 로그인 페이지에서는 헤더/사이드바 레이아웃을 적용하지 않음
-	if (pathname === "/backoffice/login") {
+	if (pathname === "/backoffice/login" || pathname === "/backoffice/signup") {
 		return <>{children}</>
 	}
 

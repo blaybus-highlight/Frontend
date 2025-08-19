@@ -2,15 +2,20 @@
 
 import Link from "next/link"
 import { useState } from "react"
-import { ManagerLoginFooter } from "@/components/backoffice/ManagerLoginFooter"
+import NafalLoginHeader from "@/components/backoffice/login/NafalLoginHeader"
+import NafalLoginFooter from "@/components/backoffice/login/NafalLoginFooter"
+import { signUpAdmin } from "@/api/backoffice/login/signup"
+import { useRouter } from "next/navigation";
+
 
 export default function SignupPage() {
-  const [id, setId] = useState("")
+  const [adminId, setId] = useState("")
   const [password, setPassword] = useState("")
   const [confirmPw, setConfirmPw] = useState("")
+  const router = useRouter();
 
-  const handleSignup = () => {
-    if (!id || !password || !confirmPw) {
+  const handleSignup = async () => {
+    if (!adminId || !password || !confirmPw) {
       alert("모든 값을 입력해주세요.")
       return
     }
@@ -18,23 +23,22 @@ export default function SignupPage() {
       alert("비밀번호가 일치하지 않습니다.")
       return
     }
-    alert(`회원가입 완료!\n아이디: ${id}`)
+    try {
+      const data = await signUpAdmin({ adminId, password })
+      console.log("회원가입 성공:", data)
+      alert("회원가입이 완료되었습니다.")
+      router.push("/backoffice/login");
+    } catch (error) {
+      console.error("회원가입 오류:", error)
+      alert("회원가입 중 오류가 발생했습니다.")
+    }
   }
 
   return (
     <div className="flex flex-col bg-white min-h-screen">
       {/* 상단 네비게이션 */}
-      <div className="flex items-center bg-black py-4 pl-16 pr-12">
-        <img
-          src="https://storage.googleapis.com/tagjs-prod.appspot.com/v1/MOVF8BjaY8/xhwsljve_expires_30_days.png"
-          className="w-24 h-8 object-fill"
-        />
-        <div className="flex flex-1 justify-end">
-          <span className="text-gray-400 text-base font-bold mx-4">로그인</span>
-          <span className="text-gray-400 text-base font-bold mx-4">회원가입</span>
-          <span className="text-gray-400 text-base font-bold mx-4">고객센터</span>
-        </div>
-      </div>
+      
+      <NafalLoginHeader />
 
       {/* 메인 영역 */}
       <div className="flex flex-col items-center py-24 flex-grow">
@@ -46,7 +50,7 @@ export default function SignupPage() {
             <input
               type="text"
               placeholder="아이디 입력"
-              value={id}
+              value={adminId}
               onChange={(e) => setId(e.target.value)}
               className="border border-gray-300 rounded px-4 py-2"
             />
@@ -90,7 +94,7 @@ export default function SignupPage() {
       </div>
 
       {/* ✅ 푸터 삽입 */}
-      <ManagerLoginFooter />
+      <NafalLoginFooter />
     </div>
   )
 }
