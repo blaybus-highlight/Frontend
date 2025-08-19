@@ -23,7 +23,7 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
         <QueryProvider>
           {/* 3. hasToken 값에 따라 다른 헤더를 렌더링합니다. */}
           {hasToken ? <LoginHeader /> : <LogoutHeader />}
-          <div className='pt-32'>{children}</div>
+          <div className='pt-40 sm:pt-32'>{children}</div>
           <Footer />
           {/* 알림 매니저 - 로그인된 사용자에게만 표시 */}
           {hasToken && <NotificationManager />}

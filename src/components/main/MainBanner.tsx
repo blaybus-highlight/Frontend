@@ -8,12 +8,12 @@ export function MainBanner() {
   ];
 
   return (
-    <section className='bg-gradient-to-b from-pink-600 via-pink-500 to-black px-6 py-16 -mt-6'>
+    <section className='bg-gradient-to-b from-pink-600 via-pink-500 to-black px-4 sm:px-6 py-8 sm:py-16 -mt-6 safe-area-inset-left safe-area-inset-right'>
       <div className='mx-auto max-w-7xl'>
-        <div className='grid h-96 grid-cols-1 items-center gap-8 lg:grid-cols-3'>
+        <div className='grid h-64 sm:h-96 grid-cols-1 items-center gap-4 sm:gap-8 lg:grid-cols-3'>
           {banners.map((banner, index) => (
             <div key={index} className='relative h-full'>
-              <div className='relative h-full w-full overflow-hidden rounded-2xl'>
+              <div className='relative h-full w-full overflow-hidden rounded-xl sm:rounded-2xl touch-manipulation'>
                 <Image
                   fill
                   alt={banner.alt}
@@ -22,15 +22,15 @@ export function MainBanner() {
                 />
                 {/* 텍스트 오버레이 */}
                 <div className='absolute inset-0 bg-black/20' />
-                <div className='absolute bottom-6 left-1/2 -translate-x-1/2 text-white text-center'>
-                  <div className='mb-2'>
-                    <span className='text-2xl font-bold'>덕질은</span>
+                <div className='absolute bottom-3 sm:bottom-6 left-1/2 -translate-x-1/2 text-white text-center'>
+                  <div className='mb-1 sm:mb-2'>
+                    <span className='text-lg sm:text-2xl font-bold'>덕질은</span>
                   </div>
                   <div className='mb-1'>
-                    <span className='text-lg font-medium'>삶의 에너지니까</span>
+                    <span className='text-sm sm:text-lg font-medium'>삶의 에너지니까</span>
                   </div>
                   <div>
-                    <span className='text-sm text-gray-200'>오직 나팔에서만</span>
+                    <span className='text-xs sm:text-sm text-gray-200'>오직 나팔에서만</span>
                   </div>
                 </div>
               </div>

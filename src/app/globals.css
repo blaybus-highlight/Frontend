@@ -60,4 +60,26 @@
       transform: translateX(-50%);
     }
   }
+
+  /* 모바일 터치 최적화 */
+  .touch-manipulation {
+    touch-action: manipulation;
+  }
+
+  /* Safe area insets for modern mobile devices */
+  .safe-area-inset-top {
+    padding-top: env(safe-area-inset-top, 0);
+  }
+  
+  .safe-area-inset-bottom {
+    padding-bottom: env(safe-area-inset-bottom, 0);
+  }
+  
+  .safe-area-inset-left {
+    padding-left: env(safe-area-inset-left, 0);
+  }
+  
+  .safe-area-inset-right {
+    padding-right: env(safe-area-inset-right, 0);
+  }
 }
