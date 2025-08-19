@@ -7,18 +7,26 @@ const AuctionContent = () => {
   const [activeFilter, setActiveFilter] = useState<string>("전체")
 
   const onFilterClick = (filter: string) => setActiveFilter(filter)
+
   const onStatusClick = (status: string, id: string) =>
     alert(`${status} 상태의 경매 ${id} 상세 정보를 표시합니다`)
+  
   const onEditClick = (id: string) => alert(`경매 ${id} 설정을 수정합니다`)
+
   const onDeleteClick = (id: string) => {
     if (confirm(`경매 ${id}를 삭제하시겠습니까?`)) {
       alert(`경매 ${id}가 삭제되었습니다`)
     }
   }
+
+
   const onShippingClick = (id: string) =>
     alert(`경매 ${id}의 배송 관리 페이지로 이동합니다`)
+
+  
   const onStatsClick = (type: string, count: number) =>
     alert(`${type}: ${count}건의 상세 목록을 표시합니다`)
+
 
   return (
     <div>
