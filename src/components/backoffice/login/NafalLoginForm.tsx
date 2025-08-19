@@ -23,6 +23,8 @@ const NafalLoginForm = () => {
     try {
       const token = await loginAdmin({ adminId, password });
       if (token) {
+        // 토큰을 localStorage에 저장
+        localStorage.setItem('accessToken', token);
         router.push('/backoffice/dashboard');
       } else {
         setError("로그인에 실패했습니다. 아이디와 비밀번호를 확인해주세요.");

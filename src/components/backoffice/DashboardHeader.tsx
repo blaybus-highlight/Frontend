@@ -1,4 +1,7 @@
+"use client"
+
 import { Bell } from "lucide-react"
+import { useAuth } from "@/hooks/useAuth"
 
 interface HeaderProps {
   onBellClick: () => void
@@ -6,6 +9,14 @@ interface HeaderProps {
 }
 
 export default function DashboardHeader({ onBellClick, onHelpClick }: HeaderProps) {
+  const { logout } = useAuth();
+
+  const handleLogout = () => {
+    if (confirm('로그아웃하시겠습니까?')) {
+      logout();
+    }
+  };
+
   return (
     <div className="flex items-center self-stretch bg-black py-[15px] pl-16 pr-12">
       <img
@@ -27,6 +38,12 @@ export default function DashboardHeader({ onBellClick, onHelpClick }: HeaderProp
             onClick={onHelpClick}
           >
             고객센터
+          </button>
+          <button
+            className="text-[#9E9E9E] text-base font-bold my-2.5 mx-4 hover:text-white cursor-pointer"
+            onClick={handleLogout}
+          >
+            로그아웃
           </button>
         </div>
       </div>
