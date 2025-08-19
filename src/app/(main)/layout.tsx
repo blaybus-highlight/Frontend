@@ -5,6 +5,7 @@ import { LoginHeader } from '@/components/layout/LoginHeader'; // 로그인 시 
 import { LogoutHeader } from '@/components/layout/LogoutHeader'; // 로그아웃 시 보여줄 헤더
 import { Footer } from '@/components/layout/Footer'; // 로그아웃 시 보여줄 헤더
 import { QueryProvider } from '@/providers/QueryProvider';
+import NotificationManager from '@/components/notifications/NotificationManager';
 
 export const metadata = {
   title: 'Nafal',
@@ -24,6 +25,8 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
           {hasToken ? <LoginHeader /> : <LogoutHeader />}
           <div className='pt-32'>{children}</div>
           <Footer />
+          {/* 알림 매니저 - 로그인된 사용자에게만 표시 */}
+          {hasToken && <NotificationManager />}
         </QueryProvider>
       </body>
     </html>
