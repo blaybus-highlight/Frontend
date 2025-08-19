@@ -33,7 +33,7 @@ export default function LoginPage() {
       // TODO: 응답 데이터(예: JWT 토큰)를 안전한 곳에 저장
       if (token) {
         localStorage.setItem('accessToken', token);
-        Cookies.set('accessToken', token, { expires: 1 / 48 });
+        Cookies.set('accessToken', token, { expires: 1 / 24 });
         console.log(`쿠키 확인 ${Cookies.get('accessToken')}`); 
         router.push('/'); // 로그인 성공 시 홈으로 이동
       } else {
@@ -61,7 +61,7 @@ export default function LoginPage() {
         <form className='flex flex-col gap-[24px]' onSubmit={handleSubmit}>
           <div className='space-y-[8px]'>
             <label className='block text-[16px]/[22px]' htmlFor='userId'>
-              이메일
+              아이디
             </label>
             <input
               autoComplete='userId'

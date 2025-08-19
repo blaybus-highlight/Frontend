@@ -187,89 +187,166 @@ const ProductsContent = () => {
         </div>
       </div>
 
-      {/* Product Table (Responsive Grid with fixed proportions) */}
-      <div className="flex flex-col items-start self-stretch px-4">
-        <div className="flex flex-col items-start self-stretch overflow-x-auto">
-          {/* Header */}
-          <div className="grid min-w-[1200px] grid-cols-[1fr_1fr_2fr_1fr_.7fr_1.2fr_1fr_1fr_1.2fr_2fr] bg-gray-50 border-b px-4 py-3 gap-2">
-            <div className="flex items-center gap-3">
-              <div
-                className={`w-5 h-5 rounded-md border border-[#D5D6DA] cursor-pointer flex items-center justify-center ${
-                  selectedProducts.length === currentProducts.length && currentProducts.length > 0
-                    ? "bg-blue-500"
-                    : "bg-white"
-                }`}
-                onClick={() => {
-                  const currentIds = currentProducts.map((p) => p.id)
-                  const allSelectedOnPage = currentIds.every((id) => selectedProducts.includes(id))
-                  if (allSelectedOnPage) {
-                    setSelectedProducts((prev) => prev.filter((id) => !currentIds.includes(id)))
-                  } else {
-                    setSelectedProducts((prev) => Array.from(new Set([...prev, ...currentIds])))
-                  }
-                }}
-              >
-                {selectedProducts.length === currentProducts.length && currentProducts.length > 0 && (
-                  <span className="text-white text-xs">✓</span>
-                )}
-              </div>
-              <span className="text-[#535862] text-xs font-bold">판매 분류</span>
-            </div>
-            <span className="text-[#535862] text-xs font-bold text-center">카테고리</span>
-            <span className="text-[#535862] text-xs font-bold text-center">상품명</span>
-            <span className="text-[#535862] text-xs font-bold text-center">사이즈</span>
-            <span className="text-[#535862] text-xs font-bold text-center">개수</span>
-            <span className="text-[#535862] text-xs font-bold text-center">상품 상태 등급</span>
-            <span className="text-[#535862] text-xs font-bold text-center">재질</span>
-            <span className="text-[#535862] text-xs font-bold text-center">생산연도</span>
-            <span className="text-[#535862] text-xs font-bold text-center">브랜드명</span>
-            <span className="text-[#535862] text-xs font-bold text-center">상품소개</span>
-          </div>
+                    {/* Product Table (Responsive Grid) */}
+       <div className="flex flex-col items-start self-stretch px-4">
+         <div className="flex flex-col items-start self-stretch overflow-x-auto">
+           {/* Desktop Table */}
+           <div className="hidden lg:block">
+             {/* Header */}
+             <div className="grid grid-cols-10 bg-gray-50 border-b-2 border-gray-300 px-4 py-3 gap-2">
+               <div className="flex items-center gap-3">
+                 <div
+                   className={`w-5 h-5 rounded-md border border-[#D5D6DA] cursor-pointer flex items-center justify-center ${
+                     selectedProducts.length === currentProducts.length && currentProducts.length > 0
+                       ? "bg-blue-500"
+                       : "bg-white"
+                   }`}
+                   onClick={() => {
+                     const currentIds = currentProducts.map((p) => p.id)
+                     const allSelectedOnPage = currentIds.every((id) => selectedProducts.includes(id))
+                     if (allSelectedOnPage) {
+                       setSelectedProducts((prev) => prev.filter((id) => !currentIds.includes(id)))
+                     } else {
+                       setSelectedProducts((prev) => Array.from(new Set([...prev, ...currentIds])))
+                     }
+                   }}
+                 >
+                   {selectedProducts.length === currentProducts.length && currentProducts.length > 0 && (
+                     <span className="text-white text-xs">✓</span>
+                   )}
+                 </div>
+                 <span className="text-[#535862] text-sm font-bold">선택</span>
+               </div>
+               <span className="text-[#535862] text-sm font-bold text-center truncate">상품명</span>
+               <span className="text-[#535862] text-sm font-bold text-center truncate">사이즈</span>
+               <span className="text-[#535862] text-sm font-bold text-center">상태</span>
+               <span className="text-[#535862] text-sm font-bold text-center">구성</span>
+               <span className="text-[#535862] text-sm font-bold text-center truncate">재질</span>
+               <span className="text-[#535862] text-sm font-bold text-center">카테고리</span>
+               <span className="text-[#535862] text-sm font-bold text-center">브랜드명</span>
+               <span className="text-[#535862] text-sm font-bold text-center">생산연도</span>
+               <span className="text-[#535862] text-sm font-bold text-center truncate">상품소개</span>
+             </div>
 
-          {/* Rows */}
-          {currentProducts.map((product, index) => (
-            <div
-              key={product.id}
-              className="grid min-w-[1200px] grid-cols-[1fr_1fr_2fr_1fr_.7fr_1.2fr_1fr_1fr_1.2fr_2fr] border-b px-4 py-4 gap-2 bg-white"
-            >
-              <div className="flex items-center gap-3">
-                <div
-                  className={`w-5 h-5 rounded-md border border-[#D5D6DA] cursor-pointer flex items-center justify-center ${
-                    selectedProducts.includes(product.id) ? "bg-blue-500" : "bg-white"
-                  }`}
-                  onClick={() => handleProductCheckbox(product.id)}
-                >
-                  {selectedProducts.includes(product.id) && (
-                    <span className="text-white text-xs">✓</span>
-                  )}
-                </div>
-                <span className="text-[#181D27] text-sm">{product.category}</span>
-              </div>
+             {/* Desktop Rows */}
+             {currentProducts.map((product, index) => (
+               <div
+                 key={product.id}
+                 className="grid grid-cols-10 border-b-2 border-gray-200 px-4 py-4 gap-2 bg-white"
+               >
+                 <div className="flex items-center gap-3">
+                   <div
+                     className={`w-5 h-5 rounded-md border border-[#D5D6DA] cursor-pointer flex items-center justify-center ${
+                       selectedProducts.includes(product.id) ? "bg-blue-500" : "bg-white"
+                     }`}
+                     onClick={() => handleProductCheckbox(product.id)}
+                   >
+                     {selectedProducts.includes(product.id) && (
+                       <span className="text-white text-xs">✓</span>
+                     )}
+                   </div>
+                   <span className="text-[#181D27] text-sm">선택</span>
+                 </div>
 
-              <span className="text-[#181D27] text-sm text-center truncate">{product.productCategory}</span>
-              <span className="text-[#181D27] text-sm text-center truncate">{product.productName}</span>
-              <span className="text-[#181D27] text-sm text-center truncate">{product.size}</span>
-              <span className="text-[#181D27] text-sm text-center">{product.quantity}</span>
-              <div className="flex items-center justify-center">
-                <button
-                  className={`px-4 py-1 rounded-2xl text-sm font-medium cursor-pointer transition-colors ${
-                    product.condition === "최상"
-                      ? "bg-[#B5F5EB] text-black hover:bg-[#A0F0E6]"
-                      : "bg-[#E8FCF9] text-black hover:bg-[#D0F9F4]"
-                  }`}
-                  onClick={() => handleProductConditionClick(product.condition, product.id)}
-                >
-                  {product.condition}
-                </button>
-              </div>
-              <span className="text-[#181D27] text-sm text-center truncate">{product.material}</span>
-              <span className="text-[#181D27] text-sm text-center">{product.productionYear}</span>
-              <span className="text-[#181D27] text-sm text-center truncate">{product.brand}</span>
-              <span className="text-[#181D27] text-sm truncate" title={product.description}>
-                {product.description}
-              </span>
-            </div>
-          ))}
+                 <span className="text-[#181D27] text-sm text-center truncate">{product.productName}</span>
+                 <span className="text-[#181D27] text-sm text-center truncate">{product.size}</span>
+                 <div className="flex items-center justify-center">
+                   <button
+                     className={`px-4 py-1 rounded-2xl text-sm font-medium cursor-pointer transition-colors ${
+                       product.condition === "최상"
+                         ? "bg-[#B5F5EB] text-black hover:bg-[#A0F0E6]"
+                         : "bg-[#E8FCF9] text-black hover:bg-[#D0F9F4]"
+                     }`}
+                     onClick={() => handleProductConditionClick(product.condition, product.id)}
+                   >
+                     {product.condition}
+                   </button>
+                 </div>
+                 <span className="text-[#181D27] text-sm text-center">본품</span>
+                 <span className="text-[#181D27] text-sm text-center truncate">{product.material}</span>
+                 <span className="text-[#181D27] text-sm text-center">{product.productCategory}</span>
+                 <span className="text-[#181D27] text-sm text-center truncate">{product.brand}</span>
+                 <span className="text-[#181D27] text-sm text-center">{product.productionYear}</span>
+                 <span className="text-[#181D27] text-sm truncate" title={product.description}>
+                   {product.description}
+                 </span>
+               </div>
+             ))}
+           </div>
+
+           {/* Mobile/Tablet Cards */}
+           <div className="lg:hidden space-y-4">
+             {currentProducts.map((product, index) => (
+               <div key={product.id} className="bg-white border-2 border-gray-200 rounded-lg p-4 space-y-3">
+                 <div className="flex items-center justify-between">
+                   <div className="flex items-center gap-3">
+                     <div
+                       className={`w-5 h-5 rounded-md border border-[#D5D6DA] cursor-pointer flex items-center justify-center ${
+                         selectedProducts.includes(product.id) ? "bg-blue-500" : "bg-white"
+                       }`}
+                       onClick={() => handleProductCheckbox(product.id)}
+                     >
+                       {selectedProducts.includes(product.id) && (
+                         <span className="text-white text-xs">✓</span>
+                       )}
+                     </div>
+                     <span className="text-[#535862] text-sm font-bold">선택</span>
+                   </div>
+                 </div>
+                 
+                 <div className="grid grid-cols-2 gap-2 text-sm">
+                   <div>
+                     <span className="text-[#535862] font-bold">상품명:</span>
+                     <span className="text-[#181D27] ml-2 truncate">{product.productName}</span>
+                   </div>
+                   <div>
+                     <span className="text-[#535862] font-bold">사이즈:</span>
+                     <span className="text-[#181D27] ml-2 truncate">{product.size}</span>
+                   </div>
+                   <div>
+                     <span className="text-[#535862] font-bold">상태:</span>
+                     <button
+                       className={`ml-2 px-2 py-1 rounded-lg text-xs font-medium cursor-pointer transition-colors ${
+                         product.condition === "최상"
+                           ? "bg-[#B5F5EB] text-black hover:bg-[#A0F0E6]"
+                           : "bg-[#E8FCF9] text-black hover:bg-[#D0F9F4]"
+                       }`}
+                       onClick={() => handleProductConditionClick(product.condition, product.id)}
+                     >
+                       {product.condition}
+                     </button>
+                   </div>
+                   <div>
+                     <span className="text-[#535862] font-bold">구성:</span>
+                     <span className="text-[#181D27] ml-2">본품</span>
+                   </div>
+                   <div>
+                     <span className="text-[#535862] font-bold">재질:</span>
+                     <span className="text-[#181D27] ml-2 truncate">{product.material}</span>
+                   </div>
+                   <div>
+                     <span className="text-[#535862] font-bold">카테고리:</span>
+                     <span className="text-[#181D27] ml-2">{product.productCategory}</span>
+                   </div>
+                   <div>
+                     <span className="text-[#535862] font-bold">브랜드명:</span>
+                     <span className="text-[#181D27] ml-2 truncate">{product.brand}</span>
+                   </div>
+                   <div>
+                     <span className="text-[#535862] font-bold">생산연도:</span>
+                     <span className="text-[#181D27] ml-2">{product.productionYear}</span>
+                   </div>
+                 </div>
+                 
+                 <div>
+                   <span className="text-[#535862] font-bold">상품소개:</span>
+                   <p className="text-[#181D27] mt-1 text-sm line-clamp-2" title={product.description}>
+                     {product.description}
+                   </p>
+                 </div>
+               </div>
+             ))}
+           </div>
 
           {/* Pagination */}
           <div className="flex flex-col items-center self-stretch pt-5">
