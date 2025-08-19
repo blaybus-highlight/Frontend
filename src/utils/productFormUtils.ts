@@ -21,7 +21,7 @@ const rankMapping: Record<string, 'BEST' | 'GREAT' | 'GOOD'> = {
 /**
  * 폼 데이터를 API 요청 형식으로 변환
  * @param formData - 폼에서 입력된 데이터
- * @param images - 업로드된 이미지 배열
+ * @param images - 업로드된 이미지 파일들 (선택사항)
  * @returns ProductRegistrationRequest
  */
 export const transformFormDataToApiRequest = (
@@ -42,17 +42,8 @@ export const transformFormDataToApiRequest = (
     manufactureYear: parseInt(formData.productionYear) || 1800,
     condition: formData.conditionDescription || '',
     rank: rankMapping[formData.productCondition] || 'GOOD',
-    images: images.map((image, index) => ({
-      id: index,
-      imageUrl: image.imageUrl || '', // 서버에서 받은 실제 이미지 URL 사용
-      originalFileName: image.name || '',
-      fileSize: image.size || 0,
-      mimeType: image.type || 'image/jpeg',
-      sortOrder: index,
-      primary: image.primary || index === 0, // primary 속성이 있으면 사용, 없으면 첫 번째 이미지를 대표로 설정
-      deleted: false
-    })),
-    draft: false
+    images: [], // 상품 등록 시에는 빈 배열로 전송 (이미지는 별도 API로 업로드)
+    draft: false // 상품 등록 시에는 false로 설정
   };
 };
 

@@ -152,13 +152,64 @@ export const registerProduct = async (
   productData: ProductRegistrationRequest
 ): Promise<ProductRegistrationResponse> => {
   try {
+    console.log('상품 등록 요청 데이터:', productData);
+    
     const response = await axiosInstance.post<ProductRegistrationResponse>(
       '/api/admin/products',
       productData
     );
+    
+    console.log('상품 등록 응답:', response.data);
     return response.data;
   } catch (error) {
     console.error('상품 등록 실패:', error);
+    throw error;
+  }
+};
+
+/**
+ * 상품 등록 API (1단계: 임시 저장)
+ * @param productData - 상품 등록 데이터
+ * @returns Promise<ProductRegistrationResponse>
+ */
+export const createProductDraft = async (
+  productData: ProductRegistrationRequest
+): Promise<ProductRegistrationResponse> => {
+  try {
+    const draftData = { ...productData, draft: true };
+    console.log('상품 등록 요청 데이터:', draftData);
+    
+    const response = await axiosInstance.post<ProductRegistrationResponse>(
+      '/api/admin/products',
+      draftData
+    );
+    
+    console.log('상품 등록 응답:', response.data);
+    return response.data;
+  } catch (error) {
+    console.error('상품 임시 저장 실패:', error);
+    throw error;
+  }
+};
+
+/**
+ * 상품 상태 업데이트 API (3단계: 활성화)
+ * @param productId - 상품 ID
+ * @param status - 상품 상태
+ * @returns Promise<ProductRegistrationResponse>
+ */
+export const updateProductStatus = async (
+  productId: number,
+  status: 'ACTIVE' | 'DRAFT'
+): Promise<ProductRegistrationResponse> => {
+  try {
+    const response = await axiosInstance.put<ProductRegistrationResponse>(
+      `/api/admin/products/${productId}`,
+      { status }
+    );
+    return response.data;
+  } catch (error) {
+    console.error('상품 상태 업데이트 실패:', error);
     throw error;
   }
 };
@@ -197,22 +248,87 @@ export const uploadProductImages = async (productId: number, files: File[]): Pro
   mimeType: string;
 }[]> => {
   try {
+    console.log('이미지 업로드 시작 - productId:', productId);
+    console.log('업로드할 파일들:', files.map(f => ({ name: f.name, size: f.size, type: f.type })));
+    
+    // 파일 검증
+    const maxFileSize = 10 * 1024 * 1024; // 10MB
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+    
+    for (const file of files) {
+      if (file.size > maxFileSize) {
+        throw new Error(`파일 크기가 너무 큽니다: ${file.name} (${(file.size / 1024 / 1024).toFixed(2)}MB)`);
+      }
+      
+      if (!allowedTypes.includes(file.type)) {
+        throw new Error(`지원하지 않는 파일 형식입니다: ${file.name} (${file.type})`);
+      }
+    }
+    
+    if (files.length > 10) {
+      throw new Error('최대 10개의 파일만 업로드할 수 있습니다.');
+    }
+    
+    // API 문서에 따르면 files는 query parameter로 전송해야 함
+    // 하지만 파일 업로드는 일반적으로 FormData body로 전송
+    // 두 가지 방법을 모두 시도해보겠습니다
+    
+    // 방법 1: FormData body로 전송 (일반적인 파일 업로드 방식)
     const formData = new FormData();
     
     // 여러 파일을 files 파라미터로 추가
     files.forEach((file, index) => {
+      console.log(`파일 ${index + 1} 추가:`, {
+        name: file.name,
+        size: file.size,
+        type: file.type,
+        lastModified: file.lastModified
+      });
       formData.append('files', file);
     });
 
-    const response = await axiosInstance.post(`/api/admin/products/${productId}/images`, formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
-    });
+    console.log('FormData 내용 확인:');
+    for (let [key, value] of formData.entries()) {
+      console.log(key, value);
+    }
 
-    return response.data;
+    const url = `/api/admin/products/${productId}/images`;
+    console.log('요청 URL:', url);
+
+    try {
+      // 방법 1: FormData body로 전송 (일반적인 파일 업로드 방식)
+      const response = await axiosInstance.post(url, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+
+      console.log('이미지 업로드 응답 (FormData 방식):', response.data);
+      return response.data;
+    } catch (error) {
+      console.log('FormData 방식 실패, query parameter 방식으로 재시도...');
+      
+      // 방법 2: Query parameter 방식으로 재시도
+      const queryUrl = `${url}?${files.map((_, index) => `files=${index}`).join('&')}`;
+      console.log('Query parameter URL:', queryUrl);
+      
+      const queryResponse = await axiosInstance.post(queryUrl, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+
+      console.log('이미지 업로드 응답 (Query parameter 방식):', queryResponse.data);
+      return queryResponse.data;
+    }
   } catch (error) {
     console.error('상품 이미지 업로드 실패:', error);
+    if (error && typeof error === 'object' && 'response' in error) {
+      const axiosError = error as any;
+      console.error('에러 응답 데이터:', axiosError.response?.data);
+      console.error('에러 상태 코드:', axiosError.response?.status);
+      console.error('에러 헤더:', axiosError.response?.headers);
+    }
     throw error;
   }
 };

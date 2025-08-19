@@ -34,4 +34,13 @@ export interface ProductRegistrationResponse {
   success: boolean;
   message: string;
   productId?: number;
+  data?: {
+    id: number;
+    [key: string]: any;
+  };
+  id?: number;
+  product?: {
+    id: number;
+    [key: string]: any;
+  };
 }
