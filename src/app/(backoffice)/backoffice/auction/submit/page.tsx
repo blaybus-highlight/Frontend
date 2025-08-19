@@ -148,7 +148,7 @@ export default function AuctionSubmitPage() {
   };
 
   return (
-    <div className="flex flex-col h-full px-60 py-6">
+    <div className="flex flex-col min-h-screen px-60 py-6">
       {/* 페이지 최상단 헤더 */}
       <div className="flex flex-col items-start self-stretch gap-3">
         <span className="text-[#111416] text-[28px] font-bold ml-4">상품 등록</span>
@@ -207,7 +207,7 @@ export default function AuctionSubmitPage() {
           </div>
 
           {/* 최종 등록 버튼 섹션 */}
-          <div className="w-full mt-8 ml-4 pr-4">
+          <div className="w-full mt-8 ml-4 pr-4 mb-12">
             <div className="flex justify-start gap-4">
               <button type="submit" className="py-2 px-6 bg-black text-white font-bold hover:bg-gray-800 transition-colors">상품 등록하기</button>
               <button type="button" className="py-2 px-6 bg-white border border-gray-600 text-gray-800 font-bold hover:bg-gray-100 transition-colors">초안으로 저장</button>
