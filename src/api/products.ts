@@ -78,23 +78,20 @@ export const productsApi = {
     return response.data;
   },
 
-  getBidHistory: async (auctionId: number, page: number = 0, size: number = 20, sort: string[] = ['bidTime,desc']): Promise<BidHistoryResponse> => {
-    console.log('🚀 입찰 내역 API 호출 (익명):', { auctionId, page, size, sort });
-
+  getBidHistory: async (auctionId: number, page: number = 0, size: number = 20, sort: string[] = ['bidTime', 'desc']): Promise<BidHistoryResponse> => {
     const response = await api.get(`/api/auctions/${auctionId}/bids`, {
       params: { 
         page, 
         size, 
-        sort: sort.join(',')
+        sort: sort // 배열 그대로 전송 (axios가 자동으로 sort=bidTime&sort=desc로 변환)
       },
     });
 
-    console.log('✅ 입찰 내역 API 응답 성공:', {
-      status: response.status,
-      auctionId,
-      bidCount: response.data?.data?.content?.length || 0,
-      hasMyBids: response.data?.data?.content?.some((bid: { isMyBid: boolean }) => bid.isMyBid) || false,
-    });
+    console.log('📜 입찰 내역 로딩:', response.data?.data?.content?.length || 0, '개');
+    
+    if (response.data?.data?.content?.length > 0) {
+      console.log('💰 최고가:', response.data.data.content[0].bidAmount + '원');
+    }
 
     return response.data;
   },
@@ -145,18 +142,11 @@ export const productsApi = {
   },
 
   getAuctionStatus: async (auctionId: number): Promise<AuctionStatusResponse> => {
-    console.log('🚀 실시간 경매 상태 API 호출:', { auctionId });
-
     const response = await api.get(`/api/auctions/${auctionId}/status`);
-
-    console.log('✅ 실시간 경매 상태 API 응답 성공:', {
-      status: response.status,
-      auctionStatus: response.data?.data?.status,
-      currentBid: response.data?.data?.currentHighestBid,
-      totalBids: response.data?.data?.totalBids,
-      lastUpdated: response.data?.data?.lastUpdatedAt,
-    });
-
+    
+    // 실시간 데이터 로그 (간단하게)
+    console.log('🔄 실시간:', response.data?.data?.currentHighestBid + '원', response.data?.data?.status);
+    
     return response.data;
   },
 
