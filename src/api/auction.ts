@@ -1,6 +1,6 @@
-import axiosInstance from "@/lib/axiosInstance";
+import { ProductListResponse, ProductRegistrationRequest, ProductRegistrationResponse } from '@/types/auction';
 import { API_BASE_URL } from "@/types/api";
-import { ProductRegistrationRequest, ProductRegistrationResponse } from '@/types/auction';
+import axiosInstance from "@/lib/axiosInstance";
 
 export interface AuctionItem {
   productId: number;
@@ -65,20 +65,20 @@ export const getAuctionList = async (
     const response = await axiosInstance.get(`${API_BASE_URL}/api/admin/auctions?${params.toString()}`);
     
     // 디버깅을 위해 응답 데이터 로깅
-    console.log('API Response:', response.data);
+    // console.log('API Response:', response.data);
     
     const responseData = response.data;
     
     // 응답 구조 확인 및 안전한 처리
     if (!responseData || !responseData.data || !responseData.data.content) {
-      console.error('Invalid API response structure:', responseData);
+      // console.error('Invalid API response structure:', responseData);
       throw new Error('API 응답 구조가 올바르지 않습니다.');
     }
     
     const data = responseData.data;
     
     // 필요한 필드만 추출하여 변환
-    const auctions: AuctionItem[] = data.content.map((item: any) => ({
+    const auctions: AuctionItem[] = data.content.map((item: ApiAuctionItem) => ({
       productId: item.product?.id || 0,
       productName: item.product?.productName || '',
       startPrice: item.startPrice,
@@ -96,7 +96,7 @@ export const getAuctionList = async (
       totalPages: data.totalPages || 0,
     };
   } catch (error) {
-    console.error('경매 목록 조회 실패:', error);
+    // console.error('경매 목록 조회 실패:', error);
     throw error;
   }
 };
@@ -106,7 +106,7 @@ export const getAuctionById = async (auctionId: string): Promise<AuctionItem> =>
     const response = await axiosInstance.get(`${API_BASE_URL}/api/admin/auctions/${auctionId}`);
     return response.data;
   } catch (error) {
-    console.error('경매 상세 조회 실패:', error);
+    // console.error('경매 상세 조회 실패:', error);
     throw error;
   }
 };
@@ -116,7 +116,7 @@ export const createAuction = async (auctionData: Partial<AuctionItem>): Promise<
     const response = await axiosInstance.post('/auctions', auctionData);
     return response.data;
   } catch (error) {
-    console.error('경매 생성 실패:', error);
+    // console.error('경매 생성 실패:', error);
     throw error;
   }
 };
@@ -129,7 +129,7 @@ export const updateAuction = async (
     const response = await axiosInstance.put(`/auctions/${auctionId}`, auctionData);
     return response.data;
   } catch (error) {
-    console.error('경매 수정 실패:', error);
+    // console.error('경매 수정 실패:', error);
     throw error;
   }
 };
@@ -138,7 +138,7 @@ export const deleteAuction = async (auctionId: string): Promise<void> => {
   try {
     await axiosInstance.delete(`/auctions/${auctionId}`);
   } catch (error) {
-    console.error('경매 삭제 실패:', error);
+    // console.error('경매 삭제 실패:', error);
     throw error;
   }
 };
@@ -152,17 +152,17 @@ export const registerProduct = async (
   productData: ProductRegistrationRequest
 ): Promise<ProductRegistrationResponse> => {
   try {
-    console.log('상품 등록 요청 데이터:', productData);
+    // console.log('상품 등록 요청 데이터:', productData);
     
     const response = await axiosInstance.post<ProductRegistrationResponse>(
       '/api/admin/products',
       productData
     );
     
-    console.log('상품 등록 응답:', response.data);
+    // console.log('상품 등록 응답:', response.data);
     return response.data;
   } catch (error) {
-    console.error('상품 등록 실패:', error);
+    // console.error('상품 등록 실패:', error);
     throw error;
   }
 };
@@ -177,17 +177,17 @@ export const createProductDraft = async (
 ): Promise<ProductRegistrationResponse> => {
   try {
     const draftData = { ...productData, draft: true };
-    console.log('상품 등록 요청 데이터:', draftData);
+    // console.log('상품 등록 요청 데이터:', draftData);
     
     const response = await axiosInstance.post<ProductRegistrationResponse>(
       '/api/admin/products',
       draftData
     );
     
-    console.log('상품 등록 응답:', response.data);
+    // console.log('상품 등록 응답:', response.data);
     return response.data;
   } catch (error) {
-    console.error('상품 임시 저장 실패:', error);
+    // console.error('상품 임시 저장 실패:', error);
     throw error;
   }
 };
@@ -209,7 +209,7 @@ export const updateProductStatus = async (
     );
     return response.data;
   } catch (error) {
-    console.error('상품 상태 업데이트 실패:', error);
+    // console.error('상품 상태 업데이트 실패:', error);
     throw error;
   }
 };
@@ -230,7 +230,7 @@ export const saveProductDraft = async (
     );
     return response.data;
   } catch (error) {
-    console.error('상품 초안 저장 실패:', error);
+    // console.error('상품 초안 저장 실패:', error);
     throw error;
   }
 };
@@ -248,8 +248,8 @@ export const uploadProductImages = async (productId: number, files: File[]): Pro
   mimeType: string;
 }[]> => {
   try {
-    console.log('이미지 업로드 시작 - productId:', productId);
-    console.log('업로드할 파일들:', files.map(f => ({ name: f.name, size: f.size, type: f.type })));
+    // console.log('이미지 업로드 시작 - productId:', productId);
+    // console.log('업로드할 파일들:', files.map(f => ({ name: f.name, size: f.size, type: f.type })));
     
     // 파일 검증
     const maxFileSize = 10 * 1024 * 1024; // 10MB
@@ -278,22 +278,22 @@ export const uploadProductImages = async (productId: number, files: File[]): Pro
     
     // 여러 파일을 files 파라미터로 추가
     files.forEach((file, index) => {
-      console.log(`파일 ${index + 1} 추가:`, {
-        name: file.name,
-        size: file.size,
-        type: file.type,
-        lastModified: file.lastModified
-      });
+      // console.log(`파일 ${index + 1} 추가:`, {
+      //   name: file.name,
+      //   size: file.size,
+      //   type: file.type,
+      //   lastModified: file.lastModified
+      // });
       formData.append('files', file);
     });
 
-    console.log('FormData 내용 확인:');
-    for (let [key, value] of formData.entries()) {
-      console.log(key, value);
-    }
+    // console.log('FormData 내용 확인:');
+    // for (const [key, value] of formData.entries()) {
+    //   console.log(key, value);
+    // }
 
     const url = `/api/admin/products/${productId}/images`;
-    console.log('요청 URL:', url);
+    // console.log('요청 URL:', url);
 
     try {
       // 방법 1: FormData body로 전송 (일반적인 파일 업로드 방식)
@@ -303,14 +303,14 @@ export const uploadProductImages = async (productId: number, files: File[]): Pro
         },
       });
 
-      console.log('이미지 업로드 응답 (FormData 방식):', response.data);
+      // console.log('이미지 업로드 응답 (FormData 방식):', response.data);
       return response.data;
     } catch (error) {
-      console.log('FormData 방식 실패, query parameter 방식으로 재시도...');
+      // console.log('FormData 방식 실패, query parameter 방식으로 재시도...');
       
       // 방법 2: Query parameter 방식으로 재시도
       const queryUrl = `${url}?${files.map((_, index) => `files=${index}`).join('&')}`;
-      console.log('Query parameter URL:', queryUrl);
+      // console.log('Query parameter URL:', queryUrl);
       
       const queryResponse = await axiosInstance.post(queryUrl, formData, {
         headers: {
@@ -318,17 +318,53 @@ export const uploadProductImages = async (productId: number, files: File[]): Pro
         },
       });
 
-      console.log('이미지 업로드 응답 (Query parameter 방식):', queryResponse.data);
+      // console.log('이미지 업로드 응답 (Query parameter 방식):', queryResponse.data);
       return queryResponse.data;
     }
   } catch (error) {
-    console.error('상품 이미지 업로드 실패:', error);
+    // console.error('상품 이미지 업로드 실패:', error);
     if (error && typeof error === 'object' && 'response' in error) {
-      const axiosError = error as any;
-      console.error('에러 응답 데이터:', axiosError.response?.data);
-      console.error('에러 상태 코드:', axiosError.response?.status);
-      console.error('에러 헤더:', axiosError.response?.headers);
+      const axiosError = error as { response?: { data?: unknown; status?: number; headers?: unknown } };
+      // console.error('에러 응답 데이터:', axiosError.response?.data);
+      // console.error('에러 상태 코드:', axiosError.response?.status);
+      // console.error('에러 헤더:', axiosError.response?.headers);
     }
+    throw error;
+  }
+};
+
+/**
+ * 상품 목록 조회 API
+ * @param page - 페이지 번호 (1부터 시작)
+ * @param size - 페이지 크기
+ * @param statusDescription - 상태 설명 필터 (예: "경매대기")
+ * @returns Promise<ProductListResponse>
+ */
+export const getProductList = async (
+  page: number = 1,
+  size: number = 10,
+  statusDescription?: string
+): Promise<ProductListResponse> => {
+  try {
+    const params = new URLSearchParams({
+      page: (page - 1).toString(), // API는 0-based pagination 사용
+      size: size.toString(),
+    });
+
+    if (statusDescription) {
+      params.append('statusDescription', statusDescription);
+    }
+
+    // console.log('상품 목록 조회 요청:', `/api/admin/products?${params.toString()}`);
+    
+    const response = await axiosInstance.get<ProductListResponse>(
+      `/api/admin/products?${params.toString()}`
+    );
+    
+    // console.log('상품 목록 조회 응답:', response.data);
+    return response.data;
+  } catch (error) {
+    // console.error('상품 목록 조회 실패:', error);
     throw error;
   }
 };
