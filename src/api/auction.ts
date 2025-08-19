@@ -1,6 +1,6 @@
 import axiosInstance from "@/lib/axiosInstance";
 import { API_BASE_URL } from "@/types/api";
-import { ProductRegistrationRequest, ProductRegistrationResponse } from '@/types/auction';
+import { ProductRegistrationRequest, ProductRegistrationResponse, ProductListResponse } from '@/types/auction';
 
 export interface AuctionItem {
   productId: number;
@@ -329,6 +329,42 @@ export const uploadProductImages = async (productId: number, files: File[]): Pro
       console.error('에러 상태 코드:', axiosError.response?.status);
       console.error('에러 헤더:', axiosError.response?.headers);
     }
+    throw error;
+  }
+};
+
+/**
+ * 상품 목록 조회 API
+ * @param page - 페이지 번호 (1부터 시작)
+ * @param size - 페이지 크기
+ * @param statusDescription - 상태 설명 필터 (예: "경매대기")
+ * @returns Promise<ProductListResponse>
+ */
+export const getProductList = async (
+  page: number = 1,
+  size: number = 10,
+  statusDescription?: string
+): Promise<ProductListResponse> => {
+  try {
+    const params = new URLSearchParams({
+      page: (page - 1).toString(), // API는 0-based pagination 사용
+      size: size.toString(),
+    });
+
+    if (statusDescription) {
+      params.append('statusDescription', statusDescription);
+    }
+
+    console.log('상품 목록 조회 요청:', `/api/admin/products?${params.toString()}`);
+    
+    const response = await axiosInstance.get<ProductListResponse>(
+      `/api/admin/products?${params.toString()}`
+    );
+    
+    console.log('상품 목록 조회 응답:', response.data);
+    return response.data;
+  } catch (error) {
+    console.error('상품 목록 조회 실패:', error);
     throw error;
   }
 };
