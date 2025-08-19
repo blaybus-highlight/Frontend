@@ -5,18 +5,8 @@ import { PageHeader } from "@/components/backoffice/auction/PageHeader"
 import { TabNavigation } from "@/components/backoffice/auction/TabNavigation"
 import { IndividualRegistrationSection } from "@/components/backoffice/auction/IndividualRegistrationSection"
 import { BulkUploadSection } from "@/components/backoffice/auction/BulkUploadSection"
-import { registerProduct, saveProductDraft, uploadProductImages } from "@/api/auction"
+import { registerProduct, saveProductDraft } from "@/api/auction"
 import { transformFormDataToApiRequest, validateFormData } from "@/utils/productFormUtils"
-
-interface ImageFile {
-  id: string;
-  file: File;
-  preview: string;
-  name: string;
-  size: number;
-  type: string;
-  primary?: boolean;
-}
 
 // --- 메인 페이지 컴포넌트 ---
 export default function AuctionSubmitPage() {
@@ -26,9 +16,6 @@ export default function AuctionSubmitPage() {
   // 로딩 상태 관리
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSavingDraft, setIsSavingDraft] = useState(false);
-  
-  // 이미지 상태 관리
-  const [uploadedImages, setUploadedImages] = useState<ImageFile[]>([]);
   
   // 모든 폼 입력 값을 하나의 객체로 관리
   const [formData, setFormData] = useState<Record<string, string>>({
@@ -42,11 +29,6 @@ export default function AuctionSubmitPage() {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
-  };
-
-  // 이미지 변경 핸들러
-  const handleImagesChange = (images: ImageFile[]) => {
-    setUploadedImages(images);
   };
 
   // 폼 제출 핸들러
@@ -63,37 +45,21 @@ export default function AuctionSubmitPage() {
         return;
       }
 
-
-
-      // API 요청 데이터로 변환 (이미지 없이)
-      const apiRequestData = transformFormDataToApiRequest(formData, []);
+      // API 요청 데이터로 변환
+      const apiRequestData = transformFormDataToApiRequest(formData);
       
       // 상품 등록 API 호출
       const response = await registerProduct(apiRequestData);
       
-      if (response.success && response.productId) {
-        // 상품 등록 성공 후 이미지 업로드
-        if (uploadedImages.length > 0) {
-          try {
-            const imageFiles = uploadedImages.map(img => img.file);
-            await uploadProductImages(response.productId, imageFiles);
-            alert('상품과 이미지가 성공적으로 등록되었습니다.');
-          } catch (error) {
-            console.error('이미지 업로드 실패:', error);
-            alert('상품은 등록되었지만 이미지 업로드에 실패했습니다.');
-          }
-        } else {
-          alert('상품이 성공적으로 등록되었습니다.');
-        }
-        
-        // 폼 초기화
+      if (response.success) {
+        alert('상품이 성공적으로 등록되었습니다.');
+        // 폼 초기화 또는 다른 페이지로 이동
         setFormData({
           salesCategory: "", productCategory: "", productName: "", size: "",
           quantity: "", material: "", productionYear: "", brandName: "",
           productCondition: "", conditionDescription: "", productDescription: "",
           productHistory: "", expectedEffect: "", additionalInfo: "",
         });
-        setUploadedImages([]);
       } else {
         alert(`상품 등록 실패: ${response.message}`);
       }
@@ -112,27 +78,15 @@ export default function AuctionSubmitPage() {
     try {
       setIsSavingDraft(true);
       
-      // API 요청 데이터로 변환 (이미지 없이, draft: true로 설정)
-      const apiRequestData = transformFormDataToApiRequest(formData, []);
+      // API 요청 데이터로 변환 (draft: true로 설정)
+      const apiRequestData = transformFormDataToApiRequest(formData);
       apiRequestData.draft = true;
       
       // 초안 저장 API 호출
       const response = await saveProductDraft(apiRequestData);
       
-      if (response.success && response.productId) {
-        // 초안 저장 성공 후 이미지 업로드
-        if (uploadedImages.length > 0) {
-          try {
-            const imageFiles = uploadedImages.map(img => img.file);
-            await uploadProductImages(response.productId, imageFiles);
-            alert('상품과 이미지가 초안으로 저장되었습니다.');
-          } catch (error) {
-            console.error('이미지 업로드 실패:', error);
-            alert('상품은 초안으로 저장되었지만 이미지 업로드에 실패했습니다.');
-          }
-        } else {
-          alert('상품이 초안으로 저장되었습니다.');
-        }
+      if (response.success) {
+        alert('상품이 초안으로 저장되었습니다.');
       } else {
         alert(`초안 저장 실패: ${response.message}`);
       }
@@ -161,7 +115,6 @@ export default function AuctionSubmitPage() {
           onSaveDraft={handleSaveDraft}
           isSubmitting={isSubmitting}
           isSavingDraft={isSavingDraft}
-          onImagesChange={handleImagesChange}
         />
       ) : (
         <BulkUploadSection />

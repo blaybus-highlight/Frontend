@@ -1,5 +1,6 @@
 import axiosInstance from "@/lib/axiosInstance";
 import { API_BASE_URL } from "@/types/api";
+import { ProductRegistrationRequest, ProductRegistrationResponse } from '@/types/auction';
 
 export interface AuctionItem {
   productId: number;
@@ -138,6 +139,80 @@ export const deleteAuction = async (auctionId: string): Promise<void> => {
     await axiosInstance.delete(`/auctions/${auctionId}`);
   } catch (error) {
     console.error('경매 삭제 실패:', error);
+    throw error;
+  }
+};
+
+/**
+ * 상품 등록 API
+ * @param productData - 상품 등록 데이터
+ * @returns Promise<ProductRegistrationResponse>
+ */
+export const registerProduct = async (
+  productData: ProductRegistrationRequest
+): Promise<ProductRegistrationResponse> => {
+  try {
+    const response = await axiosInstance.post<ProductRegistrationResponse>(
+      '/api/admin/products',
+      productData
+    );
+    return response.data;
+  } catch (error) {
+    console.error('상품 등록 실패:', error);
+    throw error;
+  }
+};
+
+/**
+ * 상품 초안 저장 API
+ * @param productData - 상품 등록 데이터 (draft: true)
+ * @returns Promise<ProductRegistrationResponse>
+ */
+export const saveProductDraft = async (
+  productData: ProductRegistrationRequest
+): Promise<ProductRegistrationResponse> => {
+  try {
+    const draftData = { ...productData, draft: true };
+    const response = await axiosInstance.post<ProductRegistrationResponse>(
+      '/api/products/draft',
+      draftData
+    );
+    return response.data;
+  } catch (error) {
+    console.error('상품 초안 저장 실패:', error);
+    throw error;
+  }
+};
+
+/**
+ * 상품 이미지 업로드 API
+ * @param productId - 상품 ID
+ * @param files - 업로드할 이미지 파일들
+ * @returns Promise<{imageUrl: string, originalFileName: string, fileSize: number, mimeType: string}[]>
+ */
+export const uploadProductImages = async (productId: number, files: File[]): Promise<{
+  imageUrl: string;
+  originalFileName: string;
+  fileSize: number;
+  mimeType: string;
+}[]> => {
+  try {
+    const formData = new FormData();
+    
+    // 여러 파일을 files 파라미터로 추가
+    files.forEach((file, index) => {
+      formData.append('files', file);
+    });
+
+    const response = await axiosInstance.post(`/api/admin/products/${productId}/images`, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+
+    return response.data;
+  } catch (error) {
+    console.error('상품 이미지 업로드 실패:', error);
     throw error;
   }
 };
