@@ -4,7 +4,7 @@ const Dashboard = () => {
   return (
     <div className="flex flex-col bg-background">
       <div className="self-stretch bg-background h-[1087px]">
-        <div className="flex items-start self-stretch px-[140px]">
+        <div className="flex items-start self-stretch">
           <div className="flex flex-1 flex-col items-start pt-8 pb-[77px]">
             {/* Home Title */}
             <span className="text-[#111416] text-[28px] font-bold mb-[1px] ml-4 mr-[265px]">

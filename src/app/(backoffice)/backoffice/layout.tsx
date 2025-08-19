@@ -42,7 +42,7 @@ export default function BackofficeLayout({ children }: { children: ReactNode }) 
 
 			<div className="flex flex-1 min-h-0">
 				<DashboardSidebar activeMenu={activeMenu} onMenuClick={setActiveMenu} />
-				<main className="p-4 bg-white flex-1 overflow-y-auto">{children}</main>
+				<main className="bg-white flex-1 overflow-y-auto">{children}</main>
 			</div>
 
 			<AlertDialog open={alertOpen} onOpenChange={setAlertOpen}>
