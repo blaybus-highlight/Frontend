@@ -9,8 +9,9 @@ interface SidebarProps {
 
 export default function Sidebar({ activeMenu, onMenuClick }: SidebarProps) {
   const router = useRouter()
-  const menus = ["경매", "상품", "고객", "권한", "설정"]
+  const menus = ["홈", "경매", "상품", "고객", "권한", "설정"]
   const menuToPath: Record<string, string> = {
+    "홈": "/backoffice/dashboard",
     "경매": "/backoffice/auction",
     "상품": "/backoffice/products",
     "고객": "/backoffice/customers",
@@ -20,15 +21,7 @@ export default function Sidebar({ activeMenu, onMenuClick }: SidebarProps) {
 
   return (
     <div className="flex flex-col shrink-0 items-start bg-white pt-8 pb-[1131px]">
-      <img
-        src="https://storage.googleapis.com/tagjs-prod.appspot.com/v1/MOVF8BjaY8/jz9fow6c_expires_30_days.png"
-        className="w-[168px] h-10 mb-[15px] mx-4 object-fill cursor-pointer"
-        alt="홈 아이콘"
-        onClick={() => {
-          onMenuClick("홈")
-          router.push("/backoffice/dashboard")
-        }}
-      />
+      
       {menus.map((menu) => (
         <div
           key={menu}
