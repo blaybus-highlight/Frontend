@@ -10,7 +10,7 @@ export const useNotificationStatus = (productId: number) => {
     enabled: !!productId,
     staleTime: 1000 * 60 * 5, // 5분
     refetchOnWindowFocus: false,
-    retry: (failureCount, error) => {
+    retry: (failureCount, error: any) => {
       // 401(인증 실패) 또는 403(권한 없음) 에러는 재시도하지 않음
       if (error?.response?.status === 401 || error?.response?.status === 403) {
         return false;

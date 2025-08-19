@@ -44,7 +44,7 @@ const WinNotificationModal = ({
           {/* Warning Text */}
           <div className="mb-8">
             <p className="text-red-500 text-sm">
-              *결제 후 이용해 사실 제품 직수 > 취소가
+              *결제 후 이용해 사실 제품 직수 &gt; 취소가
             </p>
           </div>
 

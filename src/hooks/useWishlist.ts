@@ -8,7 +8,7 @@ export const useWishlistStatus = (productId: number, enabled: boolean = true) =>
     queryFn: () => productsApi.getWishlistStatus(productId),
     enabled: enabled && !!productId && productId > 0,
     staleTime: 1000 * 60 * 5, // 5분간 캐시 유지
-    retry: (failureCount, error) => {
+    retry: (failureCount, error: any) => {
       // 404 에러는 찜하지 않은 상태로 간주하고 재시도하지 않음
       if (error?.response?.status === 404) {
         return false;

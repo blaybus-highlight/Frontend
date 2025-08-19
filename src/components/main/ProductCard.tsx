@@ -72,7 +72,7 @@ export function ProductCard({
         const isActive = data.data?.active;
         alert(isActive ? '경매 시작 알림이 설정되었습니다!' : '경매 시작 알림이 해제되었습니다.');
       },
-      onError: (error) => {
+      onError: (error: any) => {
         const status = error?.response?.status;
         if (status === 401 || status === 403) {
           alert('로그인 후 이용해주세요.');
