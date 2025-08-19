@@ -1,5 +1,5 @@
-import { API_BASE_URL } from "@/types/api";
-import Cookies from 'js-cookie';            
+import Cookies from 'js-cookie';
+import { API_BASE_URL } from "@/types/api";            
 
 
 interface LoginCredentials {

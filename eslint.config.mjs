@@ -29,7 +29,7 @@ const eslintConfig = [
     },
     rules: {
       // 기본 스타일 규칙
-      'no-console': ['warn', { allow: ['warn', 'error'] }], // console.warn, console.error는 허용
+      'no-console': 'off', // console.log 허용 (개발 중 디버깅용)
       'prefer-const': 'warn', // 재할당 없는 let은 const로
       '@typescript-eslint/no-unused-vars': [
         'error',
@@ -39,6 +39,7 @@ const eslintConfig = [
           ignoreRestSiblings: true,
         },
       ], // TypeScript용 사용하지 않는 변수 금지 (함수 타입 정의 파라미터 고려)
+      '@typescript-eslint/no-explicit-any': 'warn', // any 타입 사용 시 경고만 표시
 
       // React JSX 관련 규칙
       'react/jsx-no-undef': 'error', // 정의되지 않은 JSX 요소 금지
