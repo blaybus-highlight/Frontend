@@ -421,3 +421,54 @@ export const updateProduct = async (
     throw error;
   }
 };
+
+// 대시보드 관련 타입 정의
+export interface DashboardStats {
+  auctionStats: {
+    inProgress: number;
+    pending: number;
+    completed: number;
+  };
+}
+
+export interface RealTimeAuction {
+  id: string;
+  productName: string;
+  currentBid: number;
+  auctionId: string;
+  productImage?: string;
+}
+
+export interface DashboardResponse {
+  success: boolean;
+  data: DashboardStats;
+  message?: string;
+}
+
+export interface RealTimeAuctionResponse {
+  success: boolean;
+  data: RealTimeAuction[];
+  message?: string;
+}
+
+// 대시보드 통계 조회
+export const getDashboardStats = async (): Promise<DashboardResponse> => {
+  try {
+    const response = await axiosInstance.get<DashboardResponse>('/api/admin/dashboard/stats');
+    return response.data;
+  } catch (error) {
+    console.error('대시보드 통계 조회 실패:', error);
+    throw error;
+  }
+};
+
+// 실시간 경매 피드 조회
+export const getRealTimeAuctions = async (): Promise<RealTimeAuctionResponse> => {
+  try {
+    const response = await axiosInstance.get<RealTimeAuctionResponse>('/api/admin/dashboard/realtime-auctions');
+    return response.data;
+  } catch (error) {
+    console.error('실시간 경매 피드 조회 실패:', error);
+    throw error;
+  }
+};
