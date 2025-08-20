@@ -3,12 +3,13 @@
 import { Edit, Trash2, Menu } from "lucide-react"
 import { useState, useEffect } from "react"
 import { useAuctions } from "@/hooks/useAuctions"
-import { AuctionItem } from "@/api/auction"
+import { AuctionItem, endAuction } from "@/api/auction"
 
 const AuctionContent = () => {
   const [activeFilter, setActiveFilter] = useState<string>("전체")
   const [searchTerm, setSearchTerm] = useState<string>("")
   const [showFilter, setShowFilter] = useState<boolean>(false)
+  const [endingAuctionId, setEndingAuctionId] = useState<number | null>(null)
 
   // API 호출을 위한 훅 사용
   const { 
@@ -40,9 +41,19 @@ const AuctionContent = () => {
   
   const onEditClick = (id: number) => alert(`경매 ${id} 설정을 수정합니다`)
 
-  const onDeleteClick = (id: number) => {
-    if (confirm(`경매 ${id}를 삭제하시겠습니까?`)) {
-      alert(`경매 ${id}가 삭제되었습니다`)
+  const onEndAuctionClick = async (id: number) => {
+    if (confirm(`경매 ${id}를 종료하시겠습니까?\n\n이 작업은 되돌릴 수 없습니다.`)) {
+      try {
+        setEndingAuctionId(id)
+        await endAuction(id)
+        alert(`경매 ${id}가 성공적으로 종료되었습니다.`)
+        // 경매 목록 새로고침
+        refetch()
+      } catch (error) {
+        alert(`경매 종료에 실패했습니다: ${error instanceof Error ? error.message : '알 수 없는 오류'}`)
+      } finally {
+        setEndingAuctionId(null)
+      }
     }
   }
 
@@ -223,10 +234,20 @@ const AuctionContent = () => {
                 </div>
                 <div className="flex justify-center">
                   <button
-                    className="p-2 hover:bg-gray-100 rounded transition-colors"
-                    onClick={() => onDeleteClick(auction.productId)}
+                    className={`p-2 rounded transition-colors ${
+                      endingAuctionId === auction.productId 
+                        ? 'bg-gray-200 cursor-not-allowed' 
+                        : 'hover:bg-gray-100'
+                    }`}
+                    onClick={() => onEndAuctionClick(auction.productId)}
+                    disabled={endingAuctionId === auction.productId}
+                    title="경매 종료"
                   >
-                    <Trash2 className="w-4 h-4 text-gray-600" />
+                    {endingAuctionId === auction.productId ? (
+                      <div className="w-4 h-4 border-2 border-gray-400 border-t-transparent rounded-full animate-spin"></div>
+                    ) : (
+                      <Trash2 className="w-4 h-4 text-gray-600" />
+                    )}
                   </button>
                 </div>
               </div>
@@ -282,12 +303,6 @@ const AuctionContent = () => {
                     </button>
                   </div>
                   <div className="flex justify-center gap-2">
-                    <button
-                      className="p-2 hover:bg-gray-100 rounded transition-colors"
-                      onClick={() => onDeleteClick(auction.productId)}
-                    >
-                      <Trash2 className="w-4 h-4 text-gray-600" />
-                    </button>
                     <button
                       className="p-2 hover:bg-gray-100 rounded transition-colors"
                       onClick={() => onEditClick(auction.productId)}

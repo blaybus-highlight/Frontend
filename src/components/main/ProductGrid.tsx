@@ -15,13 +15,25 @@ export function ProductGrid({ title, searchParams = {} }: ProductGridProps) {
 
   const products = data?.data?.content || [];
 
+  // size에 따라 그리드 레이아웃 결정
+  const getGridClass = () => {
+    const size = searchParams.size || 5;
+    if (size === 16) {
+      return 'grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4';
+    } else if (size === 5) {
+      return 'grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-5';
+    } else {
+      return 'grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-5';
+    }
+  };
+
   if (isLoading) {
     return (
       <section className='px-6 py-12'>
         <div className='mx-auto max-w-7xl'>
-          <h2 className='mb-8 text-2xl font-bold text-gray-900'>{title}</h2>
-          <div className='grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-5'>
-            {[...Array(10)].map((_, i) => (
+          {title && <h2 className='mb-8 text-2xl font-bold text-gray-900'>{title}</h2>}
+          <div className={`grid ${getGridClass()}`}>
+            {[...Array(searchParams.size || 5)].map((_, i) => (
               <div
                 key={`skeleton-${i}`}
                 className='h-[385px] w-full animate-pulse rounded-lg bg-gray-200'
@@ -37,7 +49,7 @@ export function ProductGrid({ title, searchParams = {} }: ProductGridProps) {
     return (
       <section className='px-6 py-12'>
         <div className='mx-auto max-w-7xl'>
-          <h2 className='mb-8 text-2xl font-bold text-gray-900'>{title}</h2>
+          {title && <h2 className='mb-8 text-2xl font-bold text-gray-900'>{title}</h2>}
           <div className='text-center text-red-500'>
             데이터를 불러오는 중 오류가 발생했습니다.
           </div>
@@ -49,7 +61,7 @@ export function ProductGrid({ title, searchParams = {} }: ProductGridProps) {
   return (
     <section className='px-6 py-12'>
       <div className='mx-auto max-w-7xl'>
-        <h2 className='mb-8 text-2xl font-bold text-gray-900'>{title}</h2>
+        {title && <h2 className='mb-8 text-2xl font-bold text-gray-900'>{title}</h2>}
         {products.length === 0 ? (
           <div className='py-12 text-center'>
             <div className='mb-2 text-lg text-gray-400'>📦</div>
@@ -59,7 +71,7 @@ export function ProductGrid({ title, searchParams = {} }: ProductGridProps) {
             </div>
           </div>
         ) : (
-          <div className='grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-5'>
+          <div className={`grid ${getGridClass()}`}>
             {products.map((product) => (
               <ProductCard
                 key={product.id}

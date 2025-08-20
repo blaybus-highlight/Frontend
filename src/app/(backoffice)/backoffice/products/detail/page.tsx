@@ -82,6 +82,31 @@ const ProductImageThumbnail = ({
   </div>
 );
 
+// 타입 정의
+type ProductData = {
+  salesCategory: string;
+  category: string;
+  productName: string;
+  size: string;
+  quantity: string;
+  material: string;
+  productionYear: string;
+  brandName: string;
+  productCondition: string;
+  conditionDescription: string;
+  productDescription: string;
+  productHistory: string;
+  expectedEffect: string;
+  additionalInfo: string;
+  images: Array<{ id: number; url: string; label: string }>;
+};
+
+type DetailSection = 
+  | { type: 'double'; items: Array<{ label: string; key: keyof ProductData }> }
+  | { type: 'single'; label: string; key: keyof ProductData }
+  | { type: 'longText'; label: string; key: keyof ProductData }
+  | { type: 'images'; label: string; key: keyof ProductData };
+
 // --- 메인 페이지 컴포넌트 ---
 export default function ProductDetailPage() {
   
@@ -92,7 +117,7 @@ export default function ProductDetailPage() {
   // 백엔드 API 응답 데이터가 저장될 상태(State) 입니다.
   // 실제로는 useEffect 훅을 사용해 API를 호출하고, 그 응답으로 이 상태를 채웁니다.
   // 백엔드에서는 이 객체 구조에 맞춰 데이터를 보내줘야 합니다.
-  const [productData, setProductData] = useState({
+  const [productData, setProductData] = useState<ProductData>({
     salesCategory: "임시",
     category: "임시",
     productName: "임시",
@@ -119,7 +144,7 @@ export default function ProductDetailPage() {
   // - type: 'double'(2열), 'single'(1열), 'longText'(긴 텍스트), 'images'(이미지 섹션) 등 렌더링 방식을 결정합니다.
   // - label: 화면에 표시될 제목입니다.
   // - key: productData 상태 객체에서 어떤 데이터를 가져올지 지정하는 키(key)입니다.
-  const detailSections = [
+  const detailSections: DetailSection[] = [
     { type: 'double', items: [{ label: "판매 분류", key: "salesCategory" }, { label: "카테고리", key: "category" }] },
     { type: 'single', label: "상품명", key: "productName" },
     { type: 'double', items: [{ label: "사이즈", key: "size" }, { label: "개수", key: "quantity" }] },
@@ -139,7 +164,10 @@ export default function ProductDetailPage() {
   );
 
   // 'productData' 객체에서 키(key)를 이용해 값을 안전하게 가져오는 헬퍼 함수
-  const getValue = (key: string) => productData[key as keyof typeof productData];
+  const getValue = (key: keyof ProductData): string => {
+    const value = productData[key];
+    return typeof value === 'string' ? value : '';
+  };
 
   // =================================================================
   // 렌더링 영역
@@ -174,7 +202,7 @@ export default function ProductDetailPage() {
                   label1={item1.label}
                   value1={<BoldText>{getValue(item1.key)}</BoldText>}
                   label2={item2.label}
-                  value2={item2.key ? value2Content : ""}
+                  value2={value2Content}
                 />
               );
             }
@@ -183,7 +211,7 @@ export default function ProductDetailPage() {
             if (section.type === 'single' || section.type === 'longText') {
               return (
                 <SingleInfoRow key={index} label={section.label}>
-                  <p className="whitespace-pre-wrap font-bold">{getValue(section.key) as string}</p>
+                  <p className="whitespace-pre-wrap font-bold">{getValue(section.key)}</p>
                 </SingleInfoRow>
               );
             }

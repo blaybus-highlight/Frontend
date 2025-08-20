@@ -3,18 +3,17 @@
 'use client';
 
 import Link from 'next/link';
-import Cookies from 'js-cookie';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { clearTokens } from '@/lib/tokenUtils';
 
 export function LoginHeader() {
   const [searchTerm, setSearchTerm] = useState('');
   const router = useRouter();
 
   const handleLogout = () => {
-    // 저장된 토큰과 쿠키를 삭제합니다.
-    localStorage.removeItem('accessToken');
-    Cookies.remove('accessToken');
+    // 새로운 토큰 관리 시스템 사용
+    clearTokens();
     // 홈으로 이동하면서 페이지를 새로고침하여 상태를 초기화합니다.
     window.location.href = '/';
   };
@@ -33,7 +32,6 @@ export function LoginHeader() {
 
   return (
     <header className='fixed top-0 right-0 left-0 z-50 bg-black'>
-      {/* 상단 섹션 */}
       <div className='px-4 sm:px-6 py-3'>
         <div className='flex items-center justify-between'>
           <Link
@@ -43,22 +41,17 @@ export function LoginHeader() {
             Nafal
           </Link>
           <div className='hidden sm:flex items-center space-x-4'>
-            {/* --- 변경된 부분 --- */}
             <Link
               className='text-sm text-white transition-colors hover:text-gray-300'
-              href='/mypage' // 마이페이지로 이동
+              href='/mypage'
             >
               마이페이지
             </Link>
             <button
-              onClick={handleLogout} // 로그아웃 함수 연결
               className='text-sm text-white transition-colors hover:text-gray-300'
+              onClick={handleLogout}
             >
               로그아웃
-            </button>
-             {/* --- 여기까지 --- */}
-            <button className='text-sm text-white transition-colors hover:text-gray-300'>
-              고객센터
             </button>
           </div>
           
@@ -71,15 +64,17 @@ export function LoginHeader() {
         </div>
       </div>
 
-      {/* 하단 섹션 (검색 및 카테고리) */}
       <div className='px-4 sm:px-6 py-3'>
         <div className='flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-0'>
           <div className='hidden sm:flex items-center space-x-8'>
             <button className='group relative text-sm text-white transition-colors hover:text-gray-300'>
-              추천
+              랭킹
               <span className='absolute bottom-0 left-0 h-0.5 w-0 bg-white transition-all duration-300 group-hover:w-full' />
             </button>
-            <button className='group relative text-sm text-white transition-colors hover:text-gray-300'>
+            <button 
+              className='group relative text-sm text-white transition-colors hover:text-gray-300'
+              onClick={() => router.push('/category')}
+            >
               카테고리
               <span className='absolute bottom-0 left-0 h-0.5 w-0 bg-white transition-all duration-300 group-hover:w-full' />
             </button>
@@ -88,13 +83,13 @@ export function LoginHeader() {
           {/* 모바일 카테고리 */}
           <div className='flex sm:hidden items-center space-x-4 w-full justify-center'>
             <button className='text-xs text-white px-3 py-1 rounded-full border border-gray-600 hover:bg-gray-700'>
-              추천
+              랭킹
             </button>
             <button className='text-xs text-white px-3 py-1 rounded-full border border-gray-600 hover:bg-gray-700'>
               카테고리
             </button>
           </div>
-          
+
           <div className='w-full sm:max-w-md'>
             <div className='relative'>
               <input
@@ -138,14 +133,11 @@ export function LoginHeader() {
             >
               마이페이지
             </Link>
-            <button
-              onClick={handleLogout}
+            <button 
               className='text-xs text-white transition-colors hover:text-gray-300'
+              onClick={handleLogout}
             >
               로그아웃
-            </button>
-            <button className='text-xs text-white transition-colors hover:text-gray-300'>
-              고객센터
             </button>
           </div>
         </div>

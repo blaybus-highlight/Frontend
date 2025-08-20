@@ -422,39 +422,54 @@ export const updateProduct = async (
   }
 };
 
+/**
+ * 경매 종료 API
+ * @param auctionId - 경매 ID
+ * @returns Promise<void>
+ */
+export const endAuction = async (auctionId: number): Promise<void> => {
+  try {
+    const response = await axiosInstance.post(`/api/admin/auctions/${auctionId}/cancel-now`);
+    
+    if (!response.data.success) {
+      throw new Error(response.data.message || '경매 종료에 실패했습니다.');
+    }
+  } catch (error) {
+    console.error('경매 종료 실패:', error);
+    throw error;
+  }
+};
+
 // 대시보드 관련 타입 정의
 export interface DashboardStats {
-  auctionStats: {
-    inProgress: number;
-    pending: number;
-    completed: number;
-  };
+  inProgress: number;
+  pending: number;
+  completed: number;
 }
 
-export interface RealTimeAuction {
-  id: string;
+export interface DashboardItem {
+  auctionId: number;
   productName: string;
   currentBid: number;
-  auctionId: string;
-  productImage?: string;
+  productImageUrl: string;
 }
 
 export interface DashboardResponse {
   success: boolean;
   data: DashboardStats;
-  message?: string;
+  message: string;
 }
 
-export interface RealTimeAuctionResponse {
+export interface DashboardItemsResponse {
   success: boolean;
-  data: RealTimeAuction[];
-  message?: string;
+  data: DashboardItem[];
+  message: string;
 }
 
 // 대시보드 통계 조회
 export const getDashboardStats = async (): Promise<DashboardResponse> => {
   try {
-    const response = await axiosInstance.get<DashboardResponse>('/api/admin/dashboard/stats');
+    const response = await axiosInstance.get<DashboardResponse>('/api/admin/dashboard');
     return response.data;
   } catch (error) {
     console.error('대시보드 통계 조회 실패:', error);
@@ -462,13 +477,13 @@ export const getDashboardStats = async (): Promise<DashboardResponse> => {
   }
 };
 
-// 실시간 경매 피드 조회
-export const getRealTimeAuctions = async (): Promise<RealTimeAuctionResponse> => {
+// 대시보드 히스토리 아이템 조회
+export const getDashboardItems = async (): Promise<DashboardItemsResponse> => {
   try {
-    const response = await axiosInstance.get<RealTimeAuctionResponse>('/api/admin/dashboard/realtime-auctions');
+    const response = await axiosInstance.get<DashboardItemsResponse>('/api/admin/dashboard/items');
     return response.data;
   } catch (error) {
-    console.error('실시간 경매 피드 조회 실패:', error);
+    console.error('대시보드 히스토리 조회 실패:', error);
     throw error;
   }
 };
