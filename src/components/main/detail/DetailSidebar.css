@@ -1,0 +1,83 @@
+/* 사이드바 전체 컨테이너 */
+.sidebar-container {
+  width: 240px;
+  padding: 16px;
+  font-family: 'Pretendard', sans-serif;
+  border-right: 1px solid #e0e0e0;
+  color: #333;
+}
+
+/* 헤더 (필터, 초기화) */
+.sidebar-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #000;
+  padding-bottom: 8px;
+  margin-bottom: 16px;
+}
+
+.sidebar-title {
+  font-size: 18px;
+  font-weight: 700;
+  margin: 0;
+}
+
+.reset-button {
+  background: none;
+  border: none;
+  color: #888;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+/* 선택된 필터 태그 영역 */
+.selected-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 24px;
+  min-height: 30px; /* 태그가 없을 때도 높이 유지 */
+}
+
+.filter-tag {
+  display: flex;
+  align-items: center;
+  background-color: #f0f0f0;
+  border: 1px solid #ccc;
+  border-radius: 16px;
+  padding: 4px 10px;
+  font-size: 14px;
+}
+
+.remove-tag-button {
+  background: none;
+  border: none;
+  color: #555;
+  cursor: pointer;
+  font-size: 18px;
+  font-weight: 700;
+  margin-left: 6px;
+  padding: 0;
+  line-height: 1;
+}
+
+/* 전체 카테고리 목록 */
+.category-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.category-item {
+  font-size: 16px;
+  padding: 10px 4px;
+  cursor: pointer;
+  color: #555;
+  font-weight: 500;
+}
+
+.category-item:hover {
+  color: #000;
+  font-weight: 600;
+}

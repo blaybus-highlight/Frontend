@@ -422,6 +422,24 @@ export const updateProduct = async (
   }
 };
 
+/**
+ * 경매 종료 API
+ * @param auctionId - 경매 ID
+ * @returns Promise<void>
+ */
+export const endAuction = async (auctionId: number): Promise<void> => {
+  try {
+    const response = await axiosInstance.post(`/api/admin/auctions/${auctionId}/cancel-now`);
+    
+    if (!response.data.success) {
+      throw new Error(response.data.message || '경매 종료에 실패했습니다.');
+    }
+  } catch (error) {
+    console.error('경매 종료 실패:', error);
+    throw error;
+  }
+};
+
 // 대시보드 관련 타입 정의
 export interface DashboardStats {
   inProgress: number;

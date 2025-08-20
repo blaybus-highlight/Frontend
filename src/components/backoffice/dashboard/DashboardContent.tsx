@@ -29,8 +29,8 @@ const DashboardContent = () => {
         }
 
         if (itemsResponse.success) {
-          // 최대 3개만 표시
-          setDashboardItems(itemsResponse.data.slice(0, 3));
+          // 최대 5개 표시
+          setDashboardItems(itemsResponse.data.slice(0, 5));
         }
 
       } catch (err) {
@@ -48,7 +48,7 @@ const DashboardContent = () => {
       getDashboardItems()
         .then(response => {
           if (response.success) {
-            setDashboardItems(response.data.slice(0, 3));
+            setDashboardItems(response.data.slice(0, 5));
           }
         })
         .catch(err => {
@@ -260,23 +260,32 @@ const DashboardContent = () => {
                   실시간 경매 피드
                 </span>
                 {dashboardItems.length > 0 ? (
-                  <div className="flex items-start bg-background py-3 px-4 gap-[15px]">
-                    <img
-                      src={dashboardItems[currentItemIndex]?.productImageUrl || vintageWatch.src}
-                      alt={dashboardItems[currentItemIndex]?.productName}
-                      className="w-[70px] h-[70px] object-fill"
-                    />
-                    <div className="flex flex-col shrink-0 items-start py-0.5">
-                      <span className="text-[#111416] text-base font-bold mb-[1px] mr-[103px]">
-                        {dashboardItems[currentItemIndex]?.productName}
-                      </span>
-                      <span className="text-[#616161] text-sm mb-[1px] mr-[101px]">
-                        현재 입찰가 {dashboardItems[currentItemIndex]?.currentBid?.toLocaleString()}원
-                      </span>
-                      <span className="text-[#616161] text-sm mb-[1px] mr-[77px]">
-                        경매 ID {dashboardItems[currentItemIndex]?.auctionId}
-                      </span>
-                    </div>
+                  <div className="flex flex-col gap-3">
+                    {dashboardItems.map((item, index) => (
+                      <div 
+                        key={item.auctionId} 
+                        className={`flex items-start bg-background py-3 px-4 gap-[15px] transition-opacity duration-500 ${
+                          index === currentItemIndex ? 'opacity-100' : 'opacity-60'
+                        }`}
+                      >
+                        <img
+                          src={item.productImageUrl || vintageWatch.src}
+                          alt={item.productName}
+                          className="w-[70px] h-[70px] object-fill"
+                        />
+                        <div className="flex flex-col shrink-0 items-start py-0.5">
+                          <span className="text-[#111416] text-base font-bold mb-[1px] mr-[103px]">
+                            {item.productName}
+                          </span>
+                          <span className="text-[#616161] text-sm mb-[1px] mr-[101px]">
+                            현재 입찰가 {item.currentBid?.toLocaleString()}원
+                          </span>
+                          <span className="text-[#616161] text-sm mb-[1px] mr-[77px]">
+                            경매 ID {item.auctionId}
+                          </span>
+                        </div>
+                      </div>
+                    ))}
                   </div>
                 ) : (
                   <div className="flex items-start bg-background py-3 px-4">

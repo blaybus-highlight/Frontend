@@ -64,8 +64,10 @@ export function LogoutHeader() {
               랭킹
               <span className='absolute bottom-0 left-0 h-0.5 w-0 bg-white transition-all duration-300 group-hover:w-full' />
             </button>
-            <button className='group relative text-sm text-white transition-colors hover:text-gray-300'>
+            <button className='group relative text-sm text-white transition-colors hover:text-gray-300'
+            onClick={() => router.push('/category')}>
               카테고리
+              
               <span className='absolute bottom-0 left-0 h-0.5 w-0 bg-white transition-all duration-300 group-hover:w-full' />
             </button>
           </div>
