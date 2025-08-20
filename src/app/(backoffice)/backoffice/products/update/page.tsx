@@ -1,11 +1,12 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
+import { useRouter, useSearchParams } from "next/navigation"
 import { PageHeader } from "@/components/backoffice/auction/PageHeader"
 import { TabNavigation } from "@/components/backoffice/auction/TabNavigation"
 import { IndividualRegistrationSection } from "@/components/backoffice/auction/IndividualRegistrationSection"
 import { BulkUploadSection } from "@/components/backoffice/auction/BulkUploadSection"
-import { registerProduct, createProductDraft, updateProductStatus, uploadProductImages } from "@/api/auction"
+import { updateProduct, createProductDraft, updateProductStatus, uploadProductImages, getProductDetail } from "@/api/auction"
 import { transformFormDataToApiRequest, validateFormData } from "@/utils/productFormUtils"
 
 interface ImageFile {
@@ -19,13 +20,18 @@ interface ImageFile {
 }
 
 // --- 메인 페이지 컴포넌트 ---
-export default function ProductSubmitPage() {
+export default function ProductUpdatePage() {
+  const router = useRouter()
+  const searchParams = useSearchParams()
+  const productId = searchParams.get('id')
+
   // '개별 등록', '일괄 등록' 탭 상태 관리
   const [activeTab, setActiveTab] = useState("individual");
   
   // 로딩 상태 관리
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSavingDraft, setIsSavingDraft] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   
   // 이미지 상태 관리
   const [uploadedImages, setUploadedImages] = useState<ImageFile[]>([]);
@@ -41,6 +47,60 @@ export default function ProductSubmitPage() {
   // 폼 오류 상태 관리
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
   const [touchedFields, setTouchedFields] = useState<Set<string>>(new Set());
+
+  // 상품 ID가 없으면 목록 페이지로 리다이렉트
+  useEffect(() => {
+    if (!productId) {
+      alert('상품 ID가 없습니다.');
+      router.push('/backoffice/products');
+      return;
+    }
+  }, [productId, router]);
+
+  // 기존 상품 데이터 로드
+  useEffect(() => {
+    const loadProductData = async () => {
+      if (!productId) return;
+
+      try {
+        setIsLoading(true);
+        const response = await getProductDetail(parseInt(productId));
+        
+        if (response.success && response.data) {
+          const product = response.data;
+          
+          // API 응답 데이터를 폼 데이터로 변환
+          setFormData({
+            salesCategory: product.isPremium ? "true" : "false",
+            productCategory: product.category || "",
+            productName: product.productName || "",
+            size: product.size || "",
+            quantity: product.productCount?.toString() || "",
+            material: product.material || "",
+            productionYear: product.manufactureYear?.toString() || "",
+            brandName: product.brand || "",
+            productCondition: product.rank || "",
+            conditionDescription: product.condition || "",
+            productDescription: product.shortDescription || "",
+            productHistory: product.history || "",
+            expectedEffect: product.expectedEffects || "",
+            additionalInfo: product.detailedInfo || "",
+          });
+        } else {
+          alert('상품 정보를 불러올 수 없습니다.');
+          router.push('/backoffice/products');
+        }
+      } catch (error) {
+        console.error('상품 정보 로드 실패:', error);
+        alert('상품 정보를 불러오는데 실패했습니다.');
+        router.push('/backoffice/products');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadProductData();
+  }, [productId, router]);
 
   // 어떤 입력 필드든 값이 변경될 때 호출되는 단일 이벤트 핸들러
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
@@ -123,11 +183,9 @@ export default function ProductSubmitPage() {
     setUploadedImages(images);
   };
 
-  // 폼 제출 핸들러 (3단계 프로세스)
+  // 폼 제출 핸들러 (상품 수정)
   const handleSubmit = async () => {
-    if (isSubmitting) return; // 중복 제출 방지
-    
-    let newProductId: number | null = null;
+    if (isSubmitting || !productId) return; // 중복 제출 방지
     
     try {
       setIsSubmitting(true);
@@ -141,79 +199,50 @@ export default function ProductSubmitPage() {
 
       const apiRequestData = transformFormDataToApiRequest(formData);
       
-      const createResponse = await registerProduct(apiRequestData);
+      // 상품 수정 API 호출
+      const updateResponse = await updateProduct(parseInt(productId), apiRequestData);
       
-      console.log('생성된 상품 응답:', createResponse);
+      console.log('상품 수정 응답:', updateResponse);
       
-      // 다양한 응답 구조에 대응
-      let productId: number | undefined;
-      
-      if (createResponse.success) {
-        // 응답 구조에 따라 productId 추출
-        productId = createResponse.productId || 
-                   createResponse.data?.id || 
-                   createResponse.id ||
-                   createResponse.product?.id;
+      if (!updateResponse.success) {
+        throw new Error(updateResponse.message || '상품 수정에 실패했습니다.');
       }
-      
-      if (!productId) {
-        console.error('응답에서 productId를 찾을 수 없습니다:', createResponse);
-        throw new Error('상품 ID를 받아오지 못했습니다. 응답 구조를 확인해주세요.');
-      }
-      
-      newProductId = productId;
 
       // =================================================================
-      // 2단계: 발급받은 ID로 이미지 파일 업로드
+      // 이미지 파일 업로드 (새로 추가된 이미지가 있는 경우)
       // =================================================================
       if (uploadedImages.length > 0) {
         try {
           const imageFiles = uploadedImages.map(img => img.file);
-          await uploadProductImages(newProductId, imageFiles);
+          await uploadProductImages(parseInt(productId), imageFiles);
         } catch (error) {
           console.error('이미지 업로드 실패:', error);
-          throw new Error('이미지 업로드에 실패했습니다.');
+          // 이미지 업로드 실패는 경고만 표시하고 계속 진행
+          alert('상품 정보는 수정되었지만 이미지 업로드에 실패했습니다.');
         }
       }
 
       // =================================================================
-      // 3단계: 상품 상태를 '활성'으로 변경
+      // 상품 상태를 '활성'으로 변경
       // =================================================================
-      await updateProductStatus(newProductId, 'ACTIVE');
+      await updateProductStatus(parseInt(productId), 'ACTIVE');
       
-      alert('상품 등록이 성공적으로 완료되었습니다!');
+      alert('상품 수정이 성공적으로 완료되었습니다!');
       
-      // 폼 초기화
-      setFormData({
-        salesCategory: "false", productCategory: "", productName: "", size: "",
-        quantity: "", material: "", productionYear: "", brandName: "",
-        productCondition: "", conditionDescription: "", productDescription: "",
-        productHistory: "", expectedEffect: "", additionalInfo: "",
-      });
-      setUploadedImages([]);
+      // 상품 목록 페이지로 이동
+      router.push('/backoffice/products');
       
     } catch (error) {
-      console.error('상품 등록 실패:', error);
-      
-      // 롤백: 생성된 임시 상품이 있다면 삭제 시도
-      if (newProductId) {
-        try {
-          await updateProductStatus(newProductId, 'DRAFT');
-          console.log('임시 상품 상태로 롤백 완료');
-        } catch (rollbackError) {
-          console.error('롤백 실패:', rollbackError);
-        }
-      }
-      
-      alert(`상품 등록 실패: ${error instanceof Error ? error.message : '알 수 없는 오류가 발생했습니다.'}`);
+      console.error('상품 수정 실패:', error);
+      alert(`상품 수정 실패: ${error instanceof Error ? error.message : '알 수 없는 오류가 발생했습니다.'}`);
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  // 초안 저장 핸들러 (1단계만 실행)
+  // 초안 저장 핸들러
   const handleSaveDraft = async () => {
-    if (isSavingDraft) return; // 중복 저장 방지
+    if (isSavingDraft || !productId) return; // 중복 저장 방지
     
     try {
       setIsSavingDraft(true);
@@ -225,35 +254,17 @@ export default function ProductSubmitPage() {
         return;
       }
       
-      // API 요청 데이터로 변환 (이미지 정보 제외)
+      // API 요청 데이터로 변환
       const apiRequestData = transformFormDataToApiRequest(formData);
       
-      // 초안 저장 API 호출 (1단계만)
-      const response = await createProductDraft(apiRequestData);
+      // 상품 수정 API 호출
+      const response = await updateProduct(parseInt(productId), apiRequestData);
       
       console.log('초안 저장 응답:', response);
       
-      // 다양한 응답 구조에 대응
-      let productId: number | undefined;
-      
       if (response.success) {
-        productId = response.productId || 
-                   response.data?.id || 
-                   response.id ||
-                   response.product?.id;
-      }
-      
-      if (response.success && productId) {
         alert('상품이 초안으로 저장되었습니다.');
-        
-        // 폼 초기화
-        setFormData({
-          salesCategory: "false", productCategory: "", productName: "", size: "",
-          quantity: "", material: "", productionYear: "", brandName: "",
-          productCondition: "", conditionDescription: "", productDescription: "",
-          productHistory: "", expectedEffect: "", additionalInfo: "",
-        });
-        setUploadedImages([]);
+        router.push('/backoffice/products');
       } else {
         alert(`초안 저장 실패: ${response.message}`);
       }
@@ -265,31 +276,45 @@ export default function ProductSubmitPage() {
     }
   };
 
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-lg">상품 정보를 불러오는 중...</div>
+      </div>
+    );
+  }
+
   return (
     <div className="flex flex-col min-h-screen px-60 py-6">
       {/* 페이지 최상단 헤더 */}
-      <PageHeader />
+      <PageHeader 
+        title="상품 수정" 
+        subtitle="상품 정보를 수정하세요." 
+      />
       
       {/* 탭 네비게이션 바 */}
       <TabNavigation activeTab={activeTab} onTabChange={setActiveTab} />
 
       {/* 현재 활성화된 탭에 따라 다른 내용을 표시 */}
       {activeTab === "individual" ? (
-                 <IndividualRegistrationSection 
-           formData={formData}
-           onFormChange={handleChange}
-           onSubmit={handleSubmit}
-           onSaveDraft={handleSaveDraft}
-           isSubmitting={isSubmitting}
-           isSavingDraft={isSavingDraft}
-           onImagesChange={handleImagesChange}
-           formErrors={formErrors}
-           hasFieldError={hasFieldError}
-         />
+        <IndividualRegistrationSection 
+          formData={formData}
+          onFormChange={handleChange}
+          onSubmit={handleSubmit}
+          onSaveDraft={handleSaveDraft}
+          isSubmitting={isSubmitting}
+          isSavingDraft={isSavingDraft}
+          onImagesChange={handleImagesChange}
+          submitText="상품 수정하기"
+          submittingText="수정 중..."
+          saveDraftText="초안으로 저장"
+          savingDraftText="저장 중..."
+          formErrors={formErrors}
+          hasFieldError={hasFieldError}
+        />
       ) : (
         <BulkUploadSection />
       )}
     </div>
   );
 }
-

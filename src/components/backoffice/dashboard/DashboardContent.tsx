@@ -1,6 +1,95 @@
+"use client"
+
+import { useState, useEffect } from "react";
 import vintageWatch from "@/assets/vintage-watch.png";
+import { getDashboardStats, getRealTimeAuctions, DashboardStats, RealTimeAuction } from "@/api/auction";
 
 const DashboardContent = () => {
+  const [dashboardStats, setDashboardStats] = useState<DashboardStats | null>(null);
+  const [realTimeAuctions, setRealTimeAuctions] = useState<RealTimeAuction[]>([]);
+  const [currentAuctionIndex, setCurrentAuctionIndex] = useState(0);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  // 대시보드 데이터 로드
+  useEffect(() => {
+    const loadDashboardData = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+
+        // 대시보드 통계와 실시간 경매 데이터를 병렬로 로드
+        const [statsResponse, auctionsResponse] = await Promise.all([
+          getDashboardStats(),
+          getRealTimeAuctions()
+        ]);
+
+        if (statsResponse.success) {
+          setDashboardStats(statsResponse.data);
+        }
+
+        if (auctionsResponse.success) {
+          // 최대 3개만 표시
+          setRealTimeAuctions(auctionsResponse.data.slice(0, 3));
+        }
+
+      } catch (err) {
+        console.error('대시보드 데이터 로드 실패:', err);
+        setError('대시보드 데이터를 불러오는데 실패했습니다.');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadDashboardData();
+
+    // 30초마다 실시간 데이터 갱신
+    const interval = setInterval(() => {
+      getRealTimeAuctions()
+        .then(response => {
+          if (response.success) {
+            setRealTimeAuctions(response.data);
+          }
+        })
+        .catch(err => {
+          console.error('실시간 데이터 갱신 실패:', err);
+        });
+    }, 30000);
+
+    // 5초마다 경매 피드 슬라이드
+    const slideInterval = setInterval(() => {
+      setCurrentAuctionIndex(prev => {
+        if (realTimeAuctions.length === 0) return 0;
+        return (prev + 1) % realTimeAuctions.length;
+      });
+    }, 5000);
+
+    return () => {
+      clearInterval(interval);
+      clearInterval(slideInterval);
+    };
+
+    return () => clearInterval(interval);
+  }, []);
+
+  // 로딩 상태 표시
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-lg">대시보드 데이터를 불러오는 중...</div>
+      </div>
+    );
+  }
+
+  // 오류 상태 표시
+  if (error) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-lg text-red-500">{error}</div>
+      </div>
+    );
+  }
+
   return (
     <div className="flex flex-col bg-background">
       <div className="self-stretch bg-background h-[1087px]">
@@ -30,7 +119,7 @@ const DashboardContent = () => {
                   진행 중
                 </span>
                 <span className="text-[#111416] text-2xl font-bold mb-[1px] mx-[25px]">
-                  12
+                  {dashboardStats?.auctionStats.inProgress || 0}
                 </span>
               </div>
               <div className="flex flex-1 flex-col items-start py-[25px] mr-[17px] rounded border border-solid border-[#DBE0E5]">
@@ -38,7 +127,7 @@ const DashboardContent = () => {
                   보류중
                 </span>
                 <span className="text-[#111416] text-2xl font-bold mb-[1px] mx-[25px]">
-                  8
+                  {dashboardStats?.auctionStats.pending || 0}
                 </span>
               </div>
               <div className="flex flex-1 flex-col items-start py-[25px] rounded border border-solid border-[#DBE0E5]">
@@ -46,7 +135,7 @@ const DashboardContent = () => {
                   완료됨
                 </span>
                 <span className="text-[#111416] text-2xl font-bold mb-[1px] mx-[25px]">
-                  35
+                  {dashboardStats?.auctionStats.completed || 0}
                 </span>
               </div>
             </div>
@@ -139,7 +228,7 @@ const DashboardContent = () => {
 
             {/* Bottom Section */}
             <div className="flex items-start self-stretch gap-4">
-              {/* History Section */}
+              {/* History Section - API 연동하지 않음 */}
               <div className="flex flex-col shrink-0 items-start">
                 <span className="text-[#111416] text-xl font-bold my-5 ml-4 mr-36">
                   히스토리
@@ -171,24 +260,32 @@ const DashboardContent = () => {
                 <span className="text-[#111416] text-xl font-bold my-5 ml-4">
                   실시간 경매 피드
                 </span>
-                <div className="flex items-start bg-background py-3 px-4 gap-[15px]">
-                  <img
-                    src={vintageWatch.src}
-                    alt="Vintage Watch"
-                    className="w-[70px] h-[70px] object-fill"
-                  />
-                  <div className="flex flex-col shrink-0 items-start py-0.5">
-                    <span className="text-[#111416] text-base font-bold mb-[1px] mr-[103px]">
-                      Lot 3 빈티지 시계
-                    </span>
-                    <span className="text-[#616161] text-sm mb-[1px] mr-[101px]">
-                      현재 입찰가 5,500원
-                    </span>
-                    <span className="text-[#616161] text-sm mb-[1px] mr-[77px]">
-                      경매 ID 20231027-002
+                {realTimeAuctions.length > 0 ? (
+                  <div className="flex items-start bg-background py-3 px-4 gap-[15px]">
+                    <img
+                      src={realTimeAuctions[currentAuctionIndex]?.productImage || vintageWatch.src}
+                      alt={realTimeAuctions[currentAuctionIndex]?.productName}
+                      className="w-[70px] h-[70px] object-fill"
+                    />
+                    <div className="flex flex-col shrink-0 items-start py-0.5">
+                      <span className="text-[#111416] text-base font-bold mb-[1px] mr-[103px]">
+                        {realTimeAuctions[currentAuctionIndex]?.productName}
+                      </span>
+                      <span className="text-[#616161] text-sm mb-[1px] mr-[101px]">
+                        현재 입찰가 {realTimeAuctions[currentAuctionIndex]?.currentBid?.toLocaleString()}원
+                      </span>
+                      <span className="text-[#616161] text-sm mb-[1px] mr-[77px]">
+                        경매 ID {realTimeAuctions[currentAuctionIndex]?.auctionId}
+                      </span>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="flex items-start bg-background py-3 px-4">
+                    <span className="text-[#616161] text-sm">
+                      현재 진행 중인 경매가 없습니다.
                     </span>
                   </div>
-                </div>
+                )}
               </div>
             </div>
           </div>

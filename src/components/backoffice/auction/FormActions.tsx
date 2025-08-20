@@ -3,9 +3,22 @@ interface FormActionsProps {
   onSaveDraft: () => void;
   isSubmitting: boolean;
   isSavingDraft: boolean;
+  submitText?: string;
+  submittingText?: string;
+  saveDraftText?: string;
+  savingDraftText?: string;
 }
 
-export const FormActions = ({ onSubmit, onSaveDraft, isSubmitting, isSavingDraft }: FormActionsProps) => {
+export const FormActions = ({ 
+  onSubmit, 
+  onSaveDraft, 
+  isSubmitting, 
+  isSavingDraft,
+  submitText = "상품 등록하기",
+  submittingText = "등록 중...",
+  saveDraftText = "초안으로 저장",
+  savingDraftText = "저장 중..."
+}: FormActionsProps) => {
   return (
     <div className="w-full mt-8 ml-4 pr-4 mb-12">
       <div className="flex justify-start gap-4">
@@ -19,7 +32,7 @@ export const FormActions = ({ onSubmit, onSaveDraft, isSubmitting, isSavingDraft
           onClick={onSubmit}
           disabled={isSubmitting}
         >
-          {isSubmitting ? '등록 중...' : '상품 등록하기'}
+          {isSubmitting ? submittingText : submitText}
         </button>
         <button 
           type="button" 
@@ -31,7 +44,7 @@ export const FormActions = ({ onSubmit, onSaveDraft, isSubmitting, isSavingDraft
           onClick={onSaveDraft}
           disabled={isSavingDraft}
         >
-          {isSavingDraft ? '저장 중...' : '초안으로 저장'}
+          {isSavingDraft ? savingDraftText : saveDraftText}
         </button>
       </div>
     </div>

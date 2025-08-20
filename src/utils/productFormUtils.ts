@@ -42,6 +42,7 @@ export const transformFormDataToApiRequest = (
     manufactureYear: parseInt(formData.productionYear) || 1800,
     condition: formData.conditionDescription || '',
     rank: rankMapping[formData.productCondition] || 'GOOD',
+    isPremium: formData.salesCategory === 'true', // 프리미엄 여부 추가
     images: [], // 상품 등록 시에는 빈 배열로 전송 (이미지는 별도 API로 업로드)
     draft: false // 상품 등록 시에는 false로 설정
   };

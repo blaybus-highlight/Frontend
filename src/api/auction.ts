@@ -382,3 +382,93 @@ export const getProductList = async (
     throw error;
   }
 };
+
+/**
+ * 상품 상세 조회 API
+ * @param productId - 상품 ID
+ * @returns Promise<ProductRegistrationResponse>
+ */
+export const getProductDetail = async (productId: number): Promise<ProductRegistrationResponse> => {
+  try {
+    const response = await axiosInstance.get<ProductRegistrationResponse>(
+      `/api/admin/products/${productId}`
+    );
+    return response.data;
+  } catch (error) {
+    // console.error('상품 상세 조회 실패:', error);
+    throw error;
+  }
+};
+
+/**
+ * 상품 수정 API
+ * @param productId - 상품 ID
+ * @param productData - 상품 수정 데이터
+ * @returns Promise<ProductRegistrationResponse>
+ */
+export const updateProduct = async (
+  productId: number,
+  productData: ProductRegistrationRequest
+): Promise<ProductRegistrationResponse> => {
+  try {
+    const response = await axiosInstance.put<ProductRegistrationResponse>(
+      `/api/admin/products/${productId}`,
+      productData
+    );
+    return response.data;
+  } catch (error) {
+    // console.error('상품 수정 실패:', error);
+    throw error;
+  }
+};
+
+// 대시보드 관련 타입 정의
+export interface DashboardStats {
+  auctionStats: {
+    inProgress: number;
+    pending: number;
+    completed: number;
+  };
+}
+
+export interface RealTimeAuction {
+  id: string;
+  productName: string;
+  currentBid: number;
+  auctionId: string;
+  productImage?: string;
+}
+
+export interface DashboardResponse {
+  success: boolean;
+  data: DashboardStats;
+  message?: string;
+}
+
+export interface RealTimeAuctionResponse {
+  success: boolean;
+  data: RealTimeAuction[];
+  message?: string;
+}
+
+// 대시보드 통계 조회
+export const getDashboardStats = async (): Promise<DashboardResponse> => {
+  try {
+    const response = await axiosInstance.get<DashboardResponse>('/api/admin/dashboard/stats');
+    return response.data;
+  } catch (error) {
+    console.error('대시보드 통계 조회 실패:', error);
+    throw error;
+  }
+};
+
+// 실시간 경매 피드 조회
+export const getRealTimeAuctions = async (): Promise<RealTimeAuctionResponse> => {
+  try {
+    const response = await axiosInstance.get<RealTimeAuctionResponse>('/api/admin/dashboard/realtime-auctions');
+    return response.data;
+  } catch (error) {
+    console.error('실시간 경매 피드 조회 실패:', error);
+    throw error;
+  }
+};

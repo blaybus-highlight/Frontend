@@ -4,8 +4,8 @@ import { FormInput, FormSelect, FormTextArea } from './FormComponents'
 // --- 드롭다운 메뉴 데이터 정의 ---
 // 각 드롭다운 메뉴에 표시될 선택지들을 배열로 관리합니다.
 export const salesCategoryOptions = [
-  { value: "PREMIUM", label: "프리미엄" },
-  { value: "STANDARD", label: "일반" },
+  { value: "true", label: "프리미엄" },
+  { value: "false", label: "일반" },
 ];
 
 export const productCategoryOptions = [

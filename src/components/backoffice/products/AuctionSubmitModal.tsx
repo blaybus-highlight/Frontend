@@ -26,6 +26,8 @@ export default function AuctionSubmitModal({ isOpen, onClose, selectedProduct }:
     });
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
+    const [isSubmitted, setIsSubmitted] = useState(false);
 
     // 선택된 상품이 변경되면 폼 데이터 업데이트
     useEffect(() => {
@@ -37,7 +39,14 @@ export default function AuctionSubmitModal({ isOpen, onClose, selectedProduct }:
         }
     }, [selectedProduct]);
 
-    if (!isOpen) return null;
+    if (!isOpen) {
+        // 모달이 닫힐 때 상태 초기화
+        if (isSubmitted) {
+            setIsSubmitted(false);
+            setFieldErrors({});
+        }
+        return null;
+    }
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         const { name, value } = e.target;
@@ -48,6 +57,43 @@ export default function AuctionSubmitModal({ isOpen, onClose, selectedProduct }:
     };
 
     const handleSubmit = async () => {
+        setIsSubmitted(true);
+        
+        // 폼 유효성 검사
+        const errors: Record<string, string> = {};
+        
+        if (!formData.startDate) errors.startDate = '시작 날짜를 선택해주세요';
+        if (!formData.startTime) errors.startTime = '시작 시간을 선택해주세요';
+        if (!formData.endDate) errors.endDate = '마감 날짜를 선택해주세요';
+        if (!formData.endTime) errors.endTime = '마감 시간을 선택해주세요';
+        if (!formData.startPrice) errors.startPrice = '시작 가격을 입력해주세요';
+        if (!formData.buyNowPrice) errors.buyNowPrice = '즉시 구매 가격을 입력해주세요';
+        if (!formData.maxBidAmount) errors.maxBidAmount = '최대 인상폭을 입력해주세요';
+        if (!formData.minimumBid) errors.minimumBid = '최소 인상폭을 입력해주세요';
+        if (!formData.pickupOption) errors.pickupOption = '픽업 여부를 선택해주세요';
+        if (!formData.shippingCost) errors.shippingCost = '배송비용을 입력해주세요';
+        
+        // 날짜 유효성 검사
+        if (formData.startDate && formData.startTime && formData.endDate && formData.endTime) {
+            const startDateTime = new Date(`${formData.startDate}T${formData.startTime}`);
+            const endDateTime = new Date(`${formData.endDate}T${formData.endTime}`);
+            const now = new Date();
+            
+            if (startDateTime <= now) {
+                errors.startDate = '시작 시간은 현재 시간보다 이후여야 합니다';
+            }
+            if (endDateTime <= startDateTime) {
+                errors.endDate = '마감 시간은 시작 시간보다 이후여야 합니다';
+            }
+        }
+        
+        setFieldErrors(errors);
+        
+        // 오류가 있으면 제출하지 않음
+        if (Object.keys(errors).length > 0) {
+            return;
+        }
+        
         try {
             setLoading(true);
             setError(null);
@@ -83,8 +129,10 @@ export default function AuctionSubmitModal({ isOpen, onClose, selectedProduct }:
             const response = await createAuction(auctionData);
             console.log('경매 생성 성공:', response.data);
             
-            // 성공 시 모달 닫기
+            // 성공 시 모달 닫기 및 상태 초기화
             onClose();
+            setIsSubmitted(false);
+            setFieldErrors({});
             alert('경매가 성공적으로 등록되었습니다.');
             
         } catch (err: any) {
@@ -153,10 +201,14 @@ export default function AuctionSubmitModal({ isOpen, onClose, selectedProduct }:
                                              name="startDate"
                                              value={formData.startDate}
                                              onChange={handleInputChange}
-                                             className="peer w-full border-gray-300 shadow-sm p-2 border invalid:text-gray-400 valid:text-black" 
+                                             className={`w-full shadow-sm p-2 border ${
+                                                 isSubmitted && fieldErrors.startDate ? 'border-red-500' : 'border-gray-300'
+                                             }`}
                                              required 
                                          />
-                                         <p className="invisible peer-invalid:visible text-red-500 text-xs mt-1">시작 날짜를 선택해주세요</p>
+                                         {isSubmitted && fieldErrors.startDate && (
+                                             <p className="text-red-500 text-xs mt-1">{fieldErrors.startDate}</p>
+                                         )}
                                      </div>
                                      <div>
                                          <input 
@@ -165,10 +217,14 @@ export default function AuctionSubmitModal({ isOpen, onClose, selectedProduct }:
                                              name="startTime"
                                              value={formData.startTime}
                                              onChange={handleInputChange}
-                                             className="peer w-full border-gray-300 shadow-sm p-2 border invalid:text-gray-400 valid:text-black" 
+                                             className={`w-full shadow-sm p-2 border ${
+                                                 isSubmitted && fieldErrors.startTime ? 'border-red-500' : 'border-gray-300'
+                                             }`}
                                              required 
                                          />
-                                         <p className="invisible peer-invalid:visible text-red-500 text-xs mt-1">시작 시간을 선택해주세요</p>
+                                         {isSubmitted && fieldErrors.startTime && (
+                                             <p className="text-red-500 text-xs mt-1">{fieldErrors.startTime}</p>
+                                         )}
                                      </div>
                                  </div>
                              </div>
@@ -186,10 +242,14 @@ export default function AuctionSubmitModal({ isOpen, onClose, selectedProduct }:
                                      name="endDate"
                                      value={formData.endDate}
                                      onChange={handleInputChange}
-                                     className="peer w-full border-gray-300 shadow-sm p-2 border invalid:text-gray-400 valid:text-black" 
+                                     className={`w-full shadow-sm p-2 border ${
+                                         isSubmitted && fieldErrors.endDate ? 'border-red-500' : 'border-gray-300'
+                                     }`}
                                      required 
                                  />
-                                 <p className="invisible peer-invalid:visible text-red-500 text-xs mt-1">마감 날짜를 선택해주세요</p>
+                                 {isSubmitted && fieldErrors.endDate && (
+                                     <p className="text-red-500 text-xs mt-1">{fieldErrors.endDate}</p>
+                                 )}
                              </div>
                              <div>
                                  <input 
@@ -198,10 +258,14 @@ export default function AuctionSubmitModal({ isOpen, onClose, selectedProduct }:
                                      name="endTime"
                                      value={formData.endTime}
                                      onChange={handleInputChange}
-                                     className="peer w-full border-gray-300 shadow-sm p-2 border invalid:text-gray-400 valid:text-black" 
+                                     className={`w-full shadow-sm p-2 border ${
+                                         isSubmitted && fieldErrors.endTime ? 'border-red-500' : 'border-gray-300'
+                                     }`}
                                      required 
                                  />
-                                 <p className="invisible peer-invalid:visible text-red-500 text-xs mt-1">마감 시간을 선택해주세요</p>
+                                 {isSubmitted && fieldErrors.endTime && (
+                                     <p className="text-red-500 text-xs mt-1">{fieldErrors.endTime}</p>
+                                 )}
                              </div>
                          </div>
                      </div>
@@ -218,10 +282,14 @@ export default function AuctionSubmitModal({ isOpen, onClose, selectedProduct }:
                                  value={formData.startPrice}
                                  onChange={handleInputChange}
                                  placeholder="0" 
-                                 className="peer w-full border-gray-300 shadow-sm p-2 border" 
+                                 className={`w-full shadow-sm p-2 border ${
+                                     isSubmitted && fieldErrors.startPrice ? 'border-red-500' : 'border-gray-300'
+                                 }`}
                                  required 
                              />
-                             <p className="invisible peer-invalid:visible text-red-500 text-xs mt-1">시작가격을 입력해주세요</p>
+                             {isSubmitted && fieldErrors.startPrice && (
+                                 <p className="text-red-500 text-xs mt-1">{fieldErrors.startPrice}</p>
+                             )}
                          </div>
                          <div>
                              <label htmlFor="buyNowPrice" className="block text-base font-semibold text-black mb-1">즉시 구매 가격</label>
@@ -232,10 +300,14 @@ export default function AuctionSubmitModal({ isOpen, onClose, selectedProduct }:
                                  value={formData.buyNowPrice}
                                  onChange={handleInputChange}
                                  placeholder="0" 
-                                 className="peer w-full border-gray-300 shadow-sm p-2 border" 
+                                 className={`w-full shadow-sm p-2 border ${
+                                     isSubmitted && fieldErrors.buyNowPrice ? 'border-red-500' : 'border-gray-300'
+                                 }`}
                                  required 
                              />
-                             <p className="invisible peer-invalid:visible text-red-500 text-xs mt-1">즉시 구매가격을 입력해주세요</p>
+                             {isSubmitted && fieldErrors.buyNowPrice && (
+                                 <p className="text-red-500 text-xs mt-1">{fieldErrors.buyNowPrice}</p>
+                             )}
                          </div>
                     </div>
                     
@@ -251,10 +323,14 @@ export default function AuctionSubmitModal({ isOpen, onClose, selectedProduct }:
                                      value={formData.maxBidAmount}
                                      onChange={handleInputChange}
                                      placeholder="0" 
-                                     className="peer w-full border-gray-300 shadow-sm p-2 border" 
+                                     className={`w-full shadow-sm p-2 border ${
+                                         isSubmitted && fieldErrors.maxBidAmount ? 'border-red-500' : 'border-gray-300'
+                                     }`}
                                      required 
                                  />
-                                 
+                                 {isSubmitted && fieldErrors.maxBidAmount && (
+                                     <p className="text-red-500 text-xs mt-1">{fieldErrors.maxBidAmount}</p>
+                                 )}
                              </div>
                              <div>
                                  <label htmlFor="minimumBid" className="block text-base font-semibold text-black mb-1">최소 인상폭</label>      
@@ -265,9 +341,14 @@ export default function AuctionSubmitModal({ isOpen, onClose, selectedProduct }:
                                      value={formData.minimumBid}
                                      onChange={handleInputChange}
                                      placeholder="0" 
-                                     className="peer w-full border-gray-300 shadow-sm p-2 border" 
+                                     className={`w-full shadow-sm p-2 border ${
+                                         isSubmitted && fieldErrors.minimumBid ? 'border-red-500' : 'border-gray-300'
+                                     }`}
                                      required 
                                  />
+                                 {isSubmitted && fieldErrors.minimumBid && (
+                                     <p className="text-red-500 text-xs mt-1">{fieldErrors.minimumBid}</p>
+                                 )}
                              </div>
                          </div>
                      </div>
@@ -282,14 +363,18 @@ export default function AuctionSubmitModal({ isOpen, onClose, selectedProduct }:
                                   name="pickupOption"
                                   value={formData.pickupOption}
                                   onChange={handleInputChange}
-                                  className="peer w-full border-gray-300 shadow-sm p-2 border" 
+                                  className={`w-full shadow-sm p-2 border ${
+                                      isSubmitted && fieldErrors.pickupOption ? 'border-red-500' : 'border-gray-300'
+                                  }`}
                                   required
                               >
                                   <option value="">픽업 여부를 선택하세요</option>
                                   <option value="possible">가능</option>
                                   <option value="impossible">불가능</option>
                               </select>
-                              <p className="invisible peer-invalid:visible text-red-500 text-xs mt-1">픽업 여부를 선택해주세요</p>
+                              {isSubmitted && fieldErrors.pickupOption && (
+                                  <p className="text-red-500 text-xs mt-1">{fieldErrors.pickupOption}</p>
+                              )}
                           </div>
                           <div>
                               <label htmlFor="shippingCost" className="block text-base font-semibold text-black mb-1">배송비용</label>
@@ -300,10 +385,14 @@ export default function AuctionSubmitModal({ isOpen, onClose, selectedProduct }:
                                   value={formData.shippingCost}
                                   onChange={handleInputChange}
                                   placeholder="0" 
-                                  className="peer w-full border-gray-300 shadow-sm p-2 border" 
+                                  className={`w-full shadow-sm p-2 border ${
+                                      isSubmitted && fieldErrors.shippingCost ? 'border-red-500' : 'border-gray-300'
+                                  }`}
                                   required 
                               />
-                              <p className="invisible peer-invalid:visible text-red-500 text-xs mt-1">배송비용을 입력해주세요</p>
+                              {isSubmitted && fieldErrors.shippingCost && (
+                                  <p className="text-red-500 text-xs mt-1">{fieldErrors.shippingCost}</p>
+                              )}
                           </div>
                      </div>
                  </div>

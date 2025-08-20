@@ -108,15 +108,18 @@ const ProductsContent = () => {
     setProductFilter(filter)
     setProductCurrentPage(1)
     setShowProductFilter(false)
+    // 필터 변경 시 선택된 상품들은 유지 (초기화하지 않음)
   }
 
   const handleProductSearch = (searchTerm: string) => {
     setProductSearchTerm(searchTerm)
     setProductCurrentPage(1)
+    // 검색 변경 시 선택된 상품들은 유지 (초기화하지 않음)
   }
 
   const handleProductPageClick = (page: number) => {
     setProductCurrentPage(page)
+    // 페이지 변경 시 선택된 상품들은 유지 (초기화하지 않음)
   }
 
   const handleProductConditionClick = (condition: string, productId: string) => {
@@ -202,6 +205,12 @@ const ProductsContent = () => {
 
              {/* Action Buttons */}
              <div className="flex items-center gap-4">
+               {/* Selected Products Count */}
+               {selectedProducts.length > 0 && (
+                 <div className="text-sm text-gray-600 bg-gray-100 px-3 py-1 rounded">
+                   선택된 상품: {selectedProducts.length}개
+                 </div>
+               )}
                 <button
                   className="flex items-center bg-black text-white py-2.5 px-6 gap-2 rounded-none hover:bg-gray-800 transition-colors"
                   onClick={() => router.push('/backoffice/products/submit')}
@@ -259,7 +268,19 @@ const ProductsContent = () => {
                <button
                  className="flex items-center bg-white text-black py-2.5 px-6 gap-2 rounded-none border border-solid border-[#D5D6DA] hover:bg-gray-50 transition-colors"
                  style={{ boxShadow: "0px 1px 2px #0A0C120D" }}
-                 onClick={() => alert('수정하기')}
+                 onClick={() => {
+                   if (selectedProducts.length === 0) {
+                     alert('수정할 상품을 선택해주세요.');
+                     return;
+                   }
+                   if (selectedProducts.length > 1) {
+                     alert('수정은 한 번에 하나의 상품만 가능합니다.');
+                     return;
+                   }
+                   
+                   const selectedProductId = selectedProducts[0];
+                   router.push(`/backoffice/products/update?id=${selectedProductId}`);
+                 }}
                >
                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
                    <path
@@ -292,28 +313,30 @@ const ProductsContent = () => {
             <div className="hidden lg:block">
                              {/* Header */}
                <div className="grid grid-cols-10 bg-gray-50 border-b-2 border-gray-300 px-4 py-3 gap-2">
-                 <div className="flex items-center justify-center">
-                   <div
-                     className={`w-5 h-5 rounded-md border border-[#D5D6DA] cursor-pointer flex items-center justify-center ${
-                       selectedProducts.length === currentProducts.length && currentProducts.length > 0
-                         ? "bg-blue-500"
-                         : "bg-white"
-                     }`}
-                     onClick={() => {
-                       const currentIds = currentProducts.map((p) => p.id)
-                       const allSelectedOnPage = currentIds.every((id) => selectedProducts.includes(id))
-                       if (allSelectedOnPage) {
-                         setSelectedProducts((prev) => prev.filter((id) => !currentIds.includes(id)))
-                       } else {
-                         setSelectedProducts((prev) => Array.from(new Set([...prev, ...currentIds])))
-                       }
-                     }}
-                   >
-                     {selectedProducts.length === currentProducts.length && currentProducts.length > 0 && (
-                       <span className="text-white text-xs">✓</span>
-                     )}
+                                    <div className="flex items-center justify-center">
+                     <div
+                       className={`w-5 h-5 rounded-md border border-[#D5D6DA] cursor-pointer flex items-center justify-center ${
+                         currentProducts.length > 0 && currentProducts.every((p) => selectedProducts.includes(p.id))
+                           ? "bg-blue-500"
+                           : "bg-white"
+                       }`}
+                       onClick={() => {
+                         const currentIds = currentProducts.map((p) => p.id)
+                         const allSelectedOnPage = currentIds.every((id) => selectedProducts.includes(id))
+                         if (allSelectedOnPage) {
+                           // 현재 페이지의 상품들만 선택 해제
+                           setSelectedProducts((prev) => prev.filter((id) => !currentIds.includes(id)))
+                         } else {
+                           // 현재 페이지의 상품들을 추가 (중복 제거)
+                           setSelectedProducts((prev) => Array.from(new Set([...prev, ...currentIds])))
+                         }
+                       }}
+                     >
+                       {currentProducts.length > 0 && currentProducts.every((p) => selectedProducts.includes(p.id)) && (
+                         <span className="text-white text-xs">✓</span>
+                       )}
+                     </div>
                    </div>
-                 </div>
                  <span className="text-[#535862] text-sm font-bold text-center">카테고리</span>
                  <span className="text-[#535862] text-sm font-bold text-center truncate">상품명</span>
                  <span className="text-[#535862] text-sm font-bold text-center">사이즈</span>
