@@ -72,6 +72,7 @@ export function ProductGrid({ title, searchParams = {} }: ProductGridProps) {
                 startPrice={product.minimumBid}
                 timeLeft={product.endTime}
                 category={product.category}
+                brandName={product.brand}
               />
             ))}
           </div>
