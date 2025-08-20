@@ -1,3 +1,6 @@
+import Image from "next/image";
+import NafalFooterLogo from "@/assets/nafal-logo-b.png";
+
 export function Footer() {
   return (
     <footer className='border-t border-gray-200 bg-white'>
@@ -5,7 +8,13 @@ export function Footer() {
         <div className='grid grid-cols-1 gap-4 md:grid-cols-[6fr_1fr_1fr]'>
           {/* Company Info */}
           <div>
-            <h3 className='mb-4 text-xl font-bold text-gray-900'>Nafal</h3>
+              <Image
+                src={NafalFooterLogo}
+                alt="Nafal 로고"
+                width={72}
+                height={24}
+                className="mb-4"
+              />
             <p className='mb-6 text-sm leading-relaxed text-gray-600'>
               믿을 수 있는 가치 플랫폼, 나팔
               <br />
