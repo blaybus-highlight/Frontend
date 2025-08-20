@@ -224,9 +224,9 @@ const AuctionContent = () => {
                 <div className="flex justify-center">
                   <button
                     className="p-2 hover:bg-gray-100 rounded transition-colors"
-                    onClick={() => onEditClick(auction.productId)}
+                    onClick={() => onDeleteClick(auction.productId)}
                   >
-                    <Edit className="w-4 h-4 text-gray-600" />
+                    <Trash2 className="w-4 h-4 text-gray-600" />
                   </button>
                 </div>
               </div>

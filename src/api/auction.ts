@@ -382,3 +382,42 @@ export const getProductList = async (
     throw error;
   }
 };
+
+/**
+ * 상품 상세 조회 API
+ * @param productId - 상품 ID
+ * @returns Promise<ProductRegistrationResponse>
+ */
+export const getProductDetail = async (productId: number): Promise<ProductRegistrationResponse> => {
+  try {
+    const response = await axiosInstance.get<ProductRegistrationResponse>(
+      `/api/admin/products/${productId}`
+    );
+    return response.data;
+  } catch (error) {
+    // console.error('상품 상세 조회 실패:', error);
+    throw error;
+  }
+};
+
+/**
+ * 상품 수정 API
+ * @param productId - 상품 ID
+ * @param productData - 상품 수정 데이터
+ * @returns Promise<ProductRegistrationResponse>
+ */
+export const updateProduct = async (
+  productId: number,
+  productData: ProductRegistrationRequest
+): Promise<ProductRegistrationResponse> => {
+  try {
+    const response = await axiosInstance.put<ProductRegistrationResponse>(
+      `/api/admin/products/${productId}`,
+      productData
+    );
+    return response.data;
+  } catch (error) {
+    // console.error('상품 수정 실패:', error);
+    throw error;
+  }
+};

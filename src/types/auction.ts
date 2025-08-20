@@ -25,6 +25,7 @@ export interface ProductRegistrationRequest {
   manufactureYear: number;
   condition: string;
   rank: 'BEST' | 'GREAT' | 'GOOD';
+  isPremium: boolean;
   images: ProductImage[];
   draft: boolean;
 }

@@ -20,6 +20,12 @@ interface IndividualRegistrationSectionProps {
   isSubmitting: boolean;
   isSavingDraft: boolean;
   onImagesChange?: (images: ImageFile[]) => void;
+  submitText?: string;
+  submittingText?: string;
+  saveDraftText?: string;
+  savingDraftText?: string;
+  formErrors?: Record<string, string>;
+  hasFieldError?: (fieldName: string) => boolean;
 }
 
 export const IndividualRegistrationSection = ({ 
@@ -29,12 +35,23 @@ export const IndividualRegistrationSection = ({
   onSaveDraft,
   isSubmitting,
   isSavingDraft,
-  onImagesChange
+  onImagesChange,
+  submitText,
+  submittingText,
+  saveDraftText,
+  savingDraftText,
+  formErrors,
+  hasFieldError
 }: IndividualRegistrationSectionProps) => {
   return (
     <>
       {/* 상품 정보 입력 폼 섹션 */}
-      <ProductInfoForm formData={formData} onFormChange={onFormChange} />
+      <ProductInfoForm 
+        formData={formData} 
+        onFormChange={onFormChange} 
+        formErrors={formErrors}
+        hasFieldError={hasFieldError}
+      />
 
       {/* 상품 이미지 업로드 섹션 */}
       <ProductImageUpload onImagesChange={onImagesChange} />
@@ -45,6 +62,10 @@ export const IndividualRegistrationSection = ({
         onSaveDraft={onSaveDraft} 
         isSubmitting={isSubmitting}
         isSavingDraft={isSavingDraft}
+        submitText={submitText}
+        submittingText={submittingText}
+        saveDraftText={saveDraftText}
+        savingDraftText={savingDraftText}
       />
     </>
   );
