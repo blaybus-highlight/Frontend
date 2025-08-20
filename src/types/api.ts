@@ -13,6 +13,7 @@ export interface Product {
   endTime: string;
   auctionStatus: string;
   category?: string;
+  brand?: string;
 }
 
 export interface PageResponse<T> {

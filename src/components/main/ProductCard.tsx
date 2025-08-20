@@ -14,6 +14,7 @@ interface ProductCardProps {
   bidCount?: number;
   timeLeft?: string;
   category?: string; // 카테고리 정보 (FASHION, FURNITURE 등)
+  brandName?: string; // 브랜드명
 }
 
 /**
@@ -31,6 +32,7 @@ export function ProductCard({
   bidCount = 0,
   timeLeft = '10시간 남음',
   category,
+  brandName,
 }: ProductCardProps) {
   // 찜 상태 조회 및 토글 기능
   const { data: wishlistData, isLoading: isWishlistLoading } = useWishlistStatus(
@@ -90,9 +92,9 @@ export function ProductCard({
   const currentNotificationStatus = notificationData?.data?.active ?? false;
   
 
-  // 카테고리 표시 (백엔드에서 이미 한국어로 제공)
-  const getCategoryDisplay = () => {
-    return category || '기타';
+  // 브랜드명 표시
+  const getBrandDisplay = () => {
+    return brandName || '기타';
   };
 
   const getTimeLeft = () => {
@@ -228,9 +230,9 @@ export function ProductCard({
         </div>
 
         <div className='p-4'>
-          {/* 카테고리 표시 */}
+          {/* 브랜드명 표시 */}
           <p className='mb-1 text-sm text-gray-500'>
-            {getCategoryDisplay()}
+            {getBrandDisplay()}
           </p>
           <h3 className='mb-3 truncate text-base font-semibold text-gray-800'>
             {productName}
