@@ -2,12 +2,12 @@
 
 import { useState, useEffect } from "react";
 import vintageWatch from "@/assets/vintage-watch.png";
-import { getDashboardStats, getRealTimeAuctions, DashboardStats, RealTimeAuction } from "@/api/auction";
+import { getDashboardStats, getDashboardItems, DashboardStats, DashboardItem } from "@/api/auction";
 
 const DashboardContent = () => {
   const [dashboardStats, setDashboardStats] = useState<DashboardStats | null>(null);
-  const [realTimeAuctions, setRealTimeAuctions] = useState<RealTimeAuction[]>([]);
-  const [currentAuctionIndex, setCurrentAuctionIndex] = useState(0);
+  const [dashboardItems, setDashboardItems] = useState<DashboardItem[]>([]);
+  const [currentItemIndex, setCurrentItemIndex] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -18,19 +18,19 @@ const DashboardContent = () => {
         setLoading(true);
         setError(null);
 
-        // 대시보드 통계와 실시간 경매 데이터를 병렬로 로드
-        const [statsResponse, auctionsResponse] = await Promise.all([
+        // 대시보드 통계와 히스토리 아이템 데이터를 병렬로 로드
+        const [statsResponse, itemsResponse] = await Promise.all([
           getDashboardStats(),
-          getRealTimeAuctions()
+          getDashboardItems()
         ]);
 
         if (statsResponse.success) {
           setDashboardStats(statsResponse.data);
         }
 
-        if (auctionsResponse.success) {
+        if (itemsResponse.success) {
           // 최대 3개만 표시
-          setRealTimeAuctions(auctionsResponse.data.slice(0, 3));
+          setDashboardItems(itemsResponse.data.slice(0, 3));
         }
 
       } catch (err) {
@@ -45,10 +45,10 @@ const DashboardContent = () => {
 
     // 30초마다 실시간 데이터 갱신
     const interval = setInterval(() => {
-      getRealTimeAuctions()
+      getDashboardItems()
         .then(response => {
           if (response.success) {
-            setRealTimeAuctions(response.data);
+            setDashboardItems(response.data.slice(0, 3));
           }
         })
         .catch(err => {
@@ -56,11 +56,11 @@ const DashboardContent = () => {
         });
     }, 30000);
 
-    // 5초마다 경매 피드 슬라이드
+    // 5초마다 히스토리 아이템 슬라이드
     const slideInterval = setInterval(() => {
-      setCurrentAuctionIndex(prev => {
-        if (realTimeAuctions.length === 0) return 0;
-        return (prev + 1) % realTimeAuctions.length;
+      setCurrentItemIndex(prev => {
+        if (dashboardItems.length === 0) return 0;
+        return (prev + 1) % dashboardItems.length;
       });
     }, 5000);
 
@@ -68,8 +68,6 @@ const DashboardContent = () => {
       clearInterval(interval);
       clearInterval(slideInterval);
     };
-
-    return () => clearInterval(interval);
   }, []);
 
   // 로딩 상태 표시
@@ -119,7 +117,7 @@ const DashboardContent = () => {
                   진행 중
                 </span>
                 <span className="text-[#111416] text-2xl font-bold mb-[1px] mx-[25px]">
-                  {dashboardStats?.auctionStats.inProgress || 0}
+                  {dashboardStats?.inProgress || 0}
                 </span>
               </div>
               <div className="flex flex-1 flex-col items-start py-[25px] mr-[17px] rounded border border-solid border-[#DBE0E5]">
@@ -127,7 +125,7 @@ const DashboardContent = () => {
                   보류중
                 </span>
                 <span className="text-[#111416] text-2xl font-bold mb-[1px] mx-[25px]">
-                  {dashboardStats?.auctionStats.pending || 0}
+                  {dashboardStats?.pending || 0}
                 </span>
               </div>
               <div className="flex flex-1 flex-col items-start py-[25px] rounded border border-solid border-[#DBE0E5]">
@@ -135,7 +133,7 @@ const DashboardContent = () => {
                   완료됨
                 </span>
                 <span className="text-[#111416] text-2xl font-bold mb-[1px] mx-[25px]">
-                  {dashboardStats?.auctionStats.completed || 0}
+                  {dashboardStats?.completed || 0}
                 </span>
               </div>
             </div>
@@ -228,31 +226,32 @@ const DashboardContent = () => {
 
             {/* Bottom Section */}
             <div className="flex items-start self-stretch gap-4">
-              {/* History Section - API 연동하지 않음 */}
+              {/* History Section */}
               <div className="flex flex-col shrink-0 items-start">
                 <span className="text-[#111416] text-xl font-bold my-5 ml-4 mr-36">
                   히스토리
                 </span>
-                <div className="flex flex-col items-start bg-background py-[13px] px-4">
-                  <div className="flex flex-col items-center">
-                    <span className="text-[#111416] text-base font-bold">
-                      경매 #20231027-001 검토
+                {dashboardItems.length > 0 ? (
+                  <div className="flex flex-col items-start bg-background py-[13px] px-4">
+                    <div className="flex flex-col items-center">
+                      <span className="text-[#111416] text-base font-bold">
+                        {dashboardItems[currentItemIndex]?.productName}
+                      </span>
+                    </div>
+                    <span className="text-[#616161] text-sm mr-12">
+                      경매 ID: {dashboardItems[currentItemIndex]?.auctionId}
+                    </span>
+                    <span className="text-[#616161] text-sm mr-12">
+                      현재 입찰가: {dashboardItems[currentItemIndex]?.currentBid?.toLocaleString()}원
                     </span>
                   </div>
-                  <span className="text-[#616161] text-sm mr-12">
-                    경매 ID: 20231027-001
-                  </span>
-                </div>
-                <div className="flex flex-col items-start bg-background py-[13px] pl-4 pr-[43px]">
-                  <span className="text-[#111416] text-base font-bold mr-[72px]">
-                    제품 등록 승인
-                  </span>
-                  <div className="flex flex-col items-center">
+                ) : (
+                  <div className="flex flex-col items-start bg-background py-[13px] px-4">
                     <span className="text-[#616161] text-sm">
-                      제품 ID: P-20231026-005
+                      히스토리 데이터가 없습니다.
                     </span>
                   </div>
-                </div>
+                )}
               </div>
 
               {/* Real-time Auction Feed */}
@@ -260,22 +259,22 @@ const DashboardContent = () => {
                 <span className="text-[#111416] text-xl font-bold my-5 ml-4">
                   실시간 경매 피드
                 </span>
-                {realTimeAuctions.length > 0 ? (
+                {dashboardItems.length > 0 ? (
                   <div className="flex items-start bg-background py-3 px-4 gap-[15px]">
                     <img
-                      src={realTimeAuctions[currentAuctionIndex]?.productImage || vintageWatch.src}
-                      alt={realTimeAuctions[currentAuctionIndex]?.productName}
+                      src={dashboardItems[currentItemIndex]?.productImageUrl || vintageWatch.src}
+                      alt={dashboardItems[currentItemIndex]?.productName}
                       className="w-[70px] h-[70px] object-fill"
                     />
                     <div className="flex flex-col shrink-0 items-start py-0.5">
                       <span className="text-[#111416] text-base font-bold mb-[1px] mr-[103px]">
-                        {realTimeAuctions[currentAuctionIndex]?.productName}
+                        {dashboardItems[currentItemIndex]?.productName}
                       </span>
                       <span className="text-[#616161] text-sm mb-[1px] mr-[101px]">
-                        현재 입찰가 {realTimeAuctions[currentAuctionIndex]?.currentBid?.toLocaleString()}원
+                        현재 입찰가 {dashboardItems[currentItemIndex]?.currentBid?.toLocaleString()}원
                       </span>
                       <span className="text-[#616161] text-sm mb-[1px] mr-[77px]">
-                        경매 ID {realTimeAuctions[currentAuctionIndex]?.auctionId}
+                        경매 ID {dashboardItems[currentItemIndex]?.auctionId}
                       </span>
                     </div>
                   </div>
