@@ -13,7 +13,7 @@ export function NoticeBanner() {
     '레트로 선풍기', '앤틱 책상', '빈티지 옷장', '클래식 피아노', '레트로 냉장고'
   ];
 
-  const getRandomReward = () => Math.floor(Math.random() * 50) + 5; // 5-54그루
+  const getRandomReward = () => Math.floor(Math.random() * 50) + 5; // 5-54나팔꽃
 
   const notifications = names.map((name, index) => ({
     id: index,
@@ -44,7 +44,7 @@ export function NoticeBanner() {
           >
             🎉 <span className='font-bold text-blue-600'>[{notification.name}]</span>님이 상품
             <span className='font-bold text-red-600'> [{notification.product}]</span>를
-            최종 낙찰 받고 <span className='font-bold text-green-600'>{notification.reward}그루</span>를
+            최종 낙찰 받고 <span className='font-bold text-green-600'>{notification.reward}나팔꽃</span>을
             획득하셨어요 🎉
           </p>
         </div>
