@@ -111,12 +111,26 @@ export const getAuctionById = async (auctionId: string): Promise<AuctionItem> =>
   }
 };
 
-export const createAuction = async (auctionData: Partial<AuctionItem>): Promise<AuctionItem> => {
+export interface CreateAuctionRequest {
+  productId: number;
+  startPrice: number;
+  bidUnit: number;
+  maxBid: number;
+  minimumBid: number;
+  buyItNowPrice: number;
+  shippingFee: number;
+  isPickupAvailable: boolean;
+  scheduledStartTime: string;
+  scheduledEndTime: string;
+  description: string;
+}
+
+export const createAuction = async (auctionData: CreateAuctionRequest) => {
   try {
-    const response = await axiosInstance.post('/auctions', auctionData);
+    const response = await axiosInstance.post('/api/admin/auctions/schedule', auctionData);
     return response.data;
   } catch (error) {
-    // console.error('경매 생성 실패:', error);
+    console.error('경매 생성 실패:', error);
     throw error;
   }
 };

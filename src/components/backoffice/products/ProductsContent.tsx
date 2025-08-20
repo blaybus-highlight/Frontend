@@ -2,15 +2,20 @@
 
 import { Menu } from "lucide-react"
 import { useMemo, useState, useEffect } from "react"
+import { useRouter } from "next/navigation"
 import { getProductList } from "@/api/auction"
 import { ProductListItem } from "@/types/auction"
+import AuctionSubmitModal from "./AuctionSubmitModal"
 
 const ProductsContent = () => {
+  const router = useRouter()
   const [productFilter, setProductFilter] = useState<string>("전체")
   const [productSearchTerm, setProductSearchTerm] = useState<string>("")
   const [selectedProducts, setSelectedProducts] = useState<number[]>([])
   const [productCurrentPage, setProductCurrentPage] = useState<number>(1)
   const [showProductFilter, setShowProductFilter] = useState<boolean>(false)
+  const [showAuctionModal, setShowAuctionModal] = useState<boolean>(false)
+  const [selectedProductForAuction, setSelectedProductForAuction] = useState<ProductListItem | null>(null)
   
   // API 데이터 상태
   const [productData, setProductData] = useState<ProductListItem[]>([])
@@ -137,61 +142,147 @@ const ProductsContent = () => {
         </div>
       )}
 
-      {/* Product Controls */}
-      {!loading && !error && (
-        <div className="flex items-center self-stretch p-4 mb-[5px] gap-4">
-          <div className="flex shrink-0 items-center">
-            <div className="relative">
-              <button
-                className="flex shrink-0 items-center bg-white text-left py-2.5 px-4 mr-4 gap-2 rounded-lg border border-solid border-[#D5D6DA]"
-                style={{ boxShadow: "0px 1px 2px #0A0C120D" }}
-                onClick={() => setShowProductFilter(!showProductFilter)}
-              >
-                <Menu className="w-5 h-5" />
-                <span className="text-[#414651] text-sm font-bold">필터</span>
-              </button>
+             {/* Product Controls */}
+       {!loading && !error && (
+         <div className="flex items-center justify-between self-stretch p-4 mb-[5px] gap-6">
+           {/* Left side - Filter only */}
+           <div className="flex shrink-0 items-center">
+             <div className="relative">
+               <button
+                 className="flex shrink-0 items-center bg-white text-left py-2.5 px-6 gap-2 rounded-lg border border-solid border-[#D5D6DA]"
+                 style={{ boxShadow: "0px 1px 2px #0A0C120D" }}
+                 onClick={() => setShowProductFilter(!showProductFilter)}
+               >
+                 <Menu className="w-5 h-5" />
+                 <span className="text-[#414651] text-sm font-bold">필터</span>
+               </button>
 
-              {/* Filter Dropdown */}
-              {showProductFilter && (
-                <div className="absolute top-full left-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg z-10 min-w-[120px]">
-                  {["전체", "최상", "상", "의류", "액세서리"].map((filter) => (
-                    <button
-                      key={filter}
-                      className="block w-full text-left px-4 py-2 hover:bg-gray-50 text-sm"
-                      onClick={() => handleProductFilter(filter)}
-                    >
-                      {filter}
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
+               {/* Filter Dropdown */}
+               {showProductFilter && (
+                 <div className="absolute top-full left-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg z-10 min-w-[120px]">
+                   {["전체", "최상", "상", "의류", "액세서리"].map((filter) => (
+                     <button
+                       key={filter}
+                       className="block w-full text-left px-4 py-2 hover:bg-gray-50 text-sm"
+                       onClick={() => handleProductFilter(filter)}
+                     >
+                       {filter}
+                     </button>
+                   ))}
+                 </div>
+               )}
+             </div>
+           </div>
 
-            <div
-              className="flex shrink-0 items-center bg-white py-2.5 px-3.5 gap-2 rounded-lg border border-solid border-[#D5D6DA]"
-              style={{ boxShadow: "0px 1px 2px #0A0C120D" }}
-            >
-              <div className="w-5 h-5 flex items-center justify-center">
-                <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                  <path
-                    d="M7.333 12.667A5.333 5.333 0 1 0 7.333 2a5.333 5.333 0 0 0 0 10.667ZM14 14l-2.9-2.9"
-                    stroke="#717680"
-                    strokeWidth="1.33"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
-              </div>
-              <input
-                placeholder="Search"
-                value={productSearchTerm}
-                onChange={(e) => handleProductSearch(e.target.value)}
-                className="text-[#717680] bg-transparent text-base w-[200px] border-0 outline-none"
-              />
-            </div>
-          </div>
-        </div>
-      )}
+           {/* Right side - Search and Action Buttons */}
+           <div className="flex items-center gap-4">
+             {/* Search */}
+             <div
+               className="flex shrink-0 items-center bg-white py-2.5 px-4 gap-2 rounded-lg border border-solid border-[#D5D6DA]"
+               style={{ boxShadow: "0px 1px 2px #0A0C120D" }}
+             >
+               <div className="w-5 h-5 flex items-center justify-center">
+                 <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                   <path
+                     d="M7.333 12.667A5.333 5.333 0 1 0 7.333 2a5.333 5.333 0 0 0 0 10.667ZM14 14l-2.9-2.9"
+                     stroke="#717680"
+                     strokeWidth="1.33"
+                     strokeLinecap="round"
+                     strokeLinejoin="round"
+                   />
+                 </svg>
+               </div>
+               <input
+                 placeholder="Search"
+                 value={productSearchTerm}
+                 onChange={(e) => handleProductSearch(e.target.value)}
+                 className="text-[#717680] bg-transparent text-base w-[200px] border-0 outline-none"
+               />
+             </div>
+
+             {/* Action Buttons */}
+             <div className="flex items-center gap-4">
+                <button
+                  className="flex items-center bg-black text-white py-2.5 px-6 gap-2 rounded-none hover:bg-gray-800 transition-colors"
+                  onClick={() => router.push('/backoffice/products/submit')}
+                >
+                 <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                   <path
+                     d="M8 2v12M2 8h12"
+                     stroke="white"
+                     strokeWidth="1.5"
+                     strokeLinecap="round"
+                     strokeLinejoin="round"
+                   />
+                 </svg>
+                 <span className="text-white text-sm font-bold">상품 등록</span>
+               </button>
+
+                                                                                               <button
+                    className="flex items-center bg-gray-500 text-white py-2.5 px-6 gap-2 rounded-none hover:bg-gray-600 transition-colors"
+                    onClick={() => {
+                      if (selectedProducts.length === 0) {
+                        alert('경매 등록할 상품을 선택해주세요.');
+                        return;
+                      }
+                      if (selectedProducts.length > 1) {
+                        alert('경매 등록은 한 번에 하나의 상품만 가능합니다.');
+                        return;
+                      }
+                      
+                      const selectedProduct = currentProducts.find(p => p.id === selectedProducts[0]);
+                      if (selectedProduct) {
+                        setSelectedProductForAuction(selectedProduct);
+                        setShowAuctionModal(true);
+                      }
+                    }}
+                  >
+                 <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                   <path
+                     d="M12 4l-4 4-4-4"
+                     stroke="white"
+                     strokeWidth="1.5"
+                     strokeLinecap="round"
+                     strokeLinejoin="round"
+                   />
+                   <path
+                     d="M8 8v4"
+                     stroke="white"
+                     strokeWidth="1.5"
+                     strokeLinecap="round"
+                     strokeLinejoin="round"
+                   />
+                 </svg>
+                 <span className="text-white text-sm font-bold">경매 등록</span>
+               </button>
+
+               <button
+                 className="flex items-center bg-white text-black py-2.5 px-6 gap-2 rounded-none border border-solid border-[#D5D6DA] hover:bg-gray-50 transition-colors"
+                 style={{ boxShadow: "0px 1px 2px #0A0C120D" }}
+                 onClick={() => alert('수정하기')}
+               >
+                 <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                   <path
+                     d="M11.25 1.25l3.5 3.5-3.5 3.5"
+                     stroke="#414651"
+                     strokeWidth="1.5"
+                     strokeLinecap="round"
+                     strokeLinejoin="round"
+                   />
+                   <path
+                     d="M14.75 4.75h-7.5a2.5 2.5 0 0 0-2.5 2.5v5a2.5 2.5 0 0 0 2.5 2.5h5a2.5 2.5 0 0 0 2.5-2.5v-5"
+                     stroke="#414651"
+                     strokeWidth="1.5"
+                     strokeLinecap="round"
+                     strokeLinejoin="round"
+                   />
+                 </svg>
+                 <span className="text-[#414651] text-sm font-bold">수정하기</span>
+               </button>
+             </div>
+           </div>
+         </div>
+       )}
 
       {/* Product Table (Responsive Grid) */}
       {!loading && !error && (
@@ -370,9 +461,19 @@ const ProductsContent = () => {
             </div>
           </div>
         </div>
-      )}
-    </>
-  )
-}
+             )}
+
+       {/* Auction Submit Modal */}
+       <AuctionSubmitModal 
+         isOpen={showAuctionModal} 
+         onClose={() => {
+           setShowAuctionModal(false);
+           setSelectedProductForAuction(null);
+         }}
+         selectedProduct={selectedProductForAuction}
+       />
+     </>
+   )
+ }
 
 export default ProductsContent;
