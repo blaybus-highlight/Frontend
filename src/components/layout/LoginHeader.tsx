@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { clearTokens } from '@/lib/tokenUtils';
+import nafalLogo from "@/assets/nafal-logo.png";
 
 export function LoginHeader() {
   const [searchTerm, setSearchTerm] = useState('');
@@ -38,7 +39,11 @@ export function LoginHeader() {
             className='text-lg sm:text-xl font-bold text-white transition-colors hover:text-gray-300'
             href='/'
           >
-            Nafal
+            <img
+          src={nafalLogo.src}
+          alt="nafal"
+          className="w-24 h-8 object-contain"
+        />
           </Link>
           <div className='hidden sm:flex items-center space-x-4'>
             <Link
