@@ -4,6 +4,8 @@
 
 import Link from 'next/link';
 import Cookies from 'js-cookie';
+import Image from "next/image";
+import nafalLogo from "@/assets/nafal-logo.png";
 
 export function LoginHeader() {
   const handleLogout = () => {
@@ -19,12 +21,15 @@ export function LoginHeader() {
       {/* 상단 섹션 */}
       <div className='px-6 py-3'>
         <div className='flex items-center justify-between'>
-          <Link
-            className='text-xl font-bold text-white transition-colors hover:text-gray-300'
-            href='/'
-          >
-            Nafal
-          </Link>
+            <Link href="/" className="flex items-center">
+                <Image 
+                  src={nafalLogo} 
+                  alt="Nafal 로고" 
+                  width={96} 
+                  height={32} 
+                  priority
+                />
+            </Link>
           <div className='flex items-center space-x-4'>
             {/* --- 변경된 부분 --- */}
             <Link
