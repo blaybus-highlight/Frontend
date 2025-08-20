@@ -9,26 +9,23 @@ export default function SettingsPage() {
   const [activePage, setActivePage] = useState("계정");
 
   return (
-    // layout의 main 태그 안을 채우는 콘텐츠 컨테이너
-    <div className="flex h-full bg-white m-4 rounded-lg shadow-md">
+    <div className="flex h-full rounded-lg">
       
-      {/* 설정 페이지 전용 서브메뉴 (작은 사이드바) */}
-      <div className="w-48 border-r">
-        {/* [수정] 헤더와 왼쪽 정렬을 위해 좌우 패딩을 px-8로 늘립니다. */}
-        <div className="px-8 py-6 border-b">
-          <h1 className="text-2xl font-bold">설정</h1>
+      {/* 설정 페이지 전용 서브메뉴 */}
+      <div className="w-48">
+        <div className="px-8 py-6">
+          <h1 className="text-3xl font-bold">설정</h1>
         </div>
         
-        {/* [수정] 타이틀과 정렬을 맞추기 위해 좌우 패딩을 px-8로 늘립니다. */}
-        <nav className="flex flex-col px-8 py-4 gap-2">
+        <nav className="flex flex-col px-8 py-4 gap-4">
           {["계정", "정보", "정산", "알림", "보안"].map((page) => (
             <Link
               href={`/backoffice/settings/${page.toLowerCase()}`}
               key={page}
-              className={`py-2 px-3 rounded-md text-sm font-medium ${
+              className={`py-2 px-3 rounded-md text-sm ${
                 activePage === page
-                  ? "text-gray-900 bg-gray-100"
-                  : "text-gray-600 hover:bg-gray-100"
+                  ? "font-semibold text-gray-900"
+                  : "font-medium text-gray-500 hover:text-gray-800"
               }`}
               onClick={() => setActivePage(page)}
             >
@@ -38,24 +35,47 @@ export default function SettingsPage() {
         </nav>
       </div>
 
-      {/* 설정 페이지의 실제 콘텐츠 (계정 정보 등) */}
-      {/* [수정] 전체적인 여백을 p-8로 늘려 통일성 및 가독성 확보 */}
-      <div className="flex-1 p-8">
-        <div className="flex flex-col gap-8">
-          <h2 className="text-3xl font-bold text-gray-900">계정</h2>
-          <div className="w-full max-w-lg space-y-5">
-            <div className="pb-4 border-b-2 border-gray-200">
-              <p className="text-base text-gray-700">아이디 - temp_id</p>
+      <div className="flex-1 py-26 pl-0 pr-16">
+        {/* [수정] 제목과 표 사이 간격을 gap-8에서 gap-10으로 늘림 */}
+        <div className="flex flex-col gap-4">
+          <h2 className="text-2xl font-bold text-gray-900">계정</h2>
+
+          <div className="w-full space-y-1">
+
+            {/* --- 아이디 정보 라인 --- */}
+            {/* [수정] 하단 여백 1px 추가 */}
+            <div className="grid grid-cols-12 gap-4 items-center pt-6 pb-[calc(0.5rem+10px)] border-b-2 border-gray-200">
+              <span className="col-span-3 text-base font-medium text-gray-600">아이디</span>
+              <span className="col-span-7 text-base text-gray-900 font-semibold">temp_id</span>
             </div>
-            <div className="pb-4 border-b-2 border-gray-200">
-              <p className="text-base text-gray-700">이메일 - temp@example.com</p>
+
+            {/* --- 이메일 정보 라인 --- */}
+            <div className="grid grid-cols-12 gap-4 items-center pt-2 pb-[calc(0.5rem+0.5px)] border-b-2 border-gray-200">
+              <span className="col-span-3 text-base font-medium text-gray-600">이메일</span>
+              <span className="col-span-7 text-base text-gray-900 font-semibold">temp@example.com</span>
+              <button className="relative bottom-px flex items-center justify-center col-span-2 w-4/12 justify-self-end px-4 py-3 text-sm font-bold bg-white text-gray-800 border border-gray-400 hover:bg-gray-100">
+                변경
+              </button>
             </div>
-            <div className="pb-4 border-b-2 border-gray-200">
-              <p className="text-base text-gray-700">휴대폰 번호 - 010-1234-5678</p>
+
+            {/* --- 휴대폰 번호 정보 라인 --- */}
+            <div className="grid grid-cols-12 gap-4 items-center pt-2 pb-[calc(0.5rem+0.5px)] border-b-2 border-gray-200">
+              <span className="col-span-3 text-base font-medium text-gray-600">휴대폰 번호</span>
+              <span className="col-span-7 text-base text-gray-900 font-semibold">010-1234-5678</span>
+              <button className="relative bottom-px flex items-center justify-center col-span-2 w-4/12 justify-self-end px-4 py-3 text-sm font-bold bg-white text-gray-800 border border-gray-400 hover:bg-gray-100">
+                변경
+              </button>
             </div>
-            <div className="pb-4 border-b-2 border-gray-200">
-              <p className="text-base text-gray-700">닉네임 - 임시닉네임</p>
+
+            {/* --- 닉네임 정보 라인 --- */}
+            <div className="grid grid-cols-12 gap-4 items-center pt-2 pb-[calc(0.5rem+0.5px)] border-b-2 border-gray-200">
+              <span className="col-span-3 text-base font-medium text-gray-600">닉네임</span>
+              <span className="col-span-7 text-base text-gray-900 font-semibold">임시닉네임</span>
+              <button className="relative bottom-px flex items-center justify-center col-span-2 w-4/12 justify-self-end px-4 py-3 text-sm font-bold bg-white text-gray-800 border border-gray-400 hover:bg-gray-100">
+                변경
+              </button>
             </div>
+            
           </div>
         </div>
       </div>
