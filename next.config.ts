@@ -15,7 +15,7 @@ const nextConfig: NextConfig = {
     ],
     unoptimized: true,
   },
-  webpack(config) {
+  webpack(config: any) {
     config.module.rules.push({
       test: /\.svg$/i,
       issuer: /\.[jt]sx?$/,

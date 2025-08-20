@@ -84,13 +84,13 @@ export const formConfig: FormConfig[] = [
     ]
   },
   {
-    type: 'full', field: { component: FormInput, name: 'conditionDescription', label: <>상품 상태 설명 <span className="text-[#9E9E9E]">(선택)</span></>, placeholder: '상품의 상태를 자세하게 설명해주세요.' }
+    type: 'full', field: { component: FormInput, name: 'conditionDescription', label: <>상품 상태 설명 <span className="text-[#9E9E9E]"></span></>, placeholder: '상품의 상태를 자세하게 설명해주세요.' }
   },
   {
-    type: 'full', field: { component: FormTextArea, name: 'productDescription', label: '상품 소개 (40자 이내)', placeholder: '고객에게 보여줄 상품 소개를 간략하게 입력해주세요.', rows: 4 }
+    type: 'full', field: { component: FormTextArea, name: 'productDescription', label: '상품 소개 (50자 이내)', placeholder: '고객에게 보여줄 상품 소개를 간략하게 입력해주세요.', rows: 4 }
   },
   {
-    type: 'full', field: { component: FormTextArea, name: 'productHistory', label: <>상품 히스토리 소개 <span className="text-[#9E9E9E]">(선택)</span></>, placeholder: '상품의 히스토리를 간략하게 입력해주세요.', rows: 4 }
+    type: 'full', field: { component: FormTextArea, name: 'productHistory', label: <>상품 히스토리 소개 <span className="text-[#9E9E9E]"></span></>, placeholder: '상품의 히스토리를 간략하게 입력해주세요.', rows: 4 }
   },
   {
     type: 'full', field: { component: FormTextArea, name: 'expectedEffect', label: <>기대효과<span className="text-[#9E9E9E]"></span></>, placeholder: '기대효과를 간략하게 입력해주세요.', rows: 4 }
