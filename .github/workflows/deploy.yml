@@ -8,10 +8,6 @@ on:
 
 env:
   AWS_REGION: ap-northeast-2
-  ECR_REPOSITORY: nafal-frontend
-  ECS_CLUSTER: nafal-cluster
-  ECS_SERVICE: nafal-frontend-service
-  ECS_TASK_DEFINITION: nafal-frontend-task
 
 jobs:
   build-and-deploy:
@@ -51,38 +47,29 @@ jobs:
     - name: Build application
       run: pnpm build
 
-    - name: Configure AWS credentials
-      uses: aws-actions/configure-aws-credentials@v4
-      with:
-        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        aws-region: ${{ env.AWS_REGION }}
-
-    - name: Login to Amazon ECR
-      id: login-ecr
-      uses: aws-actions/amazon-ecr-login@v2
-
-    - name: Build, tag, and push image to Amazon ECR
-      id: build-image
-      env:
-        ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-        IMAGE_TAG: ${{ github.sha }}
+    - name: Build Docker image
       run: |
-        docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
-        docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:latest .
-        docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
-        docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
-        echo "image=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" >> $GITHUB_OUTPUT
+        docker build -t nafal-frontend:${{ github.sha }} .
+        docker save nafal-frontend:${{ github.sha }} | gzip > nafal-frontend.tar.gz
 
     - name: Deploy to EC2
+      uses: appleboy/scp-action@v0.1.7
+      with:
+        host: ${{ secrets.EC2_HOST }}
+        username: ${{ secrets.EC2_USERNAME }}
+        key: ${{ secrets.EC2_SSH_KEY }}
+        source: "nafal-frontend.tar.gz"
+        target: "/tmp/"
+
+    - name: Deploy and run on EC2
       uses: appleboy/ssh-action@v1.0.3
       with:
         host: ${{ secrets.EC2_HOST }}
         username: ${{ secrets.EC2_USERNAME }}
         key: ${{ secrets.EC2_SSH_KEY }}
         script: |
-          # Docker 이미지 풀
-          docker pull ${{ steps.build-image.outputs.image }}
+          # Docker 이미지 로드
+          docker load < /tmp/nafal-frontend.tar.gz
           
           # 기존 컨테이너 중지 및 제거
           docker stop nafal-frontend || true
@@ -94,7 +81,10 @@ jobs:
             --restart unless-stopped \
             -p 3000:3000 \
             -e NODE_ENV=production \
-            ${{ steps.build-image.outputs.image }}
+            nafal-frontend:${{ github.sha }}
           
           # 사용하지 않는 이미지 정리
           docker image prune -f
+          
+          # 임시 파일 삭제
+          rm -f /tmp/nafal-frontend.tar.gz
