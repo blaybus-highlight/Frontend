@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { loginUser } from '@/api/login';
-import Cookies from 'js-cookie';
+import { saveTokens } from '@/lib/tokenUtils';
 
 import EyeClose from '@/assets/eye-close.svg';
 import EyeOpen from '@/assets/eye-open.svg';
@@ -18,7 +18,6 @@ export default function LoginPage() {
   const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    console.log('로그인 시도:', { userId, password });
     e.preventDefault();
     setIsLoading(true);
     setError('');
@@ -27,15 +26,19 @@ export default function LoginPage() {
       // 분리된 API 함수를 호출합니다.
       const data = await loginUser({ userId, password });
     
-      console.log('로그인 성공:', data);
-      const token = data.data.accessToken; 
-      console.log('받은 토큰:', token);
-      // TODO: 응답 데이터(예: JWT 토큰)를 안전한 곳에 저장
-      if (token) {
-        localStorage.setItem('accessToken', token);
-        Cookies.set('accessToken', token, { expires: 1 / 48 });
-        console.log(`쿠키 확인 ${Cookies.get('accessToken')}`); 
-        router.push('/'); // 로그인 성공 시 홈으로 이동
+      const { accessToken, refreshToken } = data.data;
+      
+      if (accessToken && refreshToken) {
+        // 새로운 토큰 관리 시스템 사용
+        saveTokens(accessToken, refreshToken);
+        
+        // 토큰 저장 후 강제로 이벤트 발생
+        window.dispatchEvent(new Event('tokenChanged'));
+        
+        // 잠시 대기 후 홈으로 이동 (헤더 업데이트를 위해)
+        setTimeout(() => {
+          router.push('/');
+        }, 100);
       } else {
         throw new Error('토큰이 응답에 포함되지 않았습니다.');
       }

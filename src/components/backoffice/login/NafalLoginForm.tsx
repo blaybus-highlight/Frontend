@@ -21,14 +21,16 @@ const NafalLoginForm = () => {
     setError(null);
     setIsLoading(true);
     try {
-      const token = await loginAdmin({ adminId, password });
-      if (token) {
-        // 토큰을 localStorage에 저장
-        localStorage.setItem('accessToken', token);
+      await loginAdmin({ adminId, password });
+      // 토큰은 loginAdmin 함수 내에서 자동으로 저장됨
+      
+      // 토큰 저장 후 강제로 이벤트 발생
+      window.dispatchEvent(new Event('tokenChanged'));
+      
+      // 잠시 대기 후 대시보드로 이동 (헤더 업데이트를 위해)
+      setTimeout(() => {
         router.push('/backoffice/dashboard');
-      } else {
-        setError("로그인에 실패했습니다. 아이디와 비밀번호를 확인해주세요.");
-      }
+      }, 100);
     } catch (error) {
       console.error("로그인 오류:", error);
       setError("로그인 중 오류가 발생했습니다.");
@@ -39,86 +41,68 @@ const NafalLoginForm = () => {
 
   return (
     <div className="flex flex-col items-center self-stretch py-[120px] mb-[1px]">
-      <div className="flex flex-col items-center gap-[31px]">
-        <span className="text-nafal-text-dark text-4xl font-bold">
+      <div className="flex flex-col items-center self-stretch px-[60px] py-[40px] bg-white rounded-lg shadow-lg">
+        <h1 className="text-[32px] font-bold text-[#111416] mb-[40px]">
           관리자 로그인
-        </span>
-        <div className="flex flex-col items-center gap-6">
+        </h1>
+        
+        <div className="w-full max-w-[400px] space-y-[24px]">
+          {/* 아이디 입력 */}
+          <div className="space-y-[8px]">
+            <label className="block text-[16px] font-medium text-[#111416]">
+              아이디
+            </label>
+            <input
+              type="text"
+              value={adminId}
+              onChange={(e) => setAdminId(e.target.value)}
+              placeholder="아이디를 입력하세요"
+              className="w-full px-[16px] py-[12px] border border-[#E0E0E0] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+
+          {/* 비밀번호 입력 */}
+          <div className="space-y-[8px]">
+            <label className="block text-[16px] font-medium text-[#111416]">
+              비밀번호
+            </label>
+            <div className="relative">
+              <input
+                type={showPassword ? "text" : "password"}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="비밀번호를 입력하세요"
+                className="w-full px-[16px] py-[12px] border border-[#E0E0E0] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-[16px] top-1/2 transform -translate-y-1/2"
+              >
+                <img
+                  src={eyeIcon.src}
+                  alt={showPassword ? "비밀번호 숨기기" : "비밀번호 보기"}
+                  className="w-[20px] h-[20px]"
+                />
+              </button>
+            </div>
+          </div>
+
+          {/* 에러 메시지 */}
           {error && (
-            <div className="text-red-500 text-sm">
+            <div className="text-red-500 text-sm text-center">
               {error}
             </div>
           )}
-          <div className="flex flex-col items-start gap-6 w-full max-w-[400px]">
-            {/* adminId Field */}
-            <div className="flex flex-col items-start gap-[7px] w-full">
-              <span className="text-foreground text-base">
-                아이디
-              </span>
-              <div className="flex flex-col items-start bg-background py-2.5 px-4 border border-solid border-[#E0E0E0] w-full">
-                <input
-                  type="text"
-                  value={adminId}
-                  onChange={(e) => setAdminId(e.target.value)}
-                  placeholder="아이디 입력"
-                  className="text-nafal-gray text-base bg-transparent border-none outline-none placeholder:text-nafal-gray w-full"
-                  aria-label="관리자 아이디"
-                  aria-invalid={error ? "true" : "false"}
-                />
-              </div>
-            </div>
 
-            {/* Password Field */}
-            <div className="flex flex-col items-start gap-[7px] w-full">
-              <span className="text-foreground text-base">
-                비밀번호
-              </span>
-              <div className="flex items-center bg-background py-[9px] px-4 border border-solid border-[#E0E0E0] w-full">
-                <input
-                  type={showPassword ? "text" : "password"}
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder="비밀번호 입력"
-                  className="text-nafal-gray text-base bg-transparent border-none outline-none placeholder:text-nafal-gray flex-1"
-                  aria-label="비밀번호"
-                  aria-invalid={error ? "true" : "false"}
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  aria-label={showPassword ? "비밀번호 숨기기" : "비밀번호 표시"}
-                >
-                  <img
-                    src={eyeIcon.src}
-                    alt="비밀번호 표시/숨기기"
-                    className="w-6 h-6 object-fill"
-                  />
-                </button>
-              </div>
-            </div>
-          </div>
-
-          {/* Login Button */}
+          {/* 로그인 버튼 */}
           <button
-            className="h-[56px] w-full max-w-[400px] bg-black text-[16px]/[22px] font-bold text-white disabled:bg-black-400"
             onClick={handleLogin}
-            disabled={isLoading || !adminId || !password}
+            disabled={isLoading}
+            className="w-full h-[56px] bg-[#111416] text-white font-bold rounded-lg hover:bg-[#2C2C2C] disabled:bg-gray-400 disabled:cursor-not-allowed"
           >
             {isLoading ? "로그인 중..." : "로그인"}
           </button>
-
-          {/* Bottom Links */}
-          <div className="flex items-start px-[78px]">
-            <span className="text-foreground text-sm my-2.5 ml-4 mr-[17px] cursor-pointer hover:underline">
-              비밀번호 찾기
-            </span>
-            <span className="text-foreground text-sm my-2.5 ml-4 mr-[17px] cursor-pointer hover:underline">
-              아이디 찾기
-            </span>
-            <span className="text-foreground text-sm my-2.5 mx-4 cursor-pointer hover:underline">
-              회원가입
-            </span>
-          </div>
         </div>
       </div>
     </div>

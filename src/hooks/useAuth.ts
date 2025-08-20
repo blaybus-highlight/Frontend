@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { getAccessToken, clearTokens } from '@/lib/tokenUtils';
 
 export const useAuth = () => {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
@@ -9,8 +10,8 @@ export const useAuth = () => {
   useEffect(() => {
     const checkAuth = () => {
       try {
-        // localStorage에서 토큰 확인
-        const token = localStorage.getItem('accessToken');
+        // 새로운 토큰 관리 시스템 사용
+        const token = getAccessToken();
         
         if (token) {
           // 토큰이 있으면 인증된 것으로 간주
@@ -38,7 +39,8 @@ export const useAuth = () => {
   };
 
   const logout = () => {
-    localStorage.removeItem('accessToken');
+    // 새로운 토큰 관리 시스템 사용
+    clearTokens();
     setIsAuthenticated(false);
     router.push('/backoffice/login');
   };
