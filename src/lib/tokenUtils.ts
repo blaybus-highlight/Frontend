@@ -8,6 +8,11 @@ export const saveTokens = (accessToken: string, refreshToken: string) => {
   Cookies.set('refreshToken', refreshToken, { expires: 7 });
   localStorage.setItem('accessToken', accessToken);
   localStorage.setItem('refreshToken', refreshToken);
+  
+  // 토큰 변경 이벤트 발생
+  if (typeof window !== 'undefined') {
+    window.dispatchEvent(new Event('tokenChanged'));
+  }
 };
 
 // 토큰 가져오기
@@ -25,6 +30,11 @@ export const clearTokens = () => {
   Cookies.remove('refreshToken');
   localStorage.removeItem('accessToken');
   localStorage.removeItem('refreshToken');
+  
+  // 토큰 변경 이벤트 발생
+  if (typeof window !== 'undefined') {
+    window.dispatchEvent(new Event('tokenChanged'));
+  }
 };
 
 // 토큰 만료 시간 확인 (JWT 디코딩)

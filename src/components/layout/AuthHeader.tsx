@@ -29,7 +29,7 @@ export function AuthHeader() {
     window.addEventListener('storage', handleTokenChange);
 
     // 주기적으로 토큰 상태 확인 (백업)
-    const interval = setInterval(checkAuth, 1000);
+    const interval = setInterval(checkAuth, 100);
 
     return () => {
       window.removeEventListener('tokenChanged', handleTokenChange);

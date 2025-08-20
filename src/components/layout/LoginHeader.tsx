@@ -86,7 +86,7 @@ export function LoginHeader() {
           {/* 카테고리 버튼들 */}
           <div className='hidden md:flex items-center space-x-2 ml-4'>
             <button className='text-xs text-white px-3 py-1 rounded-full border border-gray-600 hover:bg-gray-700'>
-              추천
+              랭킹
             </button>
             <button className='text-xs text-white px-3 py-1 rounded-full border border-gray-600 hover:bg-gray-700'>
               카테고리

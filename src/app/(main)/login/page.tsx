@@ -29,16 +29,11 @@ export default function LoginPage() {
       const { accessToken, refreshToken } = data.data;
       
       if (accessToken && refreshToken) {
-        // 새로운 토큰 관리 시스템 사용
+        // 새로운 토큰 관리 시스템 사용 (saveTokens 내부에서 이벤트 발생)
         saveTokens(accessToken, refreshToken);
         
-        // 토큰 저장 후 강제로 이벤트 발생
-        window.dispatchEvent(new Event('tokenChanged'));
-        
-        // 잠시 대기 후 홈으로 이동 (헤더 업데이트를 위해)
-        setTimeout(() => {
-          router.push('/');
-        }, 100);
+        // 즉시 홈으로 이동
+        router.push('/');
       } else {
         throw new Error('토큰이 응답에 포함되지 않았습니다.');
       }

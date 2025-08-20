@@ -6,7 +6,6 @@ import WinNotificationModal from './WinNotificationModal';
 import LostNotificationModal from './LostNotificationModal';
 import CancelNotificationModal from './CancelNotificationModal';
 import NotificationToastContainer from './NotificationToastContainer';
-import NotificationDemo from './NotificationDemo';
 
 interface NotificationManagerProps {
   userId?: number;
@@ -130,27 +129,6 @@ const NotificationManager = ({ userId, currentAuctionId }: NotificationManagerPr
         onMyBids={handleMyBids}
       />
 
-      {/* 개발용 컴포넌트들 */}
-      {process.env.NODE_ENV === 'development' && (
-        <>
-          {/* 연결 상태 표시 */}
-          <div className="fixed bottom-4 right-4 z-40">
-            <div className={`px-3 py-1 rounded-full text-xs ${
-              isConnected ? 'bg-green-500 text-white' : 'bg-red-500 text-white'
-            }`}>
-              {isConnected ? '🔔 연결됨' : '🔔 연결 끊김'}
-            </div>
-            {unreadCount > 0 && (
-              <div className="mt-1 px-2 py-1 bg-blue-500 text-white text-xs rounded-full text-center">
-                {unreadCount}개 읽지 않음
-              </div>
-            )}
-          </div>
-          
-          {/* 알림 테스트 데모 */}
-          <NotificationDemo />
-        </>
-      )}
     </>
   );
 };

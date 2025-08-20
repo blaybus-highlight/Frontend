@@ -61,7 +61,7 @@ export function LogoutHeader() {
         <div className='flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-0'>
           <div className='hidden sm:flex items-center space-x-8'>
             <button className='group relative text-sm text-white transition-colors hover:text-gray-300'>
-              추천
+              랭킹
               <span className='absolute bottom-0 left-0 h-0.5 w-0 bg-white transition-all duration-300 group-hover:w-full' />
             </button>
             <button className='group relative text-sm text-white transition-colors hover:text-gray-300'>
@@ -73,7 +73,7 @@ export function LogoutHeader() {
           {/* 모바일 카테고리 */}
           <div className='flex sm:hidden items-center space-x-4 w-full justify-center'>
             <button className='text-xs text-white px-3 py-1 rounded-full border border-gray-600 hover:bg-gray-700'>
-              추천
+              랭킹
             </button>
             <button className='text-xs text-white px-3 py-1 rounded-full border border-gray-600 hover:bg-gray-700'>
               카테고리
