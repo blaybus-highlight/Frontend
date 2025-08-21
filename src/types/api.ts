@@ -9,6 +9,7 @@ export interface Product {
   currentPrice: number;
   buyNowPrice: number;
   minimumBid: number;
+  currentHighestBid?: number;
   bidCount: number;
   endTime: string;
   auctionStatus: string;
