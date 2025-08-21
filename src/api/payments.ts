@@ -12,6 +12,7 @@ export interface BuyItNowResponse {
     pointReward: number;
     remainingPoint: number;
     completedAt: string;
+    paymentStatus?: string;
   };
   message: string;
 }

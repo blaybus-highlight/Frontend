@@ -15,7 +15,7 @@ import { useSTOMPSocket } from '@/hooks/useSTOMPSocket';
 import { useAuctionStatus } from '@/hooks/useAuctionStatus';
 import { useWishlistStatus, useWishlistToggle } from '@/hooks/useWishlist';
 import { productsApi } from '@/api/products';
-import { buyItNow } from '@/api/payments';
+import { buyItNow, BuyItNowRequest } from '@/api/payments';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import AuctionResultModal from './AuctionResultModal';
 import BuyItNowModal from './BuyItNowModal';
@@ -225,9 +225,9 @@ const ProductInfo = ({ product, auction }: ProductInfoProps) => {
 
   // 즉시구매 mutation
   const buyNowMutation = useMutation({
-    mutationFn: ({ auctionId, request }: { auctionId: number; request: BuyItNowRequest }) => {
-      console.log('🚀 즉시구매 API 호출 시작:', { auctionId, request });
-      return productsApi.buyItNow(auctionId, request);
+    mutationFn: (request: BuyItNowRequest) => {
+      console.log('🚀 즉시구매 API 호출 시작:', request);
+      return buyItNow(request);
     },
     onSuccess: (data) => {
       console.log('✅ 즉시구매 성공:', data);
@@ -361,10 +361,7 @@ const ProductInfo = ({ product, auction }: ProductInfoProps) => {
     buyNowMutation.reset();
     setTimeout(() => {
       console.log('⏰ setTimeout 실행 - mutation 호출');
-      buyNowMutation.mutate({
-        auctionId: auction.auctionId,
-        request,
-      });
+      buyNowMutation.mutate(request);
     }, 100);
   };
 
