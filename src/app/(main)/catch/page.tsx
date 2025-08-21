@@ -1,6 +1,8 @@
 "use client"; // Next.js App Router 환경을 위한 지시어
 
 import React, { useState, useEffect } from 'react';
+// [수정] 1. Next.js의 App Router용 useRouter를 import합니다.
+import { useRouter } from 'next/navigation';
 
 // --- [백엔드 연동] 1. 데이터 타입 정의 ---
 interface BidSuccessData {
@@ -44,24 +46,14 @@ const StyleProvider = () => {
       font-size: 17px;
       margin-bottom: 40px;
     }
-    
-    /* --- ▼▼▼▼▼ 수정된 부분 ▼▼▼▼▼ --- */
     .day-highlight {
-      /* [수정] color 속성을 제거하여 주변 텍스트와 폰트 색상을 동일하게 맞춥니다. */
-      
-      /* [수정] font-size를 추가하여 주변 텍스트보다 크게 만듭니다. (1.2배) */
       font-size: 1.2em;
-
-      /* [수정] font-weight: 700;은 'bold'와 동일한 굵기입니다. */
       font-weight: 700;
     }
-    /* --- ▲▲▲▲▲ 수정된 부분 ▲▲▲▲▲ --- */
-
     .flower-highlight {
       font-weight: 700;
-      color: black; /* 예시: 초록색 계열 */
+      color: black;
     }
-
     .image-container {
       width: 100%;
       aspect-ratio: 4 / 3;
@@ -94,7 +86,8 @@ const StyleProvider = () => {
 };
 
 // --- [백엔드 연동] 3. 화면을 그리는 순수 UI 컴포넌트 (Presenter) ---
-const BiddingSuccessView: React.FC<{ data: BidSuccessData }> = ({ data }) => {
+// [수정] 버튼 클릭 시 실행할 함수를 props로 받도록 타입을 추가합니다. (onNavigate)
+const BiddingSuccessView: React.FC<{ data: BidSuccessData; onNavigate: () => void; }> = ({ data, onNavigate }) => {
   return (
     <div className="bidding-success-page">
       <div className="content-wrapper">
@@ -114,7 +107,8 @@ const BiddingSuccessView: React.FC<{ data: BidSuccessData }> = ({ data }) => {
           </div>
         </div>
         <div className="button-container">
-          <button type="button" className="cta-button">
+          {/* [수정] 4. 버튼에 onClick 이벤트를 추가하고, props로 받은 onNavigate 함수를 연결합니다. */}
+          <button type="button" className="cta-button" onClick={onNavigate}>
             최종 결제하러 가기
           </button>
         </div>
@@ -126,10 +120,11 @@ const BiddingSuccessView: React.FC<{ data: BidSuccessData }> = ({ data }) => {
 
 // --- [백엔드 연동] 4. 데이터 관리 및 API 호출을 담당하는 메인 페이지 컴포넌트 (Container) ---
 const BiddingSuccessPage: React.FC = () => {
+  // [수정] 2. useRouter 훅을 호출하여 router 객체를 생성합니다.
+  const router = useRouter();
   const [bidData, setBidData] = useState<BidSuccessData | null>(null);
 
   useEffect(() => {
-    // --- 백엔드 API 호출 시뮬레이션 ---
     const mockApiData: BidSuccessData = {
       productImageUrl: "https://via.placeholder.com/800x600/cccccc/888888?text=낙찰된+상품",
       daysLeft: 7,
@@ -139,6 +134,11 @@ const BiddingSuccessPage: React.FC = () => {
     setBidData(mockApiData);
   }, []);
 
+  // [수정] 3. '/catch/pay' 경로로 이동시키는 핸들러 함수를 정의합니다.
+  const handleNavigateToPayment = () => {
+    router.push('/catch/pay');
+  };
+
   if (!bidData) {
     return <div>데이터를 불러오는 중입니다...</div>;
   }
@@ -146,7 +146,8 @@ const BiddingSuccessPage: React.FC = () => {
   return (
     <>
       <StyleProvider />
-      <BiddingSuccessView data={bidData} />
+      {/* [수정] View 컴포넌트에 onNavigate prop으로 핸들러 함수를 전달합니다. */}
+      <BiddingSuccessView data={bidData} onNavigate={handleNavigateToPayment} />
     </>
   );
 };
