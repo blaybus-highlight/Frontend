@@ -22,6 +22,22 @@ const processQueue = (error: any, token: string | null = null) => {
   failedQueue = [];
 };
 
+// 토큰 갱신 함수
+const refreshToken = async () => {
+  const refreshTokenValue = getRefreshToken();
+  if (!refreshTokenValue) {
+    throw new Error('Refresh token not found');
+  }
+
+  const response = await refreshAccessToken(refreshTokenValue);
+  const { accessToken: newAccessToken, refreshToken: newRefreshToken } = response.data;
+  
+  // 새로운 토큰들을 저장합니다.
+  saveTokens(newAccessToken, newRefreshToken);
+  
+  return newAccessToken;
+};
+
 // axios 인스턴스 생성
 const axiosInstance = axios.create({
   baseURL: API_BASE_URL, // API 기본 URL
@@ -40,23 +56,9 @@ axiosInstance.interceptors.request.use(
         isRefreshing = true;
         
         try {
-          const refreshToken = getRefreshToken();
-          if (refreshToken) {
-            const response = await refreshAccessToken(refreshToken);
-            const newAccessToken = response.data.accessToken;
-            const newRefreshToken = response.data.refreshToken;
-            
-            // 새로운 토큰들을 저장합니다.
-            saveTokens(newAccessToken, newRefreshToken);
-            token = newAccessToken;
-            
-            processQueue(null, newAccessToken);
-          } else {
-            processQueue(new Error('Refresh token not found'));
-            clearTokens();
-            window.location.href = '/login';
-            return Promise.reject(new Error('Refresh token not found'));
-          }
+          const newAccessToken = await refreshToken();
+          token = newAccessToken;
+          processQueue(null, newAccessToken);
         } catch (error) {
           processQueue(error);
           clearTokens();
@@ -105,26 +107,13 @@ axiosInstance.interceptors.response.use(
         isRefreshing = true;
         
         try {
-          const refreshToken = getRefreshToken();
-          if (refreshToken) {
-            const response = await refreshAccessToken(refreshToken);
-            const newAccessToken = response.data.accessToken;
-            const newRefreshToken = response.data.refreshToken;
-            
-            // 새로운 토큰들을 저장합니다.
-            saveTokens(newAccessToken, newRefreshToken);
-            
-            // 원래 요청을 새로운 토큰으로 재시도
-            originalRequest.headers['Authorization'] = `Bearer ${newAccessToken}`;
-            processQueue(null, newAccessToken);
-            
-            return axiosInstance(originalRequest);
-          } else {
-            processQueue(new Error('Refresh token not found'));
-            clearTokens();
-            window.location.href = '/login';
-            return Promise.reject(new Error('Refresh token not found'));
-          }
+          const newAccessToken = await refreshToken();
+          
+          // 원래 요청을 새로운 토큰으로 재시도
+          originalRequest.headers['Authorization'] = `Bearer ${newAccessToken}`;
+          processQueue(null, newAccessToken);
+          
+          return axiosInstance(originalRequest);
         } catch (refreshError) {
           processQueue(refreshError);
           clearTokens();

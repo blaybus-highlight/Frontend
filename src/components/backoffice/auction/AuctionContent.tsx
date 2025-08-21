@@ -22,6 +22,7 @@ const AuctionContent = () => {
     refetch, 
     goToPage 
   } = useAuctions({
+    limit: 50,
     status: activeFilter === "전체" ? undefined : activeFilter,
     searchTerm: searchTerm || undefined,
   })

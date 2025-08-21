@@ -59,3 +59,24 @@ export const isTokenExpiringSoon = (token: string): boolean => {
     return true;
   }
 };
+
+// 토큰의 만료 시간을 가져오기
+export const getTokenExpirationTime = (token: string): number | null => {
+  try {
+    const payload = JSON.parse(atob(token.split('.')[1]));
+    return payload.exp;
+  } catch (error) {
+    return null;
+  }
+};
+
+// 토큰의 남은 시간을 초 단위로 가져오기
+export const getTokenRemainingTime = (token: string): number => {
+  try {
+    const payload = JSON.parse(atob(token.split('.')[1]));
+    const currentTime = Date.now() / 1000;
+    return Math.max(0, payload.exp - currentTime);
+  } catch (error) {
+    return 0;
+  }
+};

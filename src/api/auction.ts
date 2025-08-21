@@ -63,6 +63,7 @@ export const getAuctionList = async (
     }
 
     const response = await axiosInstance.get(`${API_BASE_URL}/api/admin/auctions?${params.toString()}`);
+    console.log(`url: ${API_BASE_URL}/api/admin/auctions?${params.toString()}`);
     
     // 디버깅을 위해 응답 데이터 로깅
     // console.log('API Response:', response.data);
