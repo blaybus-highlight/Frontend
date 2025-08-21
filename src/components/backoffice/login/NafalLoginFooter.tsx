@@ -1,12 +1,21 @@
+import Image from "next/image";
+import NafalFooterLogo from "@/assets/nafal-logo-b.png";
+
 export default function NafalLoginFooter() {
-    return (
-      <footer className="bg-white border-t border-gray-200">
-        <div className="max-w-7xl mx-auto px-6 py-12">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {/* Company Info */}
-            <div>
-              <h3 className="text-xl font-bold text-gray-900 mb-4">Nafal</h3>
-              <p className="text-gray-600 text-sm mb-6 leading-relaxed">
+  return (
+    <footer className="bg-white border-t border-gray-200">
+      <div className="max-w-7xl mx-auto px-6 py-12">
+        <div className="flex flex-col md:flex-row justify-between gap-10">
+          {/* 왼쪽: 회사 정보 */}
+          <div className="flex-1">
+            <Image
+              src={NafalFooterLogo}
+              alt="Nafal 로고"
+              width={72}
+              height={24}
+              className="mb-4"
+            />
+            <p className="text-gray-600 text-sm mb-6 leading-relaxed">
                 믿을 수 있는 가치 플랫폼, 나팔
                 <br />
                 갖고 싶은 한정판 제품은 다 나팔에서
@@ -24,59 +33,46 @@ export default function NafalLoginFooter() {
                 </a>
               </div>
             </div>
-  
-            {/* Services */}
-            <div className="text-right">
-              <h4 className="text-lg font-semibold text-gray-900 mb-4">서비스</h4>
+
+
+
+
+
+
+          {/* 오른쪽: 서비스 + 고객센터 */}
+          <div className="flex gap-12">
+            {/* 서비스 */}
+            <div>
+              <h4 className="text-base font-semibold text-gray-900 mb-4">서비스</h4>
               <ul className="space-y-2">
-                <li>
-                  <a href="#" className="text-gray-600 hover:text-gray-900 transition-colors text-sm">
-                    회사소개
-                  </a>
-                </li>
-                <li>
-                  <a href="#" className="text-gray-600 hover:text-gray-900 transition-colors text-sm">
-                    검수기준
-                  </a>
-                </li>
-                <li>
-                  <a href="#" className="text-gray-600 hover:text-gray-900 transition-colors text-sm">
-                    페널티정책
-                  </a>
-                </li>
-                <li>
-                  <a href="#" className="text-gray-600 hover:text-gray-900 transition-colors text-sm">
-                    제휴문의
-                  </a>
-                </li>
+                <li><a href="#" className="text-gray-600 hover:text-gray-900 text-sm">회사소개</a></li>
+                <li><a href="#" className="text-gray-600 hover:text-gray-900 text-sm">검수기준</a></li>
+                <li><a href="#" className="text-gray-600 hover:text-gray-900 text-sm">페널티정책</a></li>
+                <li><a href="#" className="text-gray-600 hover:text-gray-900 text-sm">제휴문의</a></li>
               </ul>
             </div>
-  
-            {/* Customer Service */}
-            <div className="text-right">
-              <h4 className="text-lg font-semibold text-gray-900 mb-4">고객센터</h4>
-              <div className="space-y-2 text-sm text-gray-600">
-                <div>02-786-8978</div>
-                <div>support@soldout.kr</div>
-                <div>평일 10:00 - 18:00</div>
-              </div>
-            </div>
-          </div>
-  
-          <div className="border-t border-gray-200 mt-8 pt-8">
-            <div className="flex flex-col md:flex-row justify-between items-center">
-              <p className="text-gray-500 text-sm">@2024 NAFAL. All rights reserved.</p>
-              <div className="flex space-x-6 mt-4 md:mt-0">
-                <a href="#" className="text-gray-500 hover:text-gray-700 transition-colors text-sm">
-                  이용약관
-                </a>
-                <a href="#" className="text-gray-500 hover:text-gray-700 transition-colors text-sm">
-                  개인정보처리방침
-                </a>
-              </div>
+
+            {/* 고객센터 */}
+            <div>
+              <h4 className="text-base font-semibold text-gray-900 mb-4">고객센터</h4>
+              <ul className="space-y-2 text-sm text-gray-600">
+                <li>02-786-8978</li>
+                <li>support@soldout.kr</li>
+                <li>평일 10:00 - 18:00</li>
+              </ul>
             </div>
           </div>
         </div>
-      </footer>
-    )
-  }
+
+        {/* 아래쪽: 저작권 */}
+        <div className="border-t border-gray-200 mt-10 pt-6 flex flex-col md:flex-row justify-between items-center">
+          <p className="text-gray-500 text-sm">@2024 NAFAL. All rights reserved.</p>
+          <div className="flex space-x-6 mt-4 md:mt-0">
+            <a href="#" className="text-gray-500 hover:text-gray-700 text-sm">이용약관</a>
+            <a href="#" className="text-gray-500 hover:text-gray-700 text-sm">개인정보처리방침</a>
+          </div>
+        </div>
+      </div>
+    </footer>
+  );
+}
