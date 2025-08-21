@@ -1,3 +1,6 @@
+"use client"
+
+import { Input } from '@/components/ui/input';
 import React from 'react';
 
 // --- 데이터 타입 및 목업 데이터 정의 ---
@@ -11,8 +14,8 @@ interface Product {
 }
 
 const productData: Product = {
-  name: 'image',
-  category: '임시',
+  name: '홍익대 예술대 졸업작품전 출품작 20',
+  category: '회화/캔버스',
   quantity: 1,
   price: 120000,
   imageUrl: 'https://via.placeholder.com/100',
@@ -132,12 +135,82 @@ const StyleProvider = () => {
       background-position: left, right;
       border-radius: 3px;
     }
-    @media (max-width: 768px) {
-      .checkoutContentWrapper {
-        flex-direction: column;
-        gap: 40px;
+    
+         /* 배송 정보 스타일 */
+     .checkoutShippingSection {
+       margin-top: 40px;
+       padding-top: 30px;
+       border-top: 1px solid #eee;
+     }
+                 .checkoutShippingInfo {
+        background-color: white;
+        border-radius: 8px;
+        padding: 15px 14px;
       }
-    }
+      .checkoutShippingRow {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 8px;
+      }
+      .checkoutShippingRow:last-child {
+        margin-bottom: 0;
+      }
+      .checkoutShippingLabel {
+        font-size: 14px;
+        color: #666;
+        min-width: 60px;
+      }
+      .checkoutShippingValue {
+        font-size: 14px;
+        color: #333;
+        font-weight: 500;
+        flex: 1;
+        text-align: right;
+      }
+     .checkoutShippingInput {
+       flex: 1;
+       padding: 8px 12px;
+       border: 1px solid #ddd;
+       border-radius: 4px;
+       font-size: 14px;
+       background-color: white;
+     }
+     .checkoutShippingInput:focus {
+       outline: none;
+       border-color: #007bff;
+     }
+           .checkoutShippingMemo {
+        margin-top: 16px;
+        padding-top: 16px;
+        border-top: 1px solid #eee;
+        display: flex;
+      }
+      .checkoutShippingMemoInput {
+  /* 1. width를 100%에서 원하는 고정 너비로 변경 */
+  width: 500px; /* ← 원하는 길이로 조절하세요 */
+
+  /* 2. 이 속성을 추가하여 요소를 오른쪽으로 밀어냅니다 */
+  margin-left: auto; 
+
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+  background-color: white;
+}
+
+.checkoutShippingMemoInput:focus {
+  outline: none;
+  border-color: #007bff;
+}
+     
+     @media (max-width: 768px) {
+       .checkoutContentWrapper {
+         flex-direction: column;
+         gap: 40px;
+       }
+     }
   `;
   return <style>{css}</style>;
 };
@@ -195,11 +268,74 @@ const PaymentMethod = () => (
   </div>
 );
 
+// 4. 배송 정보 컴포넌트
+const ShippingInfo: React.FC<{ 
+  shippingData: {
+    name: string;
+    phone: string;
+    address: string;
+    zipCode: string;
+    memo: string;
+  };
+  onShippingDataChange: (field: string, value: string) => void;
+}> = ({ shippingData, onShippingDataChange }) => (
+  <div className="checkoutShippingSection">
+    <h2 className="checkoutSectionTitle title-left">배송 정보</h2>
+    <div className="checkoutShippingInfo">
+      <div className="checkoutShippingRow">
+        <span className="checkoutShippingLabel">받는 사람</span>
+        <span className="checkoutShippingValue">{shippingData.name}</span>
+      </div>
+      <div className="checkoutShippingRow">
+        <span className="checkoutShippingLabel">전화번호</span>
+        <span className="checkoutShippingValue">{shippingData.phone}</span>
+      </div>
+      <div className="checkoutShippingRow">
+        <span className="checkoutShippingLabel">주소</span>
+        <span className="checkoutShippingValue">
+          {shippingData.address} ({shippingData.zipCode})
+        </span>
+      </div>
+      <div className="checkoutShippingMemo">
+        <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', color: '#666' }}>
+          배송 메모
+        </label>
+        <Input
+          type="text"
+          className="checkoutShippingMemoInput"
+          placeholder="배송 시 요청사항을 입력해주세요 (예: 도착시 문자 주세요)"
+          value={shippingData.memo}
+          onChange={(e) => onShippingDataChange('memo', e.target.value)}
+        />
+      </div>
+    </div>
+  </div>
+);
+
+
+
 
 // --- [리팩토링] 메인 컴포넌트 ---
 
 const CheckoutPage: React.FC = () => {
   const totalPrice = productData.price + shippingFee - discount;
+  
+  // 배송 정보 상태 관리
+  const [shippingData, setShippingData] = React.useState({
+    name: '김이원',
+    phone: '010-123-4567',
+    address: '서울특별시 서대문구 북아현로 22 3층',
+    zipCode: '08198',
+    memo: '도착시 문자 주세요'
+  });
+
+  // 배송 정보 변경 핸들러
+  const handleShippingDataChange = (field: string, value: string) => {
+    setShippingData(prev => ({
+      ...prev,
+      [field]: value
+    }));
+  };
 
   return (
     <>
@@ -208,7 +344,7 @@ const CheckoutPage: React.FC = () => {
         <h1 className="checkoutMainTitle">결제하기</h1>
         <div className="checkoutContentWrapper">
           
-          {/* 왼쪽: 결제 상품 정보 섹션 */}
+          {/* 왼쪽: 결제 상품 정보 및 배송 정보 섹션 */}
           <section className="checkoutLeftSection">
             <h2 className="checkoutSectionTitle title-left">결제상품</h2>
             {/* 분리된 컴포넌트 사용 */}
@@ -219,6 +355,12 @@ const CheckoutPage: React.FC = () => {
               discountAmount={discount}
               total={totalPrice}
             />
+            
+                         {/* 배송 정보 섹션 추가 */}
+             <ShippingInfo
+               shippingData={shippingData}
+               onShippingDataChange={handleShippingDataChange}
+             />
           </section>
 
           {/* 오른쪽: 결제 방법 섹션 */}
@@ -229,9 +371,9 @@ const CheckoutPage: React.FC = () => {
           </section>
 
         </div>
-      </div>
-    </>
-  );
-};
+             </div>
+     </>
+   );
+ };
 
 export default CheckoutPage;
