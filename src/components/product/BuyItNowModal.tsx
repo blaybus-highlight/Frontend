@@ -9,6 +9,7 @@ interface BuyItNowModalProps {
   onConfirm: (request: BuyItNowRequest) => void;
   productName: string;
   buyItNowPrice: number;
+  auctionId: number;
   isLoading?: boolean;
 }
 
@@ -18,10 +19,12 @@ const BuyItNowModal = ({
   onConfirm,
   productName,
   buyItNowPrice,
+  auctionId,
   isLoading = false,
 }: BuyItNowModalProps) => {
   const [paymentMethod, setPaymentMethod] = useState<'CREDIT_CARD' | 'BANK_TRANSFER' | 'KAKAO_PAY' | 'NAVER_PAY'>('CREDIT_CARD');
   const [shippingAddressId, setShippingAddressId] = useState<number>(1); // 기본 배송지
+  const [usePointAmount, setUsePointAmount] = useState<number>(0);
   const [confirmed, setConfirmed] = useState(false);
 
   if (!isOpen) return null;
@@ -33,6 +36,8 @@ const BuyItNowModal = ({
     }
 
     onConfirm({
+      auctionId,
+      usePointAmount,
       confirmed: true,
       paymentMethod,
       shippingAddressId,

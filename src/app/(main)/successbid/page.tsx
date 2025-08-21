@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 
 const SuccessBidPage: React.FC = () => {
@@ -150,4 +150,13 @@ const SuccessBidPage: React.FC = () => {
   );
 };
 
-export default SuccessBidPage;
+// Suspense로 감싼 컴포넌트
+const SuccessBidPageWithSuspense: React.FC = () => {
+  return (
+    <Suspense fallback={<div>로딩 중...</div>}>
+      <SuccessBidPage />
+    </Suspense>
+  );
+};
+
+export default SuccessBidPageWithSuspense;

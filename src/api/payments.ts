@@ -21,6 +21,9 @@ export interface BuyItNowResponse {
 export interface BuyItNowRequest {
   auctionId: number;
   usePointAmount: number;
+  confirmed?: boolean;
+  paymentMethod?: 'CREDIT_CARD' | 'BANK_TRANSFER' | 'KAKAO_PAY' | 'NAVER_PAY';
+  shippingAddressId?: number;
 }
 
 // 결제 미리보기 응답 타입

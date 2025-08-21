@@ -1086,6 +1086,7 @@ const ProductInfo = ({ product, auction }: ProductInfoProps) => {
         onConfirm={handleBuyNowConfirm}
         productName={auction?.productName || '상품'}
         buyItNowPrice={auction?.buyItNowPrice || 0}
+        auctionId={auction?.auctionId || 0}
         isLoading={buyNowMutation.isPending}
       />
     </div>
