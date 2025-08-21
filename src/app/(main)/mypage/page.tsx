@@ -1,13 +1,16 @@
 
 "use client";
 
+import Image from "next/image";
 import { Footer } from "react-day-picker";
 import { useMyPage } from "@/hooks/useMyPage";
 import { Skeleton } from "@/components/ui/skeleton";
 
+
 // --- 개별 UI 컴포넌트 정의 ---
 
 // 1. 마이페이지 사이드바 네비게이션
+
 const MyPageSidebar = () => {
   // 현재 페이지가 '회원정보 관리'임을 명시
   const currentPage = "회원정보 관리"; 
@@ -105,33 +108,40 @@ const MyPageSkeleton = () => (
 export default function MyPage() {
   const { data, loading, error } = useMyPage();
 
-  // 등급별 아이콘과 색상 매핑
+  // 등급별 이미지와 색상 매핑
   const getRankInfo = (rank: string) => {
     switch (rank) {
       case 'SEED':
         return {
-          icon: '🌱',
+          image: '/images/rank/seedRank.png',
           color: 'text-green-500',
           bgColor: 'bg-green-100',
           progressColor: 'bg-green-400'
         };
-      case 'SPROUT':
+      case 'LEAFLET':
         return {
-          icon: '🌿',
+          image: '/images/rank/leaflet.png',
           color: 'text-blue-500',
           bgColor: 'bg-blue-100',
           progressColor: 'bg-blue-400'
         };
-      case 'TREE':
+      case 'TRUNKER':
         return {
-          icon: '🌳',
+          image: '/images/rank/trunker.png',
           color: 'text-purple-500',
           bgColor: 'bg-purple-100',
           progressColor: 'bg-purple-400'
         };
+      case 'FLOWER':
+        return {
+          image: '/images/rank/flower.png',
+          color: 'text-pink-500',
+          bgColor: 'bg-pink-100',
+          progressColor: 'bg-pink-400'
+        };
       default:
         return {
-          icon: '🌱',
+          image: '/images/rank/seedRank.png',
           color: 'text-green-500',
           bgColor: 'bg-green-100',
           progressColor: 'bg-green-400'
@@ -219,7 +229,13 @@ export default function MyPage() {
               </div>
               <div className="md:col-span-3 p-6 rounded-lg border border-gray-200 flex items-center gap-6">
                 <div className={`w-16 h-16 rounded-full overflow-hidden ${rankInfo.bgColor} flex items-center justify-center flex-shrink-0`}>
-                  <span className="text-2xl">{rankInfo.icon}</span>
+                  <Image 
+                    src={rankInfo.image} 
+                    alt={`${data.rankDescription} 등급`}
+                    width={48}
+                    height={48}
+                    className="object-contain"
+                  />
                 </div>
                 <div className="w-full">
                   <div className="flex justify-between text-sm mb-1">
