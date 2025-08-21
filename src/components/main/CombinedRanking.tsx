@@ -67,6 +67,9 @@ const userRankingData: RankingUser[] = [
   { userId: 5, nickname: '이승윤', auctionCount: 13, ranking: 5 },
   { userId: 6, nickname: '류미란', auctionCount: 12, ranking: 6 },
   { userId: 7, nickname: '박강원', auctionCount: 10, ranking: 7 },
+  { userId: 8, nickname: '김민수', auctionCount: 9, ranking: 8 },
+  { userId: 9, nickname: '정하늘', auctionCount: 8, ranking: 9 },
+  { userId: 10, nickname: '윤서연', auctionCount: 7, ranking: 10 },
 ];
 
 // 나무지킴이 랭킹 데이터
@@ -78,81 +81,78 @@ const treeKeeperRankingData: RankingUser[] = [
   { userId: 15, nickname: '이주혜', auctionCount: 4, ranking: 5 },
   { userId: 16, nickname: '탁찬홍', auctionCount: 3, ranking: 6 },
   { userId: 17, nickname: '전우선', auctionCount: 1, ranking: 7 },
+  { userId: 18, nickname: '김민수', auctionCount: 1, ranking: 8 },
+  { userId: 19, nickname: '정하늘', auctionCount: 1, ranking: 9 },
+  { userId: 20, nickname: '윤서연', auctionCount: 1, ranking: 10 },
 ];
 
-export const CombinedRanking = () => {
-  const [activeTab, setActiveTab] = useState<'user' | 'treekeeper'>('user');
+const RankingSection = ({ 
+  title, 
+  data, 
+  isTreeKeeper = false 
+}: { 
+  title: string; 
+  data: RankingUser[]; 
+  isTreeKeeper?: boolean; 
+}) => {
   const [isExpanded, setIsExpanded] = useState(false);
-  
-  const currentRankings = activeTab === 'user' ? userRankingData : treeKeeperRankingData;
-  const topFiveUsers = currentRankings.slice(0, 5);
-  const nextFiveUsers = currentRankings.slice(5, 10);
+  const topThreeUsers = data.slice(0, 3);
+  const nextSevenUsers = data.slice(3, 10);
 
+  return (
+    <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 flex-1">
+      <div className="mb-4">
+        <h2 className="text-xl font-bold text-gray-900">{title}</h2>
+      </div>
+      
+      <div className="space-y-1">
+        {topThreeUsers.map((user) => (
+          <RankingItem key={user.userId} user={user} isTreeKeeper={isTreeKeeper} />
+        ))}
+      </div>
+
+      {nextSevenUsers.length > 0 && (
+        <>
+          {isExpanded && (
+            <div className="space-y-1 mt-2">
+              {nextSevenUsers.map((user) => (
+                <RankingItem key={user.userId} user={user} isTreeKeeper={isTreeKeeper} />
+              ))}
+            </div>
+          )}
+          <div className="mt-2">
+            <button
+              onClick={() => setIsExpanded(!isExpanded)}
+              className="w-full py-3 hover:bg-gray-50 transition-colors"
+            >
+              <div className="flex items-center justify-center">
+                <span className="text-sm text-gray-600">
+                  {isExpanded ? '접기' : '더보기'}
+                </span>
+              </div>
+            </button>
+          </div>
+        </>
+      )}
+    </div>
+  );
+};
+
+export const CombinedRanking = () => {
   return (
     <section className="px-6 py-6">
       <div className="mx-auto max-w-7xl">
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-          {/* 탭 헤더 */}
-          <div className="mb-4 flex items-center">
-            <button
-              onClick={() => {
-                setActiveTab('user');
-                setIsExpanded(false);
-              }}
-              className={`text-xl font-bold transition-colors ${
-                activeTab === 'user' 
-                  ? 'text-gray-900' 
-                  : 'text-gray-500 hover:text-gray-700'
-              }`}
-            >
-              사용자 거래 랭킹
-            </button>
-            <span className="mx-3 text-gray-400">|</span>
-            <button
-              onClick={() => {
-                setActiveTab('treekeeper');
-                setIsExpanded(false);
-              }}
-              className={`text-xl font-bold transition-colors ${
-                activeTab === 'treekeeper' 
-                  ? 'text-gray-900' 
-                  : 'text-gray-500 hover:text-gray-700'
-              }`}
-            >
-              나무 지킴이 랭킹
-            </button>
-          </div>
-          
-          {/* 랭킹 내용 */}
-          <div className="space-y-1">
-            {topFiveUsers.map((user) => (
-              <RankingItem key={user.userId} user={user} isTreeKeeper={activeTab === 'treekeeper'} />
-            ))}
-          </div>
-
-          {nextFiveUsers.length > 0 && (
-            <>
-              {isExpanded && (
-                <div className="space-y-1 mt-2">
-                  {nextFiveUsers.map((user) => (
-                    <RankingItem key={user.userId} user={user} isTreeKeeper={activeTab === 'treekeeper'} />
-                  ))}
-                </div>
-              )}
-              <div className="mt-2">
-                <button
-                  onClick={() => setIsExpanded(!isExpanded)}
-                  className="w-full py-3 hover:bg-gray-50 transition-colors"
-                >
-                  <div className="flex items-center justify-center">
-                    <span className="text-sm text-gray-600">
-                      {isExpanded ? '접기' : '더보기'}
-                    </span>
-                  </div>
-                </button>
-              </div>
-            </>
-          )}
+        <div className="flex gap-6">
+          <RankingSection 
+            title="사용자 거래 랭킹" 
+            data={userRankingData} 
+            isTreeKeeper={false}
+          />
+          <RankingSection 
+            title="나무 지킴이 랭킹" 
+            data={treeKeeperRankingData} 
+            isTreeKeeper={true}
+          />
         </div>
       </div>
     </section>
