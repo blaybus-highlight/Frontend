@@ -1,7 +1,8 @@
 "use client"
 
-import { Filter } from "lucide-react"
+import { Filter, Menu } from "lucide-react"
 import { useMemo, useState } from "react"
+
 
 type Inquiry = {
   id: string
@@ -15,11 +16,14 @@ type Inquiry = {
   response?: string
 }
 
-const CustomersContent = () => {
-  const [customerFilter, setCustomerFilter] = useState<string>("전체")
-  const [currentPage, setCurrentPage] = useState<number>(1)
-  const [showDetailModal, setShowDetailModal] = useState<boolean>(false)
+function CustomersContent() {
+  // --- 상태 선언 ---
+  const [customerFilter, setCustomerFilter] = useState("전체") // 선택된 필터
+  const [showFilter, setShowFilter] = useState(false) // dropdown 표시 여부
+  const [currentPage, setCurrentPage] = useState(1)
+  const [showDetailModal, setShowDetailModal] = useState(false)
   const [selectedInquiry, setSelectedInquiry] = useState<Inquiry | null>(null)
+
 
   // 모달 내부 입력 필드 상태
   const [responseTitle, setResponseTitle] = useState("")
@@ -44,11 +48,8 @@ const CustomersContent = () => {
   const filteredInquiries = useMemo(() => {
     return inquiries.filter((q) => {
       if (customerFilter === "전체") return true
-      if (customerFilter === "미답변") return q.status === "미응답"
-      if (customerFilter === "답변완료") return q.status === "완료"
-      if (customerFilter === "긴급") return q.priority === "긴급"
-      if (customerFilter === "경매문의") return q.type === "경매 문의"
-      if (customerFilter === "배송문의") return q.type === "제품 배송"
+      if (customerFilter === "미응답") return q.status === "미응답"
+      if (customerFilter === "완료") return q.status === "완료"
       return true
     })
   }, [inquiries, customerFilter])
@@ -58,13 +59,7 @@ const CustomersContent = () => {
   const startIndex = (currentPage - 1) * itemsPerPage
   const currentInquiries = filteredInquiries.slice(startIndex, startIndex + itemsPerPage)
 
-  const handleCustomerFilterClick = () => {
-    const filters = ["전체", "미답변", "답변완료", "긴급", "경매문의", "배송문의"]
-    const next = (filters.indexOf(customerFilter) + 1) % filters.length
-    setCustomerFilter(filters[next])
-    setCurrentPage(1)
-  }
-
+// --- 모달/답변 이벤트 ---
   const handleResponseClick = (inquiry: Inquiry) => {
     if (inquiry.status === "완료") return
     setSelectedInquiry(inquiry)
@@ -93,16 +88,65 @@ const CustomersContent = () => {
       {/* --- [주석] 이 span의 text-4xl 값을 조절하여 '고객 문의' 제목의 크기를 변경할 수 있습니다. --- */}
       <span className="text-[#111416] text-4xl font-bold">고객 문의</span>
       
-      <div className="flex items-start self-stretch">
-        <button
-          className="flex items-center justify-center py-2.5 px-5 rounded border border-gray-300 bg-white text-black hover:bg-gray-50 transition-colors shadow"
-          onClick={handleCustomerFilterClick}
-        >
-          <Filter className="w-4 h-4 mr-2" />
-          <span className="text-base">필터</span>
-        </button>
-      </div>
+     
 
+    
+    
+       {/* --- 필터 영역 --- */}
+      <div className="flex items-start self-stretch relative">
+      {/* 필터 버튼 */}
+      <button
+            className="flex shrink-0 items-center bg-white text-left py-2.5 px-6 gap-2 rounded-lg border border-solid border-[#D5D6DA]"
+            style={{ boxShadow: "rgba(10, 12, 18, 0.05) 0px 1px 2px" }}
+            onClick={() => setShowFilter(!showFilter)}
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className="w-5 h-5"
+              aria-hidden="true"
+            >
+              <path d="M4 12h16"></path>
+              <path d="M4 18h16"></path>
+              <path d="M4 6h16"></path>
+            </svg>
+            <span className="text-[#414651] text-sm font-bold">필터</span>
+          </button>
+
+      {/* Filter Dropdown */}
+      {showFilter && (
+        <div className="absolute top-full left-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg z-10 min-w-[120px]">
+          {["전체", "미응답", "완료"].map((filter) => (
+            <button
+              key={filter}
+              className={`block w-full text-left px-4 py-2 hover:bg-gray-50 text-sm ${
+                customerFilter === filter ? "font-semibold text-blue-600" : ""
+              }`}
+              onClick={() => {
+                setCustomerFilter(filter)
+                setCurrentPage(1)
+                setShowFilter(false)
+              }}
+            >
+              {filter}
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+
+
+
+
+
+        {/* --- 테이블 영역 --- */}
       <div className="w-full overflow-x-auto">
         <div className="grid min-w-[1024px] grid-cols-[0.75fr_0.75fr_1fr_1fr_2fr_1fr_1fr] bg-white px-4 py-3 gap-2 border-b-4 border-black">
           <span className="text-[#616161] text-base font-bold text-left pl-2">ID</span>
@@ -145,6 +189,7 @@ const CustomersContent = () => {
           </div>
         ))}
 
+          {/* --- 페이지네이션 --- */}
         <div className="flex items-center justify-center self-stretch mt-8 gap-2">
           {Array.from({ length: Math.min(totalPages, 10) }, (_, i) => i + 1).map((page) => (
             <button
@@ -171,6 +216,7 @@ const CustomersContent = () => {
         </div>
       </div>
 
+                {/* --- 모달 --- */}
       {showDetailModal && selectedInquiry && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
           <div className="bg-white rounded-xl shadow-lg max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
@@ -248,4 +294,4 @@ const CustomersContent = () => {
   )
 }
 
-export default CustomersContent
+export default CustomersContent  
