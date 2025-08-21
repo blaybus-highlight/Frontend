@@ -44,14 +44,14 @@ interface ApiAuctionResponse {
 
 export const getAuctionList = async (
   page: number = 1,
-  limit: number = 10,
+  size: number = 50,
   status?: string,
   searchTerm?: string
 ): Promise<AuctionListResponse> => {
   try {
     const params = new URLSearchParams({
       page: (page - 1).toString(), // API는 0-based pagination 사용
-      size: limit.toString(),
+      size: size.toString(),
     });
 
     if (status) {

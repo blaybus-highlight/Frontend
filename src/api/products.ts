@@ -135,8 +135,7 @@ export const productsApi = {
 
     console.log('✅ 경매 결과 API 응답 성공:', {
       status: response.status,
-      result: response.data?.data?.status,
-      message: response.data?.data?.message,
+      data: response.data?.data,
     });
 
     return response.data;

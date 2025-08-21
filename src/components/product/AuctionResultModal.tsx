@@ -54,6 +54,7 @@ const AuctionResultModal = ({
           buttonColor: 'bg-gray-500 hover:bg-gray-600',
         };
       case 'NOT_PARTICIPATED':
+      case 'NO_PARTICIPATION':
         return {
           emoji: '🤔',
           title: '참여하지 않은 경매',

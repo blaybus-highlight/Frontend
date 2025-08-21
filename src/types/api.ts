@@ -221,7 +221,7 @@ export type BuyItNowApiResponse = ApiResponse<BuyItNowResponse>;
 export interface AuctionResult {
   auctionId: number;
   productName: string;
-  resultType: 'WON' | 'LOST' | 'CANCELLED' | 'NOT_PARTICIPATED';
+  resultType: 'WON' | 'LOST' | 'CANCELLED' | 'NOT_PARTICIPATED' | 'NO_PARTICIPATION';
   myFinalBid?: number;
   winningBid: number;
   endTime: string;
