@@ -1,0 +1,237 @@
+import React from 'react';
+
+// --- 데이터 타입 및 목업 데이터 정의 ---
+
+interface Product {
+  name: string;
+  category: string;
+  quantity: number;
+  price: number;
+  imageUrl: string;
+}
+
+const productData: Product = {
+  name: 'image',
+  category: '임시',
+  quantity: 1,
+  price: 120000,
+  imageUrl: 'https://via.placeholder.com/100',
+};
+
+const shippingFee = 6000;
+const discount = 32;
+
+// --- 스타일 정의 컴포넌트 ---
+
+const StyleProvider = () => {
+  const css = `
+    .checkoutPageContainer {
+      width: 100%;
+      max-width: 1500px;
+      padding: 20px;
+      font-family: 'Pretendard', sans-serif;
+      color: #333;
+      /* [수정] Footer와의 간격을 위해 기존 margin(40px auto)에 bottom 값(100px)을 추가 */
+      margin: 40px auto 100px;
+    }
+    .checkoutMainTitle {
+      font-size: 30px;
+      color: black;
+      font-weight: 700;
+      text-align: center;
+      margin-bottom: 24px;
+      margin-top: 160px;
+    }
+    .checkoutContentWrapper {
+      display: flex;
+      justify-content: space-between;
+      gap: 60px;
+    }
+    .checkoutLeftSection, .checkoutRightSection {
+      flex: 1;
+    }
+    .checkoutSectionTitle {
+      font-size: 20px;
+      padding-bottom: 12px;
+      margin-bottom: 0px;
+      font-weight: bold;
+      /* [수정] 잘못된 문법(color-black;)을 올바르게 수정 */
+      color: black;
+    }
+    .title-left { text-align: left; }
+    .title-center { text-align: center; }
+    .checkoutProductInfo {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      padding-bottom: 20px;
+      margin-bottom: 20px;
+    }
+    .checkoutProductImage {
+      width: 100px;
+      height: 100px;
+      object-fit: cover;
+      border-radius: 8px;
+      background-color: #f0f0f0;
+    }
+    .checkoutProductDetails {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .checkoutProductName { font-size: 16px; font-weight: 600; }
+    .checkoutProductCategory, .checkoutProductQuantity { font-size: 14px; color: #666; }
+    .checkoutPriceList {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      padding-bottom: 20px;
+      margin-bottom: 20px;
+    }
+    .checkoutPriceItem {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 16px;
+    }
+    .checkoutPriceItem dt { color: #555; }
+    .checkoutPriceItem dd { font-weight: 500; }
+    .checkoutTotalPrice { margin-top: 20px; }
+    .checkoutTotalPrice dt { font-size: 18px; font-weight: 700; color: #333; }
+    .checkoutTotalPrice dd { font-size: 24px; font-weight: 800; color: #000; }
+    .checkoutPaymentMethodBox {
+      padding: 20px;
+      min-height: 320px;
+      display: flex;
+      align-items: flex-start; 
+      justify-content: center;
+      background-color: #EEEEEE;
+    }
+    .checkoutPaymentButton {
+      width: 100%;
+      padding: 15px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      background-color: #fff;
+      font-size: 18px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+    .checkoutPaymentButton:hover { background-color: #f7f7f7; }
+    .checkoutPaymentLogo {
+      display: inline-block;
+      width: 24px;
+      height: 18px;
+      background: linear-gradient(135deg, #6c8cff 50%, transparent 50%), linear-gradient(45deg, #4a6bff 50%, #89a3ff 50%);
+      background-size: 50% 100%;
+      background-repeat: no-repeat;
+      background-position: left, right;
+      border-radius: 3px;
+    }
+    @media (max-width: 768px) {
+      .checkoutContentWrapper {
+        flex-direction: column;
+        gap: 40px;
+      }
+    }
+  `;
+  return <style>{css}</style>;
+};
+
+// 숫자를 '원' 단위의 통화 형식으로 변환하는 헬퍼 함수
+const formatCurrency = (amount: number) => {
+  return new Intl.NumberFormat('ko-KR').format(amount) + ' 원';
+};
+
+// --- [리팩토링] 작은 단위의 UI 컴포넌트들 ---
+
+// 1. 주문 상품 정보 컴포넌트
+const OrderSummary: React.FC<{ product: Product }> = ({ product }) => (
+  <div className="checkoutProductInfo">
+    <img src={product.imageUrl} alt={product.name} className="checkoutProductImage" />
+    <div className="checkoutProductDetails">
+      <p className="checkoutProductName">{product.name}</p>
+      <p className="checkoutProductCategory">{product.category}</p>
+      <p className="checkoutProductQuantity">수량 {product.quantity}개</p>
+    </div>
+  </div>
+);
+
+// 2. 가격 정보 컴포넌트
+const PriceDetails: React.FC<{ productPrice: number, shipping: number, discountAmount: number, total: number }> = ({ productPrice, shipping, discountAmount, total }) => (
+  <div className="checkoutPriceSummary">
+    <dl className="checkoutPriceList">
+      <div className="checkoutPriceItem">
+        <dt>상품가격</dt>
+        <dd>{formatCurrency(productPrice)}</dd>
+      </div>
+      <div className="checkoutPriceItem">
+        <dt>배송비</dt>
+        <dd>{formatCurrency(shipping)}</dd>
+      </div>
+      <div className="checkoutPriceItem">
+        <dt>나눔꽃</dt>
+        <dd>-{discountAmount} 송이</dd>
+      </div>
+    </dl>
+    <div className="checkoutPriceItem checkoutTotalPrice">
+      <dt>총 결제 금액</dt>
+      <dd>{formatCurrency(total)}</dd>
+    </div>
+  </div>
+);
+
+// 3. 결제 방법 컴포넌트
+const PaymentMethod = () => (
+  <div className="checkoutPaymentMethodBox">
+    <button className="checkoutPaymentButton">
+      <span className="checkoutPaymentLogo"></span>
+      payments
+    </button>
+  </div>
+);
+
+
+// --- [리팩토링] 메인 컴포넌트 ---
+
+const CheckoutPage: React.FC = () => {
+  const totalPrice = productData.price + shippingFee - discount;
+
+  return (
+    <>
+      <StyleProvider />
+      <div className="checkoutPageContainer">
+        <h1 className="checkoutMainTitle">결제하기</h1>
+        <div className="checkoutContentWrapper">
+          
+          {/* 왼쪽: 결제 상품 정보 섹션 */}
+          <section className="checkoutLeftSection">
+            <h2 className="checkoutSectionTitle title-left">결제상품</h2>
+            {/* 분리된 컴포넌트 사용 */}
+            <OrderSummary product={productData} />
+            <PriceDetails 
+              productPrice={productData.price} 
+              shipping={shippingFee} 
+              discountAmount={discount}
+              total={totalPrice}
+            />
+          </section>
+
+          {/* 오른쪽: 결제 방법 섹션 */}
+          <section className="checkoutRightSection">
+            <h2 className="checkoutSectionTitle title-center">결제방법</h2>
+            {/* 분리된 컴포넌트 사용 */}
+            <PaymentMethod />
+          </section>
+
+        </div>
+      </div>
+    </>
+  );
+};
+
+export default CheckoutPage;
