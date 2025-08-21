@@ -9,12 +9,13 @@ import Info from '@/assets/info-icon.svg';
 import Leaf from '@/assets/leaf-icon.svg';
 import Share from '@/assets/share-icon.svg';
 import { Product } from '@/types/product';
-import { AuctionDetail, BuyItNowRequest, AuctionResult } from '@/types/api';
+import { AuctionDetail, AuctionResult } from '@/types/api';
 import { useBidHistory } from '@/hooks/useBidHistory';
 import { useSTOMPSocket } from '@/hooks/useSTOMPSocket';
 import { useAuctionStatus } from '@/hooks/useAuctionStatus';
 import { useWishlistStatus, useWishlistToggle } from '@/hooks/useWishlist';
 import { productsApi } from '@/api/products';
+import { buyItNow } from '@/api/payments';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import AuctionResultModal from './AuctionResultModal';
 import BuyItNowModal from './BuyItNowModal';
@@ -321,7 +322,29 @@ const ProductInfo = ({ product, auction }: ProductInfoProps) => {
       alert('경매 정보를 찾을 수 없습니다.');
       return;
     }
-    setShowBuyNowModal(true);
+    
+    // 확인 다이얼로그 표시
+    if (confirm('정말 즉시 구매하시겠어요?')) {
+      // 즉시 구매 API 호출
+      const request: BuyItNowRequest = {
+        auctionId: auction.auctionId,
+        usePointAmount: 10000 // 기본값으로 10000 포인트 사용
+      };
+      
+      buyItNow(request)
+        .then((response) => {
+          if (response.success) {
+            // 성공 시 데이터와 함께 successbid 페이지로 이동
+            router.push(`/successbid?data=${encodeURIComponent(JSON.stringify(response.data))}`);
+          } else {
+            alert(`즉시 구매 실패: ${response.message}`);
+          }
+        })
+        .catch((error) => {
+          console.error('즉시 구매 API 호출 실패:', error);
+          alert('즉시 구매 중 오류가 발생했습니다.');
+        });
+    }
   };
 
   // 즉시구매 확정 핸들러
