@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { BuyItNowRequest } from '@/types/api';
+import { BuyItNowRequest } from '@/api/payments';
 
 interface BuyItNowModalProps {
   isOpen: boolean;
