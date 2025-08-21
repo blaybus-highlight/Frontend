@@ -910,18 +910,15 @@ const ProductInfo = ({ product, auction }: ProductInfoProps) => {
               </div>
             </div>
             <p className='text-[16px]/[24px] whitespace-pre-line text-[#0D141C]'>
-              {auction?.sellerDescription && !auction.sellerDescription.includes('테스트') 
-                ? auction.sellerDescription 
-                : 'DB에 판매자 설명 데이터가 없습니다.'
-              }
+              {auction?.sellerDescription || '판매자 설명이 없습니다.'}
             </p>
             {auction && (
               <div className='mt-4 p-4 bg-gray-50 rounded-lg w-full'>
                 <h5 className='font-semibold text-[16px] mb-2'>연락처 정보</h5>
                 <div className='text-[14px] text-[#666] space-y-1'>
-                  <p>이메일: {auction.sellerEmail?.includes('example.com') ? 'DB에 이메일 데이터 없음' : auction.sellerEmail}</p>
-                  <p>전화번호: {auction.sellerPhoneNumber?.includes('1234') ? 'DB에 전화번호 데이터 없음' : auction.sellerPhoneNumber}</p>
-                  <p>주소: {auction.sellerAddress?.includes('테스트') ? 'DB에 주소 데이터 없음' : auction.sellerAddress}</p>
+                  <p>이메일: {auction.sellerEmail || '정보 없음'}</p>
+                  <p>전화번호: {auction.sellerPhoneNumber || '정보 없음'}</p>
+                  <p>주소: {auction.sellerAddress || '정보 없음'}</p>
                 </div>
               </div>
             )}
