@@ -1,4 +1,5 @@
 import axios from 'axios';
+import axiosInstance from '@/lib/axiosInstance';
 
 import type { AuctionDetailResponse, ProductSearchParams, ProductsResponse, SellerDetailResponse, RecommendedProductsResponse, BidHistoryResponse, BidCreateRequest, BidCreateApiResponse, BuyItNowRequest, BuyItNowApiResponse, AuctionResultResponse, AuctionStatusResponse, WishlistResponse, NotificationStatusResponse, ViewTogetherProductsResponse } from '@/types/api';
 import { API_BASE_URL } from '@/types/api';
@@ -99,7 +100,7 @@ export const productsApi = {
   createBid: async (request: BidCreateRequest): Promise<BidCreateApiResponse> => {
     console.log('🚀 입찰하기 API 호출:', request);
 
-    const response = await api.post('/api/bids', request);
+    const response = await axiosInstance.post('/api/bids', request);
 
     console.log('✅ 입찰하기 API 응답 성공:', {
       status: response.status,
@@ -113,7 +114,7 @@ export const productsApi = {
   buyItNow: async (auctionId: number, request: BuyItNowRequest): Promise<BuyItNowApiResponse> => {
     console.log('🚀 즉시구매 API 호출:', { auctionId, request });
 
-    const response = await api.post(`/api/user/auctions/${auctionId}/buy-it-now`, request);
+    const response = await axiosInstance.post(`/api/user/auctions/${auctionId}/buy-it-now`, request);
 
     console.log('✅ 즉시구매 API 응답 성공:', {
       status: response.status,
@@ -130,7 +131,7 @@ export const productsApi = {
   getMyAuctionResult: async (auctionId: number): Promise<AuctionResultResponse> => {
     console.log('🚀 경매 결과 API 호출:', { auctionId });
 
-    const response = await api.get(`/api/auctions/${auctionId}/my-result`);
+    const response = await axiosInstance.get(`/api/auctions/${auctionId}/my-result`);
 
     console.log('✅ 경매 결과 API 응답 성공:', {
       status: response.status,
@@ -153,7 +154,7 @@ export const productsApi = {
   getWishlistStatus: async (productId: number): Promise<WishlistResponse> => {
     console.log('🚀 찜 상태 조회 API 호출:', { productId });
 
-    const response = await api.get(`/api/user/wishlist/products/${productId}`);
+    const response = await axiosInstance.get(`/api/user/wishlist/products/${productId}`);
 
     console.log('✅ 찜 상태 조회 API 응답 성공:', {
       status: response.status,
@@ -167,7 +168,7 @@ export const productsApi = {
   toggleWishlist: async (productId: number): Promise<WishlistResponse> => {
     console.log('🚀 찜 토글 API 호출:', { productId });
 
-    const response = await api.post(`/api/user/wishlist/products/${productId}/toggle`);
+    const response = await axiosInstance.post(`/api/user/wishlist/products/${productId}/toggle`);
 
     console.log('✅ 찜 토글 API 응답 성공:', {
       status: response.status,
@@ -182,7 +183,7 @@ export const productsApi = {
   getNotificationStatus: async (productId: number): Promise<NotificationStatusResponse> => {
     console.log('🚀 알림 상태 조회 API 호출:', { productId });
 
-    const response = await api.get(`/api/user/notifications/products/${productId}`);
+    const response = await axiosInstance.get(`/api/user/notifications/products/${productId}`);
 
     console.log('✅ 알림 상태 조회 API 응답 성공:', {
       status: response.status,
@@ -196,7 +197,7 @@ export const productsApi = {
   toggleNotification: async (productId: number): Promise<NotificationStatusResponse> => {
     console.log('🚀 알림 토글 API 호출:', { productId });
 
-    const response = await api.post(`/api/user/notifications/products/${productId}/toggle`);
+    const response = await axiosInstance.post(`/api/user/notifications/products/${productId}/toggle`);
 
     console.log('✅ 알림 토글 API 응답 성공:', {
       status: response.status,

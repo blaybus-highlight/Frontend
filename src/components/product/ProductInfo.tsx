@@ -123,6 +123,29 @@ const ProductInfo = ({ product, auction }: ProductInfoProps) => {
           setTimeout(() => setLiveNotification(null), 10000);
           break;
 
+        case 'AUCTION_ENDED':
+          console.log('🏁 경매 종료:', message.data);
+          setLiveNotification('🏁 경매가 종료되었습니다');
+          setTimeout(() => setLiveNotification(null), 8000);
+          // 경매 종료 시 모든 관련 데이터 새로고침
+          queryClient.invalidateQueries({ queryKey: ['bidHistory', auction?.auctionId] });
+          queryClient.invalidateQueries({ queryKey: ['auction', auction?.auctionId] });
+          queryClient.invalidateQueries({ queryKey: ['auctionStatus', auction?.auctionId] });
+          // 메인페이지에서 종료된 경매 제거
+          queryClient.invalidateQueries({ queryKey: ['products'] });
+          break;
+
+        case 'AUCTION_STARTED':
+          console.log('🚀 경매 시작:', message.data);
+          setLiveNotification('🚀 경매가 시작되었습니다!');
+          setTimeout(() => setLiveNotification(null), 5000);
+          // 경매 시작 시 모든 관련 데이터 새로고침
+          queryClient.invalidateQueries({ queryKey: ['auction', auction?.auctionId] });
+          queryClient.invalidateQueries({ queryKey: ['auctionStatus', auction?.auctionId] });
+          // 메인페이지 섹션 이동 반영 (경매 예정 → 오늘의 경매)
+          queryClient.invalidateQueries({ queryKey: ['products'] });
+          break;
+
         case 'CONNECTION_LOST':
           console.log('📡 연결 끊김:', message.data);
           setLiveNotification('📡 연결이 끊어졌어요');
@@ -138,6 +161,9 @@ const ProductInfo = ({ product, auction }: ProductInfoProps) => {
           // 상태 업데이트는 자주 오므로 로그 생략
           // 실시간 상태 업데이트를 위해 캐시 무효화
           queryClient.invalidateQueries({ queryKey: ['auctionStatus', auction?.auctionId] });
+          // 경매 상태가 변경되면 메인페이지 상품 목록도 업데이트
+          // 모든 섹션의 상품 목록을 새로고침 (SCHEDULED → IN_PROGRESS 이동 반영)
+          queryClient.invalidateQueries({ queryKey: ['products'] });
           break;
 
         default:
@@ -174,6 +200,8 @@ const ProductInfo = ({ product, auction }: ProductInfoProps) => {
       queryClient.invalidateQueries({ queryKey: ['bidHistory', auction?.auctionId] });
       queryClient.invalidateQueries({ queryKey: ['auction', auction?.auctionId] });
       queryClient.invalidateQueries({ queryKey: ['auctionStatus', auction?.auctionId] });
+      // 메인페이지 상품 목록도 새로고침 (입찰가 업데이트 반영)
+      queryClient.invalidateQueries({ queryKey: ['products'] });
     },
     onError: (error) => {
       const errorMessage = error instanceof Error ? error.message : '입찰 중 오류가 발생했습니다';
@@ -192,6 +220,8 @@ const ProductInfo = ({ product, auction }: ProductInfoProps) => {
       // 경매 상세 정보 새로고침
       queryClient.invalidateQueries({ queryKey: ['auction', auction?.auctionId] });
       queryClient.invalidateQueries({ queryKey: ['auctionStatus', auction?.auctionId] });
+      // 메인페이지 상품 목록도 새로고침 (즉시구매 완료된 상품 제거)
+      queryClient.invalidateQueries({ queryKey: ['products'] });
     },
     onError: (error) => {
       const errorMessage = error instanceof Error ? error.message : '즉시구매 중 오류가 발생했습니다';

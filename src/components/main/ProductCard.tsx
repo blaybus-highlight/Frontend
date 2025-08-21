@@ -240,7 +240,7 @@ export function ProductCard({
 
           <div className='mb-3 space-y-1'>
             <div className='flex items-center justify-between'>
-              <span className='text-sm text-gray-600'>시작가</span>
+              <span className='text-sm text-gray-600'>현재가</span>
               <span className='text-lg font-bold text-gray-900'>
                 {(startPrice || 0).toLocaleString()} 원
               </span>

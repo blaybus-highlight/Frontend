@@ -112,22 +112,24 @@ const AuctionResultModal = ({
                 </div>
               )}
 
-              <div className={`p-4 rounded-lg border-l-4 ${
-                result.resultType === 'WON' 
-                  ? 'bg-green-50 border-green-500' 
-                  : 'bg-gray-50 border-gray-400'
-              }`}>
-                <span className={`text-sm font-medium ${
-                  result.resultType === 'WON' ? 'text-green-600' : 'text-gray-600'
+              {result.winningBid && (
+                <div className={`p-4 rounded-lg border-l-4 ${
+                  result.resultType === 'WON' 
+                    ? 'bg-green-50 border-green-500' 
+                    : 'bg-gray-50 border-gray-400'
                 }`}>
-                  최종 낙찰가
-                </span>
-                <div className={`text-xl font-bold ${
-                  result.resultType === 'WON' ? 'text-green-700' : 'text-gray-700'
-                }`}>
-                  {result.winningBid.toLocaleString('ko-KR')}원
+                  <span className={`text-sm font-medium ${
+                    result.resultType === 'WON' ? 'text-green-600' : 'text-gray-600'
+                  }`}>
+                    최종 낙찰가
+                  </span>
+                  <div className={`text-xl font-bold ${
+                    result.resultType === 'WON' ? 'text-green-700' : 'text-gray-700'
+                  }`}>
+                    {result.winningBid.toLocaleString('ko-KR')}원
+                  </div>
                 </div>
-              </div>
+              )}
 
               <div className='p-3 bg-gray-100 rounded-lg'>
                 <span className='text-sm text-gray-500'>경매 종료 시간</span>
