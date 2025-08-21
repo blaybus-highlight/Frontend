@@ -5,6 +5,7 @@
 import { useState } from "react";
 import Image from "next/image";
 import { FaYoutube, FaInstagram } from "react-icons/fa";
+import { Footer } from "react-day-picker";
 
 // --- 개별 UI 컴포넌트 정의 ---
 
@@ -58,47 +59,7 @@ const InfoRowWithButton = ({ label, value }: { label: string, value: string }) =
   </div>
 );
 
-// 3. 푸터 컴포넌트
-const Footer = () => (
-  <footer className="bg-white py-12 px-8 border-t mt-20">
-    <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8 text-sm">
-      <div className="space-y-4">
-        <div className="text-2xl font-bold">NAFAL</div>
-        <p className="text-gray-500">믿을 수 있는 가치 플랫폼, 나팔<br/>갖고 싶은 한정판 제품은 다 나팔에서</p>
-        <div className="flex gap-4">
-          <a href="#"><FaYoutube size={20} className="text-gray-400 hover:text-black" /></a>
-          <a href="#"><FaInstagram size={20} className="text-gray-400 hover:text-black" /></a>
-        </div>
-      </div>
-      <div className="md:col-span-2 grid grid-cols-2 sm:grid-cols-3 gap-8">
-        <div>
-          <h3 className="font-bold mb-3">고객센터</h3>
-          <ul className="space-y-2 text-gray-500">
-            <li>02-786-8978</li>
-            <li>support@nafal.kr</li>
-            <li>평일 10:00 - 18:00</li>
-          </ul>
-        </div>
-        <div>
-          <h3 className="font-bold mb-3">서비스</h3>
-          <ul className="space-y-2 text-gray-500">
-            <li><a href="#" className="hover:underline">회사소개</a></li>
-            <li><a href="#" className="hover:underline">검수기준</a></li>
-            <li><a href="#" className="hover:underline">페널티정책</a></li>
-            <li><a href="#" className="hover:underline">제휴문의</a></li>
-          </ul>
-        </div>
-      </div>
-    </div>
-    <div className="max-w-7xl mx-auto mt-8 pt-8 border-t flex justify-between text-xs text-gray-400">
-      <span>©2024 NAFAL. All rights reserved.</span>
-      <div className="flex gap-4">
-        <a href="#" className="hover:underline">이용약관</a>
-        <a href="#" className="hover:underline">개인정보처리방침</a>
-      </div>
-    </div>
-  </footer>
-);
+<Footer />
 
 
 // --- 메인 마이페이지 컴포넌트 ---
