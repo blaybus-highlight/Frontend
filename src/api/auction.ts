@@ -1,6 +1,7 @@
 import { ProductListResponse, ProductRegistrationRequest, ProductRegistrationResponse } from '@/types/auction';
 import { API_BASE_URL } from "@/types/api";
 import axiosInstance from "@/lib/axiosInstance";
+import { convertLocalToUTC, convertUTCToLocal } from '@/utils/timeUtils';
 
 export interface AuctionItem {
   productId: number;
@@ -78,16 +79,16 @@ export const getAuctionList = async (
     
     const data = responseData.data;
     
-    // 필요한 필드만 추출하여 변환
+    // 필요한 필드만 추출하여 변환 (시간을 로컬 시간으로 변환)
     const auctions: AuctionItem[] = data.content.map((item: ApiAuctionItem) => ({
       productId: item.product?.id || 0,
       productName: item.product?.productName || '',
       startPrice: item.startPrice,
       currentHighestBid: item.currentHighestBid || 0,
-      scheduledEndTime: item.scheduledEndTime || '',
+      scheduledEndTime: convertUTCToLocal(item.scheduledEndTime || ''),
       statusDescription: item.statusDescription || '',
-      scheduledStartTime: item.scheduledStartTime || '',
-      actualEndTime: item.actualEndTime,
+      scheduledStartTime: convertUTCToLocal(item.scheduledStartTime || ''),
+      actualEndTime: item.actualEndTime ? convertUTCToLocal(item.actualEndTime) : null,
     }));
 
     return {
@@ -105,7 +106,20 @@ export const getAuctionList = async (
 export const getAuctionById = async (auctionId: string): Promise<AuctionItem> => {
   try {
     const response = await axiosInstance.get(`${API_BASE_URL}/api/admin/auctions/${auctionId}`);
-    return response.data;
+    const auctionData = response.data;
+    
+    // 시간을 로컬 시간으로 변환
+    if (auctionData.scheduledStartTime) {
+      auctionData.scheduledStartTime = convertUTCToLocal(auctionData.scheduledStartTime);
+    }
+    if (auctionData.scheduledEndTime) {
+      auctionData.scheduledEndTime = convertUTCToLocal(auctionData.scheduledEndTime);
+    }
+    if (auctionData.actualEndTime) {
+      auctionData.actualEndTime = convertUTCToLocal(auctionData.actualEndTime);
+    }
+    
+    return auctionData;
   } catch (error) {
     // console.error('경매 상세 조회 실패:', error);
     throw error;
@@ -128,7 +142,16 @@ export interface CreateAuctionRequest {
 
 export const createAuction = async (auctionData: CreateAuctionRequest) => {
   try {
-    const response = await axiosInstance.post('/api/admin/auctions/schedule', auctionData);
+    // 시간을 UTC로 변환
+    const utcAuctionData = {
+      ...auctionData,
+      scheduledStartTime: convertLocalToUTC(auctionData.scheduledStartTime),
+      scheduledEndTime: convertLocalToUTC(auctionData.scheduledEndTime)
+    };
+    
+    console.log('경매 생성 요청 (UTC 변환 후):', utcAuctionData);
+    
+    const response = await axiosInstance.post('/api/admin/auctions/schedule', utcAuctionData);
     return response.data;
   } catch (error) {
     console.error('경매 생성 실패:', error);
@@ -141,7 +164,16 @@ export const updateAuction = async (
   auctionData: Partial<AuctionItem>
 ): Promise<AuctionItem> => {
   try {
-    const response = await axiosInstance.put(`/auctions/${auctionId}`, auctionData);
+    // 시간을 UTC로 변환
+    const utcAuctionData = { ...auctionData };
+    if (auctionData.scheduledStartTime) {
+      utcAuctionData.scheduledStartTime = convertLocalToUTC(auctionData.scheduledStartTime);
+    }
+    if (auctionData.scheduledEndTime) {
+      utcAuctionData.scheduledEndTime = convertLocalToUTC(auctionData.scheduledEndTime);
+    }
+    
+    const response = await axiosInstance.put(`/auctions/${auctionId}`, utcAuctionData);
     return response.data;
   } catch (error) {
     // console.error('경매 수정 실패:', error);
