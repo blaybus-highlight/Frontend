@@ -14,6 +14,10 @@ const PaymentCompletePage: React.FC = () => {
     router.push('/mypage');
   };
 
+  const handleGoBack = () => {
+    router.back();
+  };
+
   return (
     <div style={{
       width: '100%',
@@ -96,6 +100,24 @@ const PaymentCompletePage: React.FC = () => {
           gap: '12px',
           justifyContent: 'center',
         }}>
+          <button
+            onClick={handleGoBack}
+            style={{
+              background: '#6c757d',
+              color: 'white',
+              border: 'none',
+              borderRadius: '8px',
+              padding: '12px 24px',
+              fontSize: '16px',
+              fontWeight: '600',
+              cursor: 'pointer',
+              transition: 'background-color 0.2s',
+            }}
+            onMouseOver={(e) => e.currentTarget.style.background = '#5a6268'}
+            onMouseOut={(e) => e.currentTarget.style.background = '#6c757d'}
+          >
+            이전으로
+          </button>
           <button
             onClick={handleGoHome}
             style={{

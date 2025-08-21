@@ -1,8 +1,9 @@
 "use client"
 
 import { Input } from '@/components/ui/input';
-import React from 'react';
-import { useRouter } from 'next/navigation';
+import React, { useEffect, useState } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { processPayment } from '@/api/payments';
 
 // --- 데이터 타입 및 목업 데이터 정의 ---
 
@@ -14,7 +15,7 @@ interface Product {
   imageUrl: string;
 }
 
-const productData: Product = {
+const defaultProductData: Product = {
   name: '홍익대 예술대 졸업작품전 출품작 20',
   category: '회화/캔버스',
   quantity: 1,
@@ -22,8 +23,8 @@ const productData: Product = {
   imageUrl: 'https://via.placeholder.com/100',
 };
 
-const shippingFee = 6000;
-const discount = 32;
+const defaultShippingFee = 6000;
+const defaultDiscount = 32;
 
 // --- 스타일 정의 컴포넌트 ---
 
@@ -236,48 +237,83 @@ const OrderSummary: React.FC<{ product: Product }> = ({ product }) => (
 );
 
 // 2. 가격 정보 컴포넌트
-const PriceDetails: React.FC<{ productPrice: number, shipping: number, discountAmount: number, total: number }> = ({ productPrice, shipping, discountAmount, total }) => (
-  <div className="checkoutPriceSummary">
-    <dl className="checkoutPriceList">
-      <div className="checkoutPriceItem">
-        <dt>상품가격</dt>
-        <dd>{formatCurrency(productPrice)}</dd>
+const PriceDetails: React.FC<{ productPrice: number, shipping: number, discountAmount: number, total: number }> = ({ productPrice, shipping, discountAmount, total }) => {
+  return (
+    <div className="checkoutPriceSummary">
+      <dl className="checkoutPriceList">
+        <div className="checkoutPriceItem">
+          <dt>상품가격</dt>
+          <dd>{formatCurrency(productPrice)}</dd>
+        </div>
+        <div className="checkoutPriceItem">
+          <dt>배송비</dt>
+          <dd>{formatCurrency(shipping)}</dd>
+        </div>
+        <div className="checkoutPriceItem">
+          <dt>나눔꽃</dt>
+          <dd>-{discountAmount} 송이</dd>
+        </div>
+      </dl>
+      <div className="checkoutPriceItem checkoutTotalPrice">
+        <dt>총 결제 금액</dt>
+        <dd>{formatCurrency(total)}</dd>
       </div>
-      <div className="checkoutPriceItem">
-        <dt>배송비</dt>
-        <dd>{formatCurrency(shipping)}</dd>
-      </div>
-      <div className="checkoutPriceItem">
-        <dt>나눔꽃</dt>
-        <dd>-{discountAmount} 송이</dd>
-      </div>
-    </dl>
-    <div className="checkoutPriceItem checkoutTotalPrice">
-      <dt>총 결제 금액</dt>
-      <dd>{formatCurrency(total)}</dd>
     </div>
-  </div>
-);
+  );
+};
 
 // 3. 결제 방법 컴포넌트
-const PaymentMethod = () => {
+const PaymentMethod: React.FC<{
+  auctionId: number | null;
+  totalPrice: number;
+  shippingFee: number;
+  discount: number;
+  isProcessing: boolean;
+  onPaymentProcess: () => void;
+}> = ({ auctionId, totalPrice, shippingFee, discount, isProcessing, onPaymentProcess }) => {
   const router = useRouter();
 
-  const handlePayment = () => {
-    // 결제 처리 로직 (실제로는 API 호출)
-    console.log('결제 처리 중...');
-    
-    // 결제 완료 후 완료 페이지로 이동
-    setTimeout(() => {
-      router.push('/pay/catch');
-    }, 1000);
+  const handlePayment = async () => {
+    if (!auctionId) {
+      alert('경매 정보를 찾을 수 없습니다.');
+      return;
+    }
+
+    console.log('결제 요청 auctionId:', auctionId);
+
+    try {
+      onPaymentProcess();
+      const response = await processPayment(auctionId);
+      
+      if (response.success) {
+        console.log('결제 성공:', response.data);
+        alert('결제가 완료되었습니다!');
+        // 결제 완료 후 완료 페이지로 이동
+        router.push('/catch');
+      } else {
+        alert(`결제 실패: ${response.message}`);
+      }
+    } catch (error) {
+      console.error('결제 처리 실패:', error);
+      alert('결제 처리 중 오류가 발생했습니다.');
+    } finally {
+      onPaymentProcess();
+    }
   };
 
   return (
     <div className="checkoutPaymentMethodBox">
-      <button className="checkoutPaymentButton" onClick={handlePayment}>
+      <button 
+        className="checkoutPaymentButton" 
+        onClick={handlePayment}
+        disabled={isProcessing}
+        style={{
+          opacity: isProcessing ? 0.7 : 1,
+          cursor: isProcessing ? 'not-allowed' : 'pointer'
+        }}
+      >
         <span className="checkoutPaymentLogo"></span>
-        payments
+        {isProcessing ? '결제 처리 중...' : 'payments'}
       </button>
     </div>
   );
@@ -333,7 +369,14 @@ const ShippingInfo: React.FC<{
 // --- [리팩토링] 메인 컴포넌트 ---
 
 const CheckoutPage: React.FC = () => {
-  const totalPrice = productData.price + shippingFee - discount;
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const [productData, setProductData] = useState(defaultProductData);
+  const [shippingFee, setShippingFee] = useState(defaultShippingFee);
+  const [discount, setDiscount] = useState(defaultDiscount);
+  const [totalPrice, setTotalPrice] = useState(defaultProductData.price + defaultShippingFee - defaultDiscount);
+  const [auctionId, setAuctionId] = useState<number | null>(null);
+  const [isProcessingPayment, setIsProcessingPayment] = useState(false);
   
   // 배송 정보 상태 관리
   const [shippingData, setShippingData] = React.useState({
@@ -343,6 +386,48 @@ const CheckoutPage: React.FC = () => {
     zipCode: '08198',
     memo: '도착시 문자 주세요'
   });
+
+  // URL 파라미터에서 결제 미리보기 데이터 추출
+  useEffect(() => {
+    const previewParam = searchParams.get('preview');
+    if (previewParam) {
+      try {
+        const parsedPreview = JSON.parse(decodeURIComponent(previewParam));
+        console.log('받은 preview 데이터:', parsedPreview);
+        
+        // 상품 데이터 업데이트
+        setProductData({
+          ...defaultProductData,
+          name: parsedPreview.productName || defaultProductData.name,
+          price: parsedPreview.winningBidAmount || parsedPreview.productPrice || defaultProductData.price
+        });
+        
+        // 배송비, 할인, 총액 업데이트 (기본값 사용)
+        const newShippingFee = parsedPreview.shippingFee || defaultShippingFee;
+        const newDiscount = parsedPreview.userPoint || defaultDiscount; // userPoint를 나눔꽃으로 사용
+        const newTotal = parsedPreview.actualPaymentAmount || 
+          ((parsedPreview.winningBidAmount || parsedPreview.productPrice || 0) + newShippingFee - newDiscount);
+        
+        setShippingFee(newShippingFee);
+        setDiscount(newDiscount);
+        setTotalPrice(newTotal);
+        setAuctionId(parsedPreview.auctionId);
+        
+        // 배송 정보 업데이트 (기본값 사용)
+        if (parsedPreview.shippingAddress) {
+          setShippingData({
+            name: parsedPreview.shippingAddress.name || '김이원',
+            phone: parsedPreview.shippingAddress.phone || '010-123-4567',
+            address: parsedPreview.shippingAddress.address || '서울특별시 서대문구 북아현로 22 3층',
+            zipCode: parsedPreview.shippingAddress.zipCode || '08198',
+            memo: parsedPreview.shippingAddress.memo || '도착시 문자 주세요'
+          });
+        }
+      } catch (error) {
+        console.error('결제 미리보기 데이터 파싱 실패:', error);
+      }
+    }
+  }, [searchParams]);
 
   // 배송 정보 변경 핸들러
   const handleShippingDataChange = (field: string, value: string) => {
@@ -378,12 +463,19 @@ const CheckoutPage: React.FC = () => {
              />
           </section>
 
-          {/* 오른쪽: 결제 방법 섹션 */}
-          <section className="checkoutRightSection">
-            <h2 className="checkoutSectionTitle title-center">결제방법</h2>
-            {/* 분리된 컴포넌트 사용 */}
-            <PaymentMethod />
-          </section>
+                     {/* 오른쪽: 결제 방법 섹션 */}
+           <section className="checkoutRightSection">
+             <h2 className="checkoutSectionTitle title-center">결제방법</h2>
+             {/* 분리된 컴포넌트 사용 */}
+             <PaymentMethod 
+               auctionId={auctionId}
+               totalPrice={totalPrice}
+               shippingFee={shippingFee}
+               discount={discount}
+               isProcessing={isProcessingPayment}
+               onPaymentProcess={() => setIsProcessingPayment(!isProcessingPayment)}
+             />
+           </section>
 
         </div>
              </div>
