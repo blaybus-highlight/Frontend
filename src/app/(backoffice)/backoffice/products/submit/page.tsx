@@ -139,11 +139,11 @@ export default function ProductSubmitPage() {
         return;
       }
 
+
       const apiRequestData = transformFormDataToApiRequest(formData);
-      
+
       const createResponse = await registerProduct(apiRequestData);
       
-      console.log('생성된 상품 응답:', createResponse);
       
       // 다양한 응답 구조에 대응
       let productId: number | undefined;

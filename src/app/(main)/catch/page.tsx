@@ -1,115 +1,142 @@
-"use client"; // Next.js App Router 환경을 위한 지시어
+"use client"
 
-import React, { useState, useEffect } from 'react';
-// [수정] 1. Next.js의 App Router용 useRouter를 import합니다.
+import React from 'react';
 import { useRouter } from 'next/navigation';
 
-// --- [백엔드 연동] 1. 데이터 타입 정의 ---
-interface BidSuccessData {
-  productImageUrl: string;
-  daysLeft: number;
-  flowerAmount: string;
-  flowerName: string;
-}
+const PaymentCompletePage: React.FC = () => {
+  const router = useRouter();
 
-// --- [디자인] 2. 스타일 정의 컴포넌트 ---
-const StyleProvider = () => {
-  const css = `
-    .bidding-success-page {
-      background-color: white;
-      display: flex;
-      align-items: flex-start;
-      justify-content: center;
-      padding: 160px 16px 80px;
-    }
-    .content-wrapper {
-      width: 100%;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
-    .main-content-box {
-      width: 100%;
-      max-width: 576px;
-      margin-left: auto;
-      margin-right: auto;
-      text-align: center;
-    }
-    .title {
-      font-size: 30px;
-      font-weight: 700;
-      color: black;
-      margin-bottom: 10px;
-    }
-    .description {
-      color: black;
-      font-size: 17px;
-      margin-bottom: 40px;
-    }
-    .day-highlight {
-      font-size: 1.2em;
-      font-weight: 700;
-    }
-    .flower-highlight {
-      font-weight: 700;
-      color: black;
-    }
-    .image-container {
-      width: 100%;
-      aspect-ratio: 4 / 3;
-      background-color: #e5e7eb;
-    }
-    .product-image {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
-    .button-container {
-      width: 100%;
-      max-width: 768px;
-      margin-top: 24px;
-    }
-    .cta-button {
-      width: 100%;
-      background-color: black;
-      color: white;
-      font-size: 18px;
-      font-weight: 700;
-      padding: 16px 0;
-      transition: background-color 0.2s;
-    }
-    .cta-button:hover {
-      background-color: #1f2937;
-    }
-  `;
-  return <style>{css}</style>;
-};
+  const handleGoHome = () => {
+    router.push('/');
+  };
 
-// --- [백엔드 연동] 3. 화면을 그리는 순수 UI 컴포넌트 (Presenter) ---
-// [수정] 버튼 클릭 시 실행할 함수를 props로 받도록 타입을 추가합니다. (onNavigate)
-const BiddingSuccessView: React.FC<{ data: BidSuccessData; onNavigate: () => void; }> = ({ data, onNavigate }) => {
+  const handleGoMyPage = () => {
+    router.push('/mypage');
+  };
+
   return (
-    <div className="bidding-success-page">
-      <div className="content-wrapper">
-        <div className="main-content-box">
-          <h1 className="title">낙찰을 축하드려요!</h1>
-          <p className="description">
-            최종 결제까지 D-<span className="day-highlight">{data.daysLeft}</span>일 남았어요.
-            <br />
-            잊지 말고 <span className="flower-highlight">{data.flowerAmount}</span> {data.flowerName}과 함께 받아가세요.
-          </p>
-          <div className="image-container">
-            <img
-              src={data.productImageUrl}
-              alt="낙찰된 상품 이미지"
-              className="product-image"
-            />
+    <div style={{
+      width: '100%',
+      maxWidth: '600px',
+      margin: '200px auto 100px',
+      padding: '40px 20px',
+      textAlign: 'center',
+      fontFamily: 'Pretendard, sans-serif',
+    }}>
+      <div style={{
+        background: 'white',
+        borderRadius: '16px',
+        padding: '40px',
+        boxShadow: '0 4px 20px rgba(0, 0, 0, 0.1)',
+      }}>
+        {/* 성공 아이콘 */}
+        <div style={{
+          width: '80px',
+          height: '80px',
+          background: 'linear-gradient(135deg, #4CAF50, #45a049)',
+          borderRadius: '50%',
+          margin: '0 auto 24px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          fontSize: '40px',
+          color: 'white',
+        }}>
+          ✓
+        </div>
+
+        {/* 제목 */}
+        <h1 style={{
+          fontSize: '28px',
+          fontWeight: '700',
+          color: '#333',
+          marginBottom: '16px',
+        }}>
+          결제가 완료되었습니다!
+        </h1>
+
+        {/* 설명 */}
+        <p style={{
+          fontSize: '16px',
+          color: '#666',
+          lineHeight: '1.6',
+          marginBottom: '40px',
+        }}>
+          주문이 성공적으로 처리되었습니다.<br />
+          배송 정보는 마이페이지에서 확인하실 수 있습니다.
+        </p>
+
+        {/* 주문 정보 */}
+        <div style={{
+          background: '#f8f9fa',
+          borderRadius: '12px',
+          padding: '24px',
+          marginBottom: '32px',
+          textAlign: 'left',
+        }}>
+          <h3 style={{
+            fontSize: '18px',
+            fontWeight: '600',
+            color: '#333',
+            marginBottom: '16px',
+          }}>
+            주문 정보
+          </h3>
+          <div style={{ fontSize: '14px', color: '#666', lineHeight: '1.8' }}>
+            <div>상품: 홍익대 예술대 졸업작품전 출품작 20</div>
+            <div>결제 금액: 125,968원</div>
+            <div>결제 방법: payments</div>
+            <div>주문일시: {new Date().toLocaleString('ko-KR')}</div>
           </div>
         </div>
-        <div className="button-container">
-          {/* [수정] 4. 버튼에 onClick 이벤트를 추가하고, props로 받은 onNavigate 함수를 연결합니다. */}
-          <button type="button" className="cta-button" onClick={onNavigate}>
-            최종 결제하러 가기
+
+        {/* 버튼들 */}
+        <div style={{
+          display: 'flex',
+          gap: '12px',
+          justifyContent: 'center',
+        }}>
+          <button
+            onClick={handleGoHome}
+            style={{
+              padding: '14px 28px',
+              background: '#007bff',
+              color: 'white',
+              border: 'none',
+              borderRadius: '8px',
+              fontSize: '16px',
+              fontWeight: '600',
+              cursor: 'pointer',
+              transition: 'background-color 0.2s',
+            }}
+            onMouseOver={(e) => e.currentTarget.style.background = '#0056b3'}
+            onMouseOut={(e) => e.currentTarget.style.background = '#007bff'}
+          >
+            홈으로
+          </button>
+          <button
+            onClick={handleGoMyPage}
+            style={{
+              padding: '14px 28px',
+              background: 'white',
+              color: '#007bff',
+              border: '2px solid #007bff',
+              borderRadius: '8px',
+              fontSize: '16px',
+              fontWeight: '600',
+              cursor: 'pointer',
+              transition: 'all 0.2s',
+            }}
+            onMouseOver={(e) => {
+              e.currentTarget.style.background = '#007bff';
+              e.currentTarget.style.color = 'white';
+            }}
+            onMouseOut={(e) => {
+              e.currentTarget.style.background = 'white';
+              e.currentTarget.style.color = '#007bff';
+            }}
+          >
+            마이페이지
           </button>
         </div>
       </div>
@@ -117,39 +144,4 @@ const BiddingSuccessView: React.FC<{ data: BidSuccessData; onNavigate: () => voi
   );
 };
 
-
-// --- [백엔드 연동] 4. 데이터 관리 및 API 호출을 담당하는 메인 페이지 컴포넌트 (Container) ---
-const BiddingSuccessPage: React.FC = () => {
-  // [수정] 2. useRouter 훅을 호출하여 router 객체를 생성합니다.
-  const router = useRouter();
-  const [bidData, setBidData] = useState<BidSuccessData | null>(null);
-
-  useEffect(() => {
-    const mockApiData: BidSuccessData = {
-      productImageUrl: "https://via.placeholder.com/800x600/cccccc/888888?text=낙찰된+상품",
-      daysLeft: 7,
-      flowerAmount: "125,968",
-      flowerName: "나팔꽃",
-    };
-    setBidData(mockApiData);
-  }, []);
-
-  // [수정] 3. '/catch/pay' 경로로 이동시키는 핸들러 함수를 정의합니다.
-  const handleNavigateToPayment = () => {
-    router.push('/catch/pay');
-  };
-
-  if (!bidData) {
-    return <div>데이터를 불러오는 중입니다...</div>;
-  }
-
-  return (
-    <>
-      <StyleProvider />
-      {/* [수정] View 컴포넌트에 onNavigate prop으로 핸들러 함수를 전달합니다. */}
-      <BiddingSuccessView data={bidData} onNavigate={handleNavigateToPayment} />
-    </>
-  );
-};
-
-export default BiddingSuccessPage;
+export default PaymentCompletePage;

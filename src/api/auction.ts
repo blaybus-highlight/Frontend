@@ -63,6 +63,7 @@ export const getAuctionList = async (
     }
 
     const response = await axiosInstance.get(`${API_BASE_URL}/api/admin/auctions?${params.toString()}`);
+    console.log(`url: ${API_BASE_URL}/api/admin/auctions?${params.toString()}`);
     
     // 디버깅을 위해 응답 데이터 로깅
     // console.log('API Response:', response.data);
@@ -224,6 +225,32 @@ export const updateProductStatus = async (
     return response.data;
   } catch (error) {
     // console.error('상품 상태 업데이트 실패:', error);
+    throw error;
+  }
+};
+
+/**
+ * 상품 수정 API
+ * @param productId - 상품 ID
+ * @param productData - 상품 수정 데이터
+ * @returns Promise<ProductRegistrationResponse>
+ */
+export const updateProduct = async (
+  productId: number,
+  productData: ProductRegistrationRequest
+): Promise<ProductRegistrationResponse> => {
+  try {
+    // console.log('상품 수정 요청 데이터:', productData);
+    
+    const response = await axiosInstance.put<ProductRegistrationResponse>(
+      `/api/admin/products/${productId}`,
+      productData
+    );
+    
+    // console.log('상품 수정 응답:', response.data);
+    return response.data;
+  } catch (error) {
+    // console.error('상품 수정 실패:', error);
     throw error;
   }
 };
@@ -400,27 +427,7 @@ export const getProductDetail = async (productId: number): Promise<ProductRegist
   }
 };
 
-/**
- * 상품 수정 API
- * @param productId - 상품 ID
- * @param productData - 상품 수정 데이터
- * @returns Promise<ProductRegistrationResponse>
- */
-export const updateProduct = async (
-  productId: number,
-  productData: ProductRegistrationRequest
-): Promise<ProductRegistrationResponse> => {
-  try {
-    const response = await axiosInstance.put<ProductRegistrationResponse>(
-      `/api/admin/products/${productId}`,
-      productData
-    );
-    return response.data;
-  } catch (error) {
-    // console.error('상품 수정 실패:', error);
-    throw error;
-  }
-};
+
 
 /**
  * 경매 종료 API

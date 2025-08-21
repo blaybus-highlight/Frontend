@@ -1,15 +1,15 @@
 import { ProductRegistrationRequest } from '@/types/auction';
 
-// 카테고리 매핑
+// 카테고리 매핑 - 한국어를 영어로 변환
 const categoryMapping: Record<string, 'PROPS' | 'FURNITURE' | 'HOME_APPLIANCES' | 'SCULPTURE' | 'FASHION' | 'CERAMICS' | 'PAINTING'> = {
-  'props': 'PROPS',
-  'furniture': 'FURNITURE',
-  'home_appliances': 'HOME_APPLIANCES',
-  'sculpture': 'SCULPTURE',
-  'fashion': 'FASHION',
-  'ceramics': 'CERAMICS',
-  'painting': 'PAINTING'
-};
+  '소품': 'PROPS',
+  '가구': 'FURNITURE',
+  '가전': 'HOME_APPLIANCES',
+  '조형': 'SCULPTURE',
+  '패션': 'FASHION',
+  '도예': 'CERAMICS',
+  '회화': 'PAINTING'
+} as const;
 
 // 상태 등급 매핑
 const rankMapping: Record<string, 'BEST' | 'GREAT' | 'GOOD'> = {
@@ -28,13 +28,26 @@ export const transformFormDataToApiRequest = (
   formData: Record<string, string>,
   images: any[] = []
 ): ProductRegistrationRequest => {
+  // 디버깅을 위한 로그 추가
+  console.log('폼 데이터에서 카테고리:', formData.productCategory);
+  console.log('카테고리 매핑 결과:', categoryMapping[formData.productCategory]);
+  console.log('전체 카테고리 매핑:', categoryMapping);
+  
+  const mappedCategory = categoryMapping[formData.productCategory];
+  if (!mappedCategory) {
+    console.error('카테고리 매핑 실패:', {
+      input: formData.productCategory,
+      availableKeys: Object.keys(categoryMapping)
+    });
+  }
+  
   return {
     productName: formData.productName || '',
     shortDescription: formData.productDescription || '',
     history: formData.productHistory || '',
     expectedEffects: formData.expectedEffect || '',
     detailedInfo: formData.additionalInfo || '',
-    category: categoryMapping[formData.productCategory] || 'PROPS',
+    category: mappedCategory || 'PROPS',
     productCount: parseInt(formData.quantity) || 1,
     material: formData.material || '',
     size: formData.size || '',
@@ -91,5 +104,48 @@ export const validateFormData = (formData: Record<string, string>): { isValid: b
   return {
     isValid: errors.length === 0,
     errors
+  };
+};
+
+/**
+ * 영어 카테고리를 한국어로 변환
+ * @param englishCategory - 영어 카테고리
+ * @returns 한국어 카테고리
+ */
+export const convertEnglishCategoryToKorean = (englishCategory: string): string => {
+  const reverseCategoryMapping: Record<string, string> = {
+    'PROPS': '소품',
+    'FURNITURE': '가구',
+    'HOME_APPLIANCES': '가전',
+    'SCULPTURE': '조형',
+    'FASHION': '패션',
+    'CERAMICS': '도예',
+    'PAINTING': '회화'
+  };
+  
+  return reverseCategoryMapping[englishCategory] || englishCategory;
+};
+
+/**
+ * API 응답 데이터를 폼 데이터로 변환
+ * @param apiData - API에서 받은 상품 데이터
+ * @returns 폼에서 사용할 데이터
+ */
+export const transformApiDataToFormData = (apiData: any): Record<string, string> => {
+  return {
+    productName: apiData.productName || '',
+    productDescription: apiData.shortDescription || '',
+    productHistory: apiData.history || '',
+    expectedEffect: apiData.expectedEffects || '',
+    additionalInfo: apiData.detailedInfo || '',
+    productCategory: convertEnglishCategoryToKorean(apiData.category) || '소품',
+    quantity: String(apiData.productCount || 1),
+    material: apiData.material || '',
+    size: apiData.size || '',
+    brandName: apiData.brand || '',
+    productionYear: String(apiData.manufactureYear || ''),
+    conditionDescription: apiData.condition || '',
+    productCondition: apiData.rank || 'GOOD',
+    salesCategory: String(apiData.isPremium || false)
   };
 };

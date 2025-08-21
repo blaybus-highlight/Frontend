@@ -2,6 +2,7 @@
 
 import Image from 'next/image';
 import React, { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 
 import Clock from '@/assets/clock-icon.svg';
 import Info from '@/assets/info-icon.svg';
@@ -24,6 +25,7 @@ interface ProductInfoProps {
 }
 
 const ProductInfo = ({ product, auction }: ProductInfoProps) => {
+  const router = useRouter();
   const [activeTab, setActiveTab] = useState('history');
   const [bidAmount, setBidAmount] = useState('');
   const [isAutoBid, setIsAutoBid] = useState(false);
@@ -97,22 +99,23 @@ const ProductInfo = ({ product, auction }: ProductInfoProps) => {
       switch (message.type) {
         case 'NEW_BID':
           console.log('🔔 새로운 입찰:', message.data);
-          // 모든 관련 데이터 새로고침
+          // 모든 관련 데이터 새로고침 - 거래내역과 그래프 즉시 업데이트
           queryClient.invalidateQueries({ queryKey: ['bidHistory', auction?.auctionId] });
           queryClient.invalidateQueries({ queryKey: ['auction', auction?.auctionId] });
           queryClient.invalidateQueries({ queryKey: ['auctionStatus', auction?.auctionId] });
           
-          setLiveNotification('🔔 새로운 입찰이 들어왔습니다');
+          setLiveNotification(`🔔 새로운 입찰: ${formatPrice(message.data.bidAmount || 0)}원`);
           setTimeout(() => setLiveNotification(null), 5000);
           break;
 
         case 'BID_OUTBID':
           console.log('🔥 입찰 경합:', message.data);
+          // 거래내역과 그래프 즉시 업데이트
           queryClient.invalidateQueries({ queryKey: ['bidHistory', auction?.auctionId] });
           queryClient.invalidateQueries({ queryKey: ['auction', auction?.auctionId] });
           queryClient.invalidateQueries({ queryKey: ['auctionStatus', auction?.auctionId] });
           
-          setLiveNotification('🔥 누군가 더 높은 금액을 제시했어요!');
+          setLiveNotification(`🔥 입찰 경합: ${formatPrice(message.data.bidAmount || 0)}원으로 갱신!`);
           setTimeout(() => setLiveNotification(null), 5000);
           break;
 
@@ -185,8 +188,12 @@ const ProductInfo = ({ product, auction }: ProductInfoProps) => {
 
   // 입찰하기 mutation
   const bidMutation = useMutation({
-    mutationFn: productsApi.createBid,
+    mutationFn: (request: any) => {
+      console.log('🚀 입찰 API 호출 시작:', request);
+      return productsApi.createBid(request);
+    },
     onSuccess: (data) => {
+      console.log('✅ 입찰 성공:', data);
       const bidResult = data.data;
       if (bidResult?.isAutoBid) {
         alert(`자동입찰이 설정되었습니다! (${formatPrice(bidResult.bidAmount)}원)`);
@@ -204,16 +211,25 @@ const ProductInfo = ({ product, auction }: ProductInfoProps) => {
       queryClient.invalidateQueries({ queryKey: ['products'] });
     },
     onError: (error) => {
+      console.error('❌ 입찰 실패:', error);
       const errorMessage = error instanceof Error ? error.message : '입찰 중 오류가 발생했습니다';
       alert(`입찰 실패: ${errorMessage}`);
+    },
+    onSettled: () => {
+      console.log('🏁 입찰 mutation 완료 (성공/실패 관계없이)');
+      // 성공/실패 관계없이 로딩 상태를 확실히 해제
+      queryClient.invalidateQueries({ queryKey: ['bidMutation'] });
     },
   });
 
   // 즉시구매 mutation
   const buyNowMutation = useMutation({
-    mutationFn: ({ auctionId, request }: { auctionId: number; request: BuyItNowRequest }) => 
-      productsApi.buyItNow(auctionId, request),
+    mutationFn: ({ auctionId, request }: { auctionId: number; request: BuyItNowRequest }) => {
+      console.log('🚀 즉시구매 API 호출 시작:', { auctionId, request });
+      return productsApi.buyItNow(auctionId, request);
+    },
     onSuccess: (data) => {
+      console.log('✅ 즉시구매 성공:', data);
       const result = data.data;
       alert(`즉시구매가 완료되었습니다!\n상품: ${result.productName}\n결제금액: ${formatPrice(result.buyItNowPrice)}원\n결제상태: ${result.paymentStatus}`);
       setShowBuyNowModal(false);
@@ -224,14 +240,22 @@ const ProductInfo = ({ product, auction }: ProductInfoProps) => {
       queryClient.invalidateQueries({ queryKey: ['products'] });
     },
     onError: (error) => {
+      console.error('❌ 즉시구매 실패:', error);
       const errorMessage = error instanceof Error ? error.message : '즉시구매 중 오류가 발생했습니다';
       alert(`즉시구매 실패: ${errorMessage}`);
       setShowBuyNowModal(false);
+    },
+    onSettled: () => {
+      console.log('🏁 즉시구매 mutation 완료 (성공/실패 관계없이)');
+      // 성공/실패 관계없이 로딩 상태를 확실히 해제
+      queryClient.invalidateQueries({ queryKey: ['buyNowMutation'] });
     },
   });
 
   // 입찰하기 핸들러
   const handleBid = () => {
+    console.log('🎯 입찰하기 핸들러 호출:', { auctionId: auction?.auctionId, bidAmount, isAutoBid });
+    
     if (!auction?.auctionId) {
       alert('경매 정보를 찾을 수 없습니다.');
       return;
@@ -264,18 +288,30 @@ const ProductInfo = ({ product, auction }: ProductInfoProps) => {
         return;
       }
 
-      bidMutation.mutate({
-        auctionId: auction.auctionId,
-        bidAmount: amount,
-        isAutoBid: true,
-        maxAutoBidAmount: maxAmount,
-      });
+      console.log('🔄 자동입찰 mutation 상태 리셋 및 새 요청 시작');
+      // 이전 mutation 상태 리셋 후 새 요청
+      bidMutation.reset();
+      setTimeout(() => {
+        console.log('⏰ 자동입찰 setTimeout 실행 - mutation 호출');
+        bidMutation.mutate({
+          auctionId: auction.auctionId,
+          bidAmount: amount,
+          isAutoBid: true,
+          maxAutoBidAmount: maxAmount,
+        });
+      }, 100);
     } else {
-      bidMutation.mutate({
-        auctionId: auction.auctionId,
-        bidAmount: amount,
-        isAutoBid: false,
-      });
+      console.log('🔄 일반입찰 mutation 상태 리셋 및 새 요청 시작');
+      // 이전 mutation 상태 리셋 후 새 요청
+      bidMutation.reset();
+      setTimeout(() => {
+        console.log('⏰ 일반입찰 setTimeout 실행 - mutation 호출');
+        bidMutation.mutate({
+          auctionId: auction.auctionId,
+          bidAmount: amount,
+          isAutoBid: false,
+        });
+      }, 100);
     }
   };
 
@@ -290,15 +326,23 @@ const ProductInfo = ({ product, auction }: ProductInfoProps) => {
 
   // 즉시구매 확정 핸들러
   const handleBuyNowConfirm = (request: BuyItNowRequest) => {
+    console.log('🛒 즉시구매 확정 핸들러 호출:', { auctionId: auction?.auctionId, request });
+    
     if (!auction?.auctionId) {
       alert('경매 정보를 찾을 수 없습니다.');
       return;
     }
 
-    buyNowMutation.mutate({
-      auctionId: auction.auctionId,
-      request,
-    });
+    console.log('🔄 mutation 상태 리셋 및 새 요청 시작');
+    // 이전 mutation 상태 리셋 후 새 요청
+    buyNowMutation.reset();
+    setTimeout(() => {
+      console.log('⏰ setTimeout 실행 - mutation 호출');
+      buyNowMutation.mutate({
+        auctionId: auction.auctionId,
+        request,
+      });
+    }, 100);
   };
 
   // 입찰가 포맷팅
@@ -350,7 +394,10 @@ const ProductInfo = ({ product, auction }: ProductInfoProps) => {
 
   // 모달 액션 핸들러들
   const handlePayment = () => {
-    if (auctionResult?.actionUrl) {
+    // 낙찰 성공 시 결제 페이지로 이동
+    if (auctionResult?.resultType === 'WON') {
+      router.push('/pay');
+    } else if (auctionResult?.actionUrl) {
       alert(`${auctionResult.actionUrl}로 이동합니다.`);
       // TODO: window.location.href = auctionResult.actionUrl;
     }
@@ -393,6 +440,49 @@ const ProductInfo = ({ product, auction }: ProductInfoProps) => {
       });
     }
   }, [auction?.auctionId]); // auctionId가 변경될 때만
+
+  // 입찰 mutation 상태 모니터링
+  useEffect(() => {
+    console.log('💵 bidMutation 상태 변경:', {
+      isPending: bidMutation.isPending,
+      isError: bidMutation.isError,
+      isSuccess: bidMutation.isSuccess,
+      error: bidMutation.error
+    });
+
+    // 30초 후에도 pending 상태라면 강제 리셋
+    if (bidMutation.isPending) {
+      const timeoutId = setTimeout(() => {
+        console.log('⚠️ bidMutation 30초 타임아웃 - 강제 리셋');
+        bidMutation.reset();
+        alert('입찰 요청 시간이 초과되었습니다. 다시 시도해주세요.');
+      }, 30000);
+
+      return () => clearTimeout(timeoutId);
+    }
+  }, [bidMutation.isPending, bidMutation.isError, bidMutation.isSuccess]);
+
+  // 즉시구매 mutation 상태 모니터링
+  useEffect(() => {
+    console.log('💰 buyNowMutation 상태 변경:', {
+      isPending: buyNowMutation.isPending,
+      isError: buyNowMutation.isError,
+      isSuccess: buyNowMutation.isSuccess,
+      error: buyNowMutation.error
+    });
+
+    // 30초 후에도 pending 상태라면 강제 리셋
+    if (buyNowMutation.isPending) {
+      const timeoutId = setTimeout(() => {
+        console.log('⚠️ buyNowMutation 30초 타임아웃 - 강제 리셋');
+        buyNowMutation.reset();
+        alert('요청 시간이 초과되었습니다. 다시 시도해주세요.');
+        setShowBuyNowModal(false);
+      }, 30000);
+
+      return () => clearTimeout(timeoutId);
+    }
+  }, [buyNowMutation.isPending, buyNowMutation.isError, buyNowMutation.isSuccess]);
 
   // 경매 상태 표시 텍스트 및 스타일
   const getAuctionStatusDisplay = () => {
@@ -637,6 +727,7 @@ const ProductInfo = ({ product, auction }: ProductInfoProps) => {
                       type='button'
                       onClick={handleBid}
                       disabled={bidMutation.isPending}
+                      key={`bid-button-${bidMutation.isPending ? 'loading' : 'ready'}`}
                     >
                       {bidMutation.isPending ? '입찰 중...' : isAutoBid ? '자동입찰' : '입찰하기'}
                     </button>
@@ -679,6 +770,7 @@ const ProductInfo = ({ product, auction }: ProductInfoProps) => {
                   }`}
                   onClick={handleBuyNow}
                   disabled={buyNowMutation.isPending}
+                  key={`buy-now-button-${buyNowMutation.isPending ? 'loading' : 'ready'}`}
                 >
                   {buyNowMutation.isPending 
                     ? '구매 중...' 

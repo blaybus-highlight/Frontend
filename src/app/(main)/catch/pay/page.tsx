@@ -2,6 +2,7 @@
 
 import { Input } from '@/components/ui/input';
 import React from 'react';
+import { useRouter } from 'next/navigation';
 
 // --- 데이터 타입 및 목업 데이터 정의 ---
 
@@ -259,14 +260,28 @@ const PriceDetails: React.FC<{ productPrice: number, shipping: number, discountA
 );
 
 // 3. 결제 방법 컴포넌트
-const PaymentMethod = () => (
-  <div className="checkoutPaymentMethodBox">
-    <button className="checkoutPaymentButton">
-      <span className="checkoutPaymentLogo"></span>
-      payments
-    </button>
-  </div>
-);
+const PaymentMethod = () => {
+  const router = useRouter();
+
+  const handlePayment = () => {
+    // 결제 처리 로직 (실제로는 API 호출)
+    console.log('결제 처리 중...');
+    
+    // 결제 완료 후 완료 페이지로 이동
+    setTimeout(() => {
+      router.push('/pay/catch');
+    }, 1000);
+  };
+
+  return (
+    <div className="checkoutPaymentMethodBox">
+      <button className="checkoutPaymentButton" onClick={handlePayment}>
+        <span className="checkoutPaymentLogo"></span>
+        payments
+      </button>
+    </div>
+  );
+};
 
 // 4. 배송 정보 컴포넌트
 const ShippingInfo: React.FC<{ 

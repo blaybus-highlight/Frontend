@@ -9,13 +9,13 @@ export const salesCategoryOptions = [
 ];
 
 export const productCategoryOptions = [
-  { value: "PROPS", label: "소품" },
-  { value: "FURNITURE", label: "가구" },
-  { value: "HOME_APPLIANCES", label: "가전" },
-  { value: "SCULPTURE", label: "조형" },
-  { value: "FASHION", label: "패션" },
-  { value: "CERAMICS", label: "도예" },
-  { value: "PAINTING", label: "회화" },
+  { value: "소품", label: "소품" },
+  { value: "가구", label: "가구" },
+  { value: "가전", label: "가전" },
+  { value: "조형", label: "조형" },
+  { value: "패션", label: "패션" },
+  { value: "도예", label: "도예" },
+  { value: "회화", label: "회화" },
 ];
 
 export const quantityOptions = Array.from({ length: 5 }, (_, i) => ({
