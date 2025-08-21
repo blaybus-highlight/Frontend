@@ -58,7 +58,7 @@ export const buyItNow = async (request: BuyItNowRequest): Promise<BuyItNowRespon
 // 결제 미리보기 API
 export const getPaymentPreview = async (auctionId: number): Promise<PaymentPreviewResponse> => {
   try {
-    const response = await axiosInstance.post<PaymentPreviewResponse>(`/api/payments/preview/${auctionId}`);
+    const response = await axiosInstance.get<PaymentPreviewResponse>(`/api/payments/preview/${auctionId}`);
     return response.data;
   } catch (error) {
     console.error('결제 미리보기 API 호출 실패:', error);

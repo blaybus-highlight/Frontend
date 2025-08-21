@@ -223,35 +223,8 @@ const ProductInfo = ({ product, auction }: ProductInfoProps) => {
     },
   });
 
-  // 즉시구매 mutation
-  const buyNowMutation = useMutation({
-    mutationFn: ({ auctionId, request }: { auctionId: number; request: BuyItNowRequest }) => {
-      console.log('🚀 즉시구매 API 호출 시작:', { auctionId, request });
-      return productsApi.buyItNow(auctionId, request);
-    },
-    onSuccess: (data) => {
-      console.log('✅ 즉시구매 성공:', data);
-      const result = data.data;
-      alert(`즉시구매가 완료되었습니다!\n상품: ${result.productName}\n결제금액: ${formatPrice(result.buyItNowPrice)}원\n결제상태: ${result.paymentStatus}`);
-      setShowBuyNowModal(false);
-      // 경매 상세 정보 새로고침
-      queryClient.invalidateQueries({ queryKey: ['auction', auction?.auctionId] });
-      queryClient.invalidateQueries({ queryKey: ['auctionStatus', auction?.auctionId] });
-      // 메인페이지 상품 목록도 새로고침 (즉시구매 완료된 상품 제거)
-      queryClient.invalidateQueries({ queryKey: ['products'] });
-    },
-    onError: (error) => {
-      console.error('❌ 즉시구매 실패:', error);
-      const errorMessage = error instanceof Error ? error.message : '즉시구매 중 오류가 발생했습니다';
-      alert(`즉시구매 실패: ${errorMessage}`);
-      setShowBuyNowModal(false);
-    },
-    onSettled: () => {
-      console.log('🏁 즉시구매 mutation 완료 (성공/실패 관계없이)');
-      // 성공/실패 관계없이 로딩 상태를 확실히 해제
-      queryClient.invalidateQueries({ queryKey: ['buyNowMutation'] });
-    },
-  });
+  // 즉시구매 mutation (현재 사용하지 않음 - 새로운 흐름으로 대체됨)
+  // const buyNowMutation = useMutation({ ... });
 
   // 입찰하기 핸들러
   const handleBid = () => {
@@ -325,14 +298,17 @@ const ProductInfo = ({ product, auction }: ProductInfoProps) => {
     
     // 확인 다이얼로그 표시
     if (confirm('정말 즉시 구매하시겠어요?')) {
-      // 즉시 구매 API 호출
-      const request: BuyItNowRequest = {
+      // 즉시 구매 API 호출 - 올바른 형식으로 요청
+      const request = {
         auctionId: auction.auctionId,
-        usePointAmount: 10000 // 기본값으로 10000 포인트 사용
+        usePointAmount: 0 // 기본값으로 10000 포인트 사용
       };
+      
+      console.log('즉시 구매 요청:', request);
       
       buyItNow(request)
         .then((response) => {
+          console.log('즉시 구매 성공:', response);
           if (response.success) {
             // 성공 시 데이터와 함께 successbid 페이지로 이동
             router.push(`/successbid?data=${encodeURIComponent(JSON.stringify(response.data))}`);
@@ -347,25 +323,10 @@ const ProductInfo = ({ product, auction }: ProductInfoProps) => {
     }
   };
 
-  // 즉시구매 확정 핸들러
-  const handleBuyNowConfirm = (request: BuyItNowRequest) => {
+  // 즉시구매 확정 핸들러 (모달용 - 현재 사용하지 않음)
+  const handleBuyNowConfirm = (request: any) => {
     console.log('🛒 즉시구매 확정 핸들러 호출:', { auctionId: auction?.auctionId, request });
-    
-    if (!auction?.auctionId) {
-      alert('경매 정보를 찾을 수 없습니다.');
-      return;
-    }
-
-    console.log('🔄 mutation 상태 리셋 및 새 요청 시작');
-    // 이전 mutation 상태 리셋 후 새 요청
-    buyNowMutation.reset();
-    setTimeout(() => {
-      console.log('⏰ setTimeout 실행 - mutation 호출');
-      buyNowMutation.mutate({
-        auctionId: auction.auctionId,
-        request,
-      });
-    }, 100);
+    // 새로운 흐름으로 대체되어 현재 사용하지 않음
   };
 
   // 입찰가 포맷팅
@@ -485,27 +446,8 @@ const ProductInfo = ({ product, auction }: ProductInfoProps) => {
     }
   }, [bidMutation.isPending, bidMutation.isError, bidMutation.isSuccess]);
 
-  // 즉시구매 mutation 상태 모니터링
-  useEffect(() => {
-    console.log('💰 buyNowMutation 상태 변경:', {
-      isPending: buyNowMutation.isPending,
-      isError: buyNowMutation.isError,
-      isSuccess: buyNowMutation.isSuccess,
-      error: buyNowMutation.error
-    });
-
-    // 30초 후에도 pending 상태라면 강제 리셋
-    if (buyNowMutation.isPending) {
-      const timeoutId = setTimeout(() => {
-        console.log('⚠️ buyNowMutation 30초 타임아웃 - 강제 리셋');
-        buyNowMutation.reset();
-        alert('요청 시간이 초과되었습니다. 다시 시도해주세요.');
-        setShowBuyNowModal(false);
-      }, 30000);
-
-      return () => clearTimeout(timeoutId);
-    }
-  }, [buyNowMutation.isPending, buyNowMutation.isError, buyNowMutation.isSuccess]);
+  // 즉시구매 mutation 상태 모니터링 (현재 사용하지 않음)
+  // useEffect(() => { ... }, []);
 
   // 경매 상태 표시 텍스트 및 스타일
   const getAuctionStatusDisplay = () => {
@@ -787,19 +729,12 @@ const ProductInfo = ({ product, auction }: ProductInfoProps) => {
                     </div>
                   )}
                 </div>
-                <button 
-                  className={`h-[48px] w-full text-[16px]/[22px] font-bold text-white ${
-                    buyNowMutation.isPending ? 'bg-gray-400 cursor-not-allowed' : 'bg-black hover:bg-gray-800'
-                  }`}
-                  onClick={handleBuyNow}
-                  disabled={buyNowMutation.isPending}
-                  key={`buy-now-button-${buyNowMutation.isPending ? 'loading' : 'ready'}`}
-                >
-                  {buyNowMutation.isPending 
-                    ? '구매 중...' 
-                    : `즉시 구매하기 (${formatPrice(auction?.buyItNowPrice || product?.buyNowPrice || 0)}원)`
-                  }
-                </button>
+                                 <button 
+                   className="h-[48px] w-full text-[16px]/[22px] font-bold text-white bg-black hover:bg-gray-800"
+                   onClick={handleBuyNow}
+                 >
+                   {`즉시 구매하기 (${formatPrice(auction?.buyItNowPrice || product?.buyNowPrice || 0)}원)`}
+                 </button>
               </div>
             </div>
 
@@ -1082,15 +1017,15 @@ const ProductInfo = ({ product, auction }: ProductInfoProps) => {
         onMyBids={handleMyBids}
       />
 
-      {/* 즉시구매 모달 */}
-      <BuyItNowModal
-        isOpen={showBuyNowModal}
-        onClose={() => setShowBuyNowModal(false)}
-        onConfirm={handleBuyNowConfirm}
-        productName={auction?.productName || '상품'}
-        buyItNowPrice={auction?.buyItNowPrice || 0}
-        isLoading={buyNowMutation.isPending}
-      />
+             {/* 즉시구매 모달 */}
+       <BuyItNowModal
+         isOpen={showBuyNowModal}
+         onClose={() => setShowBuyNowModal(false)}
+         onConfirm={handleBuyNowConfirm}
+         productName={auction?.productName || '상품'}
+         buyItNowPrice={auction?.buyItNowPrice || 0}
+         isLoading={false}
+       />
     </div>
   );
 };
