@@ -7,7 +7,7 @@ import { TabNavigation } from "@/components/backoffice/auction/TabNavigation"
 import { IndividualRegistrationSection } from "@/components/backoffice/auction/IndividualRegistrationSection"
 import { BulkUploadSection } from "@/components/backoffice/auction/BulkUploadSection"
 import { updateProduct, createProductDraft, updateProductStatus, uploadProductImages, getProductDetail } from "@/api/auction"
-import { transformFormDataToApiRequest, validateFormData } from "@/utils/productFormUtils"
+import { transformFormDataToApiRequest, validateFormData, transformApiDataToFormData } from "@/utils/productFormUtils"
 
 interface ImageFile {
   id: string;
@@ -69,23 +69,9 @@ export default function ProductUpdatePage() {
         if (response.success && response.data) {
           const product = response.data;
           
-          // API 응답 데이터를 폼 데이터로 변환
-          setFormData({
-            salesCategory: product.isPremium ? "true" : "false",
-            productCategory: product.category || "",
-            productName: product.productName || "",
-            size: product.size || "",
-            quantity: product.productCount?.toString() || "",
-            material: product.material || "",
-            productionYear: product.manufactureYear?.toString() || "",
-            brandName: product.brand || "",
-            productCondition: product.rank || "",
-            conditionDescription: product.condition || "",
-            productDescription: product.shortDescription || "",
-            productHistory: product.history || "",
-            expectedEffect: product.expectedEffects || "",
-            additionalInfo: product.detailedInfo || "",
-          });
+          // API 응답 데이터를 폼 데이터로 변환 (카테고리는 한국어로 변환됨)
+          const formDataFromApi = transformApiDataToFormData(product);
+          setFormData(formDataFromApi);
         } else {
           alert('상품 정보를 불러올 수 없습니다.');
           router.push('/backoffice/products');

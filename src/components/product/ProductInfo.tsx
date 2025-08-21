@@ -2,6 +2,7 @@
 
 import Image from 'next/image';
 import React, { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 
 import Clock from '@/assets/clock-icon.svg';
 import Info from '@/assets/info-icon.svg';
@@ -24,6 +25,7 @@ interface ProductInfoProps {
 }
 
 const ProductInfo = ({ product, auction }: ProductInfoProps) => {
+  const router = useRouter();
   const [activeTab, setActiveTab] = useState('history');
   const [bidAmount, setBidAmount] = useState('');
   const [isAutoBid, setIsAutoBid] = useState(false);
@@ -350,7 +352,10 @@ const ProductInfo = ({ product, auction }: ProductInfoProps) => {
 
   // 모달 액션 핸들러들
   const handlePayment = () => {
-    if (auctionResult?.actionUrl) {
+    // 낙찰 성공 시 결제 페이지로 이동
+    if (auctionResult?.resultType === 'WON') {
+      router.push('/pay');
+    } else if (auctionResult?.actionUrl) {
       alert(`${auctionResult.actionUrl}로 이동합니다.`);
       // TODO: window.location.href = auctionResult.actionUrl;
     }
