@@ -1,7 +1,8 @@
 import axios from 'axios';
 import axiosInstance from '@/lib/axiosInstance';
 
-import type { AuctionDetailResponse, ProductSearchParams, ProductsResponse, SellerDetailResponse, RecommendedProductsResponse, BidHistoryResponse, BidCreateRequest, BidCreateApiResponse, BuyItNowRequest, BuyItNowApiResponse, AuctionResultResponse, AuctionStatusResponse, WishlistResponse, NotificationStatusResponse, ViewTogetherProductsResponse } from '@/types/api';
+import type { AuctionDetailResponse, ProductSearchParams, ProductsResponse, SellerDetailResponse, RecommendedProductsResponse, BidHistoryResponse, BidCreateRequest, BidCreateApiResponse, BuyItNowApiResponse, AuctionResultResponse, AuctionStatusResponse, WishlistResponse, NotificationStatusResponse, ViewTogetherProductsResponse } from '@/types/api';
+import { BuyItNowRequest } from './payments';
 import { API_BASE_URL } from '@/types/api';
 
 const api = axios.create({

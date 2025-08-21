@@ -1,7 +1,7 @@
 "use client"
 
 import { Input } from '@/components/ui/input';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { processPayment } from '@/api/payments';
 
@@ -483,4 +483,13 @@ const CheckoutPage: React.FC = () => {
    );
  };
 
-export default CheckoutPage;
+// Suspense로 감싼 컴포넌트
+const CheckoutPageWithSuspense: React.FC = () => {
+  return (
+    <Suspense fallback={<div>로딩 중...</div>}>
+      <CheckoutPage />
+    </Suspense>
+  );
+};
+
+export default CheckoutPageWithSuspense;

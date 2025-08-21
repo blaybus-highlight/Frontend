@@ -2,7 +2,7 @@ import { useState, useCallback, useRef } from 'react';
 import { useSTOMPSocket } from './useSTOMPSocket';
 
 export interface NotificationData {
-  type: 'NEW_BID' | 'BID_OUTBID' | 'AUCTION_START' | 'AUCTION_END' | 'AUCTION_ENDING_SOON' | 'PRICE_DROP' | 'AUCTION_CANCELLED' | 'AUCTION_UPDATED' | 'AUCTION_SCHEDULED' | 'CONNECTION_LOST';
+  type: 'NEW_BID' | 'BID_OUTBID' | 'AUCTION_START' | 'AUCTION_END' | 'AUCTION_ENDED' | 'AUCTION_ENDING_SOON' | 'PRICE_DROP' | 'AUCTION_CANCELLED' | 'AUCTION_UPDATED' | 'AUCTION_SCHEDULED' | 'CONNECTION_LOST' | 'PAYMENT_REQUIRED';
   auctionId?: number;
   productName?: string;
   message: string;
@@ -11,6 +11,9 @@ export interface NotificationData {
   timeRemaining?: string;
   timestamp: string;
   isWon?: boolean;
+  productImage?: string;
+  currentHighestBid?: number;
+  currentWinnerNickname?: string;
 }
 
 export interface NotificationState {
@@ -72,12 +75,37 @@ export const useAuctionNotifications = ({
     // 특정 알림 타입별 콜백 실행
     switch (message.type) {
       case 'AUCTION_END':
+      case 'AUCTION_ENDED':
         // 낙찰/유찰 판단은 추가 데이터 필요
         if (message.data?.isWon) {
           onWinNotification?.(message.data);
         } else {
           onLostNotification?.(message.data);
         }
+        break;
+      case 'BID_OUTBID':
+        // 낙찰 성공 시 successbid 페이지로 리다이렉트
+        if (message.data?.message?.includes('축하합니다! 경매에서 낙찰받으셨습니다')) {
+          const params = new URLSearchParams({
+            productName: message.data.productName || '',
+            productImage: message.data.productImage || '',
+            bidAmount: message.data.currentHighestBid?.toString() || message.data.bidAmount?.toString() || '0',
+            isAutoBid: 'true',
+            bidTime: new Date().toLocaleString('ko-KR')
+          });
+          window.location.href = `/successbid?${params.toString()}`;
+        }
+        break;
+      case 'PAYMENT_REQUIRED':
+        // 결제 필요 알림도 낙찰 성공으로 처리
+        const params = new URLSearchParams({
+          productName: message.data?.productName || '',
+          productImage: message.data?.productImage || '',
+          bidAmount: message.data?.currentHighestBid?.toString() || message.data?.bidAmount?.toString() || '0',
+          isAutoBid: 'true',
+          bidTime: new Date().toLocaleString('ko-KR')
+        });
+        window.location.href = `/successbid?${params.toString()}`;
         break;
       case 'AUCTION_CANCELLED':
         onCancelNotification?.(message.data);

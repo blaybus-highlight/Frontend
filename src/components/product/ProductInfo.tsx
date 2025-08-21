@@ -15,7 +15,7 @@ import { useSTOMPSocket } from '@/hooks/useSTOMPSocket';
 import { useAuctionStatus } from '@/hooks/useAuctionStatus';
 import { useWishlistStatus, useWishlistToggle } from '@/hooks/useWishlist';
 import { productsApi } from '@/api/products';
-import { buyItNow } from '@/api/payments';
+import { buyItNow, BuyItNowRequest } from '@/api/payments';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import AuctionResultModal from './AuctionResultModal';
 import BuyItNowModal from './BuyItNowModal';
@@ -301,7 +301,7 @@ const ProductInfo = ({ product, auction }: ProductInfoProps) => {
       // 즉시 구매 API 호출 - 올바른 형식으로 요청
       const request = {
         auctionId: auction.auctionId,
-        usePointAmount: 0 // 기본값으로 10000 포인트 사용
+        usePointAmount: 10000 // 기본값으로 10000 포인트 사용
       };
       
       console.log('즉시 구매 요청:', request);
@@ -1017,15 +1017,16 @@ const ProductInfo = ({ product, auction }: ProductInfoProps) => {
         onMyBids={handleMyBids}
       />
 
-             {/* 즉시구매 모달 */}
-       <BuyItNowModal
-         isOpen={showBuyNowModal}
-         onClose={() => setShowBuyNowModal(false)}
-         onConfirm={handleBuyNowConfirm}
-         productName={auction?.productName || '상품'}
-         buyItNowPrice={auction?.buyItNowPrice || 0}
-         isLoading={false}
-       />
+                    {/* 즉시구매 모달 */}
+        <BuyItNowModal
+          isOpen={showBuyNowModal}
+          onClose={() => setShowBuyNowModal(false)}
+          onConfirm={handleBuyNowConfirm}
+          productName={auction?.productName || '상품'}
+          buyItNowPrice={auction?.buyItNowPrice || 0}
+          auctionId={auction?.auctionId || 0}
+          isLoading={false}
+        />
     </div>
   );
 };

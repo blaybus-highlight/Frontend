@@ -15,7 +15,7 @@ interface BuyItNowData {
   completedAt: string;
 }
 
-const BidSuccessPage: React.FC = () => {
+const SuccessBidPage: React.FC = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [buyItNowData, setBuyItNowData] = useState<BuyItNowData | null>(null);
@@ -191,4 +191,4 @@ const BidSuccessPage: React.FC = () => {
   );
 };
 
-export default BidSuccessPage;
+export default SuccessBidPage;

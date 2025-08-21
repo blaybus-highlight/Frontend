@@ -198,11 +198,7 @@ export interface BidCreateResponse {
   isMyBid: boolean;
 }
 
-export interface BuyItNowRequest {
-  confirmed: boolean;
-  paymentMethod: 'CREDIT_CARD' | 'BANK_TRANSFER' | 'KAKAO_PAY' | 'NAVER_PAY';
-  shippingAddressId: number;
-}
+// BuyItNowRequest는 src/api/payments.ts에서 정의됨
 
 export interface BuyItNowResponse {
   auctionId: number;
