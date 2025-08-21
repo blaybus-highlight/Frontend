@@ -72,8 +72,11 @@ export function LoginHeader() {
       <div className='px-4 sm:px-6 py-3'>
         <div className='flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-0'>
           <div className='hidden sm:flex items-center space-x-8'>
-            <button className='group relative text-sm text-white transition-colors hover:text-gray-300'>
-              랭킹
+            <button 
+              className='group relative text-sm text-white transition-colors hover:text-gray-300'
+              onClick={() => router.push('/')}
+            >
+              홈
               <span className='absolute bottom-0 left-0 h-0.5 w-0 bg-white transition-all duration-300 group-hover:w-full' />
             </button>
             <button 
@@ -87,8 +90,11 @@ export function LoginHeader() {
           
           {/* 모바일 카테고리 */}
           <div className='flex sm:hidden items-center space-x-4 w-full justify-center'>
-            <button className='text-xs text-white px-3 py-1 rounded-full border border-gray-600 hover:bg-gray-700'>
-              랭킹
+            <button 
+              className='text-xs text-white px-3 py-1 rounded-full border border-gray-600 hover:bg-gray-700'
+              onClick={() => router.push('/')}
+            >
+              홈
             </button>
             <button className='text-xs text-white px-3 py-1 rounded-full border border-gray-600 hover:bg-gray-700'>
               카테고리
