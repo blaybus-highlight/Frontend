@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { getPaymentPreview } from '@/api/payments';
 
@@ -15,7 +15,7 @@ interface BuyItNowData {
   completedAt: string;
 }
 
-const SuccessBidPage: React.FC = () => {
+const SuccessBidContent: React.FC = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [buyItNowData, setBuyItNowData] = useState<BuyItNowData | null>(null);
@@ -188,6 +188,61 @@ const SuccessBidPage: React.FC = () => {
         </button>
       </div>
     </div>
+  );
+};
+
+const SuccessBidPage: React.FC = () => {
+  return (
+    <Suspense fallback={
+      <div style={{
+        width: '100%',
+        maxWidth: '600px',
+        margin: '200px auto 100px',
+        padding: '40px 20px',
+        textAlign: 'center',
+        fontFamily: 'Pretendard, sans-serif',
+      }}>
+        <div style={{
+          background: 'white',
+          borderRadius: '16px',
+          padding: '40px',
+          boxShadow: '0 4px 20px rgba(0, 0, 0, 0.1)',
+        }}>
+          <div style={{
+            width: '80px',
+            height: '80px',
+            background: 'linear-gradient(135deg, #4CAF50, #45a049)',
+            borderRadius: '50%',
+            margin: '0 auto 20px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            color: 'white',
+            fontSize: '48px',
+          }}>
+            ⏳
+          </div>
+          <h2 style={{
+            fontSize: '28px',
+            fontWeight: 'bold',
+            color: '#333',
+            marginBottom: '10px',
+          }}>
+            로딩 중...
+          </h2>
+          <p style={{
+            fontSize: '16px',
+            color: '#666',
+            marginBottom: '30px',
+            lineHeight: '1.5',
+          }}>
+            즉시 구매 정보를 불러오는 중입니다.
+          </p>
+        </div>
+      </div>
+    }>
+      <SuccessBidContent />
+    </Suspense>
   );
 };
 
