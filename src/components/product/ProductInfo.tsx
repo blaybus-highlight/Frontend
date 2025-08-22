@@ -706,13 +706,19 @@ const ProductInfo = ({ product, auction }: ProductInfoProps) => {
                 className={`mt-[36px] flex flex-col gap-[40px] block`}
               >
                 <div className='flex flex-col gap-[8px]'>
-                  <div className='flex items-center justify-between'>
-                    <span className='text-[16px]/[24px]'>입찰가</span>
+                  {/* 입찰가 입력 가능 범위 */}
+                  <div className='flex justify-end'>
+                    <span className='text-[18px] font-semibold text-[#333]'>
+                      입찰가 입력 가능 범위: 5,000원 ~ 15,000원
+                    </span>
                   </div>
-                  <div className='flex gap-[6px]'>
+                  
+                  {/* 입찰가 입력 섹션 - 한 줄 배치 */}
+                  <div className='flex items-end gap-[6px]'>
+                    <span className='text-[18px] font-semibold shrink-0 flex items-center h-[44px]'>입찰가</span>
                     <input
-                      className='w-full flex-grow border border-[#E0E0E0] px-[16px] py-[10px] text-[16px]/[22px] placeholder-[#9E9E9E]'
-                      placeholder={`${liveStatus?.bidUnit ? formatPrice(liveStatus.bidUnit) : '1,000'}원 단위로 입력해주세요.`}
+                      className='flex-grow border border-[#E0E0E0] px-[16px] py-[10px] text-[16px]/[22px] placeholder-[#9E9E9E]'
+                      placeholder='1,000원 단위로 입력해주세요.'
                       value={bidAmount}
                       onChange={handleBidAmountChange}
                     />
@@ -727,6 +733,42 @@ const ProductInfo = ({ product, auction }: ProductInfoProps) => {
                     >
                       {bidMutation.isPending ? '입찰 중...' : isAutoBid ? '자동입찰' : '입찰하기'}
                     </button>
+                    
+                    {/* 최소 입찰 가격 */}
+                    <div className='flex flex-col items-center gap-1'>
+                      <span className='text-[12px] text-[#666] whitespace-nowrap'>최소 입찰 가능 가격</span>
+                      <button
+                        className='h-[44px] px-4 bg-black text-white text-[14px] font-bold hover:bg-gray-800'
+                        onClick={() => {
+                          // 현재 입력된 값이 있으면 그 값을 기준으로, 없으면 현재가를 기준으로 계산
+                          const currentInputAmount = bidAmount ? parseInt(bidAmount.replace(/,/g, '')) : 0;
+                          const baseAmount = currentInputAmount > 0 ? currentInputAmount : (liveStatus?.currentHighestBid || auction?.currentHighestBid || auction?.minimumBid || 0);
+                          const newAmount = baseAmount + 5000;
+                          setBidAmount(newAmount.toLocaleString('ko-KR'));
+                        }}
+                      >
+                        +5,000원
+                      </button>
+                    </div>
+                    
+                    <span className='text-[16px] text-[#666] mb-2'>~</span>
+                    
+                    {/* 최대 입찰 가격 */}
+                    <div className='flex flex-col items-center gap-1'>
+                      <span className='text-[12px] text-[#666] whitespace-nowrap'>최대 입찰 가능 가격</span>
+                      <button
+                        className='h-[44px] px-4 bg-black text-white text-[14px] font-bold hover:bg-gray-800'
+                        onClick={() => {
+                          // 현재 입력된 값이 있으면 그 값을 기준으로, 없으면 현재가를 기준으로 계산
+                          const currentInputAmount = bidAmount ? parseInt(bidAmount.replace(/,/g, '')) : 0;
+                          const baseAmount = currentInputAmount > 0 ? currentInputAmount : (liveStatus?.currentHighestBid || auction?.currentHighestBid || auction?.minimumBid || 0);
+                          const newAmount = baseAmount + 15000;
+                          setBidAmount(newAmount.toLocaleString('ko-KR'));
+                        }}
+                      >
+                        +15,000원
+                      </button>
+                    </div>
                   </div>
                 </div>
 
