@@ -78,7 +78,6 @@ export const useSTOMPSocket = ({ url, onMessage, onConnect, onDisconnect, onErro
           reconnectDelay: 3000,
           heartbeatIncoming: 10000,
           heartbeatOutgoing: 10000,
-          maxReconnectAttempts: 10,
         });
 
         // 연결 시작
