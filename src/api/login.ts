@@ -54,6 +54,9 @@ export const loginUser = async ({ userId, password }: LoginCredentials) => {
  */
 export const refreshAccessToken = async (refreshToken: string): Promise<TokenRefreshResponse> => {
   try {
+    console.log('토큰 갱신 요청 시작:', `${API_BASE_URL}/api/public/refresh`);
+    console.log('전송할 refreshToken:', refreshToken);
+    
     // axiosInstance 대신 일반 fetch 사용하여 순환 참조 방지
     const response = await fetch(`${API_BASE_URL}/api/public/refresh`, {
       method: 'POST',
@@ -63,20 +66,39 @@ export const refreshAccessToken = async (refreshToken: string): Promise<TokenRef
       body: JSON.stringify({ refreshToken: refreshToken })
     });
 
+    console.log('토큰 갱신 응답 상태:', response.status);
+    
     if (!response.ok) {
       const errorData = await response.json();
-      throw new Error(errorData.message || '토큰 갱신에 실패했습니다.');
+      console.error('토큰 갱신 실패 - 서버 응답:', errorData);
+      throw new Error(errorData.message || `토큰 갱신에 실패했습니다. (${response.status})`);
     }
 
     const data = await response.json();
+    console.log('토큰 갱신 성공 - 서버 응답:', data);
     
+    // 백엔드 ResponseDto 구조에 맞게 처리
     if (!data.success) {
       throw new Error(data.message || '토큰 갱신에 실패했습니다.');
     }
 
-    return data;
+    // 백엔드 응답 구조를 프론트엔드에서 기대하는 구조로 변환
+    return {
+      success: data.success,
+      data: {
+        accessToken: data.data.accessToken,
+        refreshToken: data.data.refreshToken,
+        adminId: data.data.adminId,
+        adminName: data.data.adminName,
+        message: data.data.message
+      },
+      message: data.message
+    };
   } catch (error) {
     console.error('토큰 갱신 실패:', error);
+    if (error instanceof Error) {
+      throw new Error(error.message);
+    }
     throw new Error('토큰 갱신에 실패했습니다. 다시 로그인해주세요.');
   }
 };

@@ -803,36 +803,7 @@ const ProductInfo = ({ product, auction }: ProductInfoProps) => {
                   </div>
                 </div>
 
-                {/* 자동입찰 옵션 */}
-                <div className='flex flex-col gap-[8px]'>
-                  <div className='flex items-center gap-2'>
-                    <input
-                      type='checkbox'
-                      id='autoBid'
-                      checked={isAutoBid}
-                      onChange={(e) => setIsAutoBid(e.target.checked)}
-                      className='w-4 h-4'
-                    />
-                    <label htmlFor='autoBid' className='text-[14px] text-gray-700 cursor-pointer'>
-                      자동입찰 사용 (최대 금액까지 자동으로 입찰)
-                    </label>
-                  </div>
-                  
-                  {isAutoBid && (
-                    <div className='mt-2'>
-                      <span className='text-[14px] text-gray-600 mb-2 block'>자동입찰 최대 금액</span>
-                      <input
-                        className='w-full border border-[#E0E0E0] px-[16px] py-[10px] text-[16px]/[22px] placeholder-[#9E9E9E]'
-                        placeholder='자동입찰할 최대 금액을 입력하세요'
-                        value={maxAutoBidAmount}
-                        onChange={handleMaxAutoBidAmountChange}
-                      />
-                      <p className='text-xs text-gray-500 mt-1'>
-                        다른 사용자가 입찰할 때마다 이 금액까지 자동으로 입찰합니다
-                      </p>
-                    </div>
-                  )}
-                </div>
+          
                                  <button 
                    className="h-[48px] w-full text-[16px]/[22px] font-bold text-white bg-black hover:bg-gray-800"
                    onClick={handleBuyNow}
