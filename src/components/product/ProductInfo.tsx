@@ -582,23 +582,38 @@ const ProductInfo = ({ product, auction }: ProductInfoProps) => {
             </div>
           </div>
           <div className='mt-[12px] flex flex-col gap-[12px]'>
-            <div className='flex flex-wrap gap-2'>
-              <span
-                className={`rounded-[8px] p-[8px] text-[16px]/[16px] ${auctionStatusDisplay.color}`}
-              >
-                {auctionStatusDisplay.text}
-              </span>
-              {/* 판매자가 등록한 태그들 표시 */}
-              {auction?.tags && auction.tags.length > 0 && (
-                auction.tags.map((tag, index) => (
-                  <span
-                    key={index}
-                    className='rounded-[8px] bg-[#F5F5F5] p-[8px] text-[16px]/[16px] text-[#2C2C2C]'
-                  >
-                    {tag.startsWith('#') ? tag : `#${tag}`}
-                  </span>
-                ))
-              )}
+            <div className='flex flex-wrap items-center justify-between gap-2'>
+              <div className='flex flex-wrap gap-2'>
+                <span
+                  className={`rounded-[8px] p-[8px] text-[16px]/[16px] ${auctionStatusDisplay.color}`}
+                >
+                  {auctionStatusDisplay.text}
+                </span>
+                {/* 판매자가 등록한 태그들 표시 */}
+                {auction?.tags && auction.tags.length > 0 && (
+                  auction.tags.map((tag, index) => (
+                    <span
+                      key={index}
+                      className='rounded-[8px] bg-[#F5F5F5] p-[8px] text-[16px]/[16px] text-[#2C2C2C]'
+                    >
+                      {tag.startsWith('#') ? tag : `#${tag}`}
+                    </span>
+                  ))
+                )}
+              </div>
+              {/* 남은 시간 표시 */}
+              <div className='flex items-center gap-2'>
+                <Clock height={16} width={16} />
+                <span className={`text-[14px] font-semibold ${
+                  timeLeft === '경매 종료' 
+                    ? 'text-red-600' 
+                    : timeLeft.includes('분') && !timeLeft.includes('시간') && !timeLeft.includes('일')
+                    ? 'text-orange-600'
+                    : 'text-[#333]'
+                }`}>
+                  {timeLeft}
+                </span>
+              </div>
             </div>
             <div className='flex items-center gap-[12px] text-[16px] text-[#616161]'>
               <Clock height={20} width={20} />
