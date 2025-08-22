@@ -11,37 +11,50 @@ const DashboardContent = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  // 대시보드 데이터 로드 함수
+  const loadDashboardData = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      console.log('대시보드 데이터 로드 시작...');
+
+      // 대시보드 통계와 히스토리 아이템 데이터를 병렬로 로드
+      const [statsResponse, itemsResponse] = await Promise.all([
+        getDashboardStats(),
+        getDashboardItems()
+      ]);
+
+      console.log('대시보드 API 응답:', { statsResponse, itemsResponse });
+
+      if (statsResponse.success) {
+        setDashboardStats(statsResponse.data);
+      }
+
+      if (itemsResponse.success) {
+        // 최대 5개 표시
+        setDashboardItems(itemsResponse.data.slice(0, 5));
+      }
+
+    } catch (err) {
+      console.error('대시보드 데이터 로드 실패:', err);
+      setError('대시보드 데이터를 불러오는데 실패했습니다.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   // 대시보드 데이터 로드
   useEffect(() => {
-    const loadDashboardData = async () => {
-      try {
-        setLoading(true);
-        setError(null);
+    loadDashboardData();
 
-        // 대시보드 통계와 히스토리 아이템 데이터를 병렬로 로드
-        const [statsResponse, itemsResponse] = await Promise.all([
-          getDashboardStats(),
-          getDashboardItems()
-        ]);
-
-        if (statsResponse.success) {
-          setDashboardStats(statsResponse.data);
-        }
-
-        if (itemsResponse.success) {
-          // 최대 5개 표시
-          setDashboardItems(itemsResponse.data.slice(0, 5));
-        }
-
-      } catch (err) {
-        console.error('대시보드 데이터 로드 실패:', err);
-        setError('대시보드 데이터를 불러오는데 실패했습니다.');
-      } finally {
-        setLoading(false);
-      }
+    // 토큰 변경 이벤트 리스너 추가
+    const handleTokenChange = () => {
+      console.log('토큰 변경 감지 - 대시보드 데이터 재로드');
+      loadDashboardData();
     };
 
-    loadDashboardData();
+    window.addEventListener('tokenChanged', handleTokenChange);
 
     // 30초마다 실시간 데이터 갱신
     const interval = setInterval(() => {
@@ -65,6 +78,7 @@ const DashboardContent = () => {
     }, 5000);
 
     return () => {
+      window.removeEventListener('tokenChanged', handleTokenChange);
       clearInterval(interval);
       clearInterval(slideInterval);
     };
@@ -114,7 +128,7 @@ const DashboardContent = () => {
             <div className="flex items-start self-stretch p-4">
               <div className="flex flex-1 flex-col items-start py-[25px] mr-4 rounded border border-solid border-[#DBE0E5]">
                 <span className="text-[#424242] text-base mb-[9px] mx-[25px]">
-                  진행 중
+                  진행중
                 </span>
                 <span className="text-[#111416] text-2xl font-bold mb-[1px] mx-[25px]">
                   {dashboardStats?.inProgress || 0}
@@ -122,7 +136,7 @@ const DashboardContent = () => {
               </div>
               <div className="flex flex-1 flex-col items-start py-[25px] mr-[17px] rounded border border-solid border-[#DBE0E5]">
                 <span className="text-[#424242] text-base mb-[9px] mx-[25px]">
-                  보류중
+                  예약중
                 </span>
                 <span className="text-[#111416] text-2xl font-bold mb-[1px] mx-[25px]">
                   {dashboardStats?.pending || 0}

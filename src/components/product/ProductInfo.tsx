@@ -668,7 +668,7 @@ const ProductInfo = ({ product, auction }: ProductInfoProps) => {
                   {auction?.rank || '우수'}
                 </span>
                 <span className='text-[14px]/[20px] text-[#616161]'>
-                  {auction?.statusDescription || '상태 정보 없음'}
+                  {auction?.expectedEffects || '값이 없음'}
                 </span>
               </div>
             </div>
@@ -676,7 +676,7 @@ const ProductInfo = ({ product, auction }: ProductInfoProps) => {
               <span className='text-[16px]/[24px] text-[#666]'>적립</span>
               <div className='flex flex-col items-end gap-[11px]'>
                 <span className='text-[16px]/[24px] font-semibold'>
-                  100그루
+                  {auction?.point ? `${auction.point} 나팔꽃` : "값이 없습니다"}
                 </span>
                 <span className='text-[14px]/[20px] text-[#616161]'>
                   폐기 대신 재사용하여 CO2 절감
@@ -949,28 +949,28 @@ const ProductInfo = ({ product, auction }: ProductInfoProps) => {
         <div className='mt-[20px] flex flex-col gap-[16px] rounded-[8px] bg-[#F9F9F9] px-[15px] py-[14px]'>
           {/* Product Info */}
           <h3 className='text-[20px]/[24px] font-bold'>상품 정보</h3>
-          <div className='flex flex-col gap-[8px] text-[14px] text-[#666]'>
-            <div className='flex gap-[4px]'>
-              <p className='w-[60px]'>• 상품명</p>
-              <p>{auction ? auction.productName : (product?.productInfo?.name || '')}</p>
-            </div>
-            <div className='flex gap-[4px]'>
-              <p className='w-[60px]'>• 사이즈</p>
-              <p>-</p>
-            </div>
-            <div className='flex gap-[4px]'>
-              <p className='w-[60px]'>• 상태</p>
-              <p>우수</p>
-            </div>
-            <div className='flex gap-[4px]'>
-              <p className='w-[60px]'>• 구성</p>
-              <p>본품</p>
-            </div>
-            <div className='flex gap-[4px]'>
-              <p className='w-[60px]'>• 재질</p>
-              <p>-</p>
-            </div>
-          </div>
+                     <div className='flex flex-col gap-[8px] text-[14px] text-[#666]'>
+             <div className='flex gap-[4px]'>
+               <p className='w-[60px]'>• 상품명</p>
+               <p>{auction ? auction.productName : (product?.productInfo?.name || '')}</p>
+             </div>
+             <div className='flex gap-[4px]'>
+               <p className='w-[60px]'>• 사이즈</p>
+               <p>{auction?.size || '-'}</p>
+             </div>
+             <div className='flex gap-[4px]'>
+               <p className='w-[60px]'>• 상태</p>
+               <p>{auction?.condition || '우수'}</p>
+             </div>
+             <div className='flex gap-[4px]'>
+               <p className='w-[60px]'>• 구성</p>
+               <p>{auction?.productCount ? `${auction.productCount}개` : '본품'}</p>
+             </div>
+             <div className='flex gap-[4px]'>
+               <p className='w-[60px]'>• 재질</p>
+               <p>{auction?.material || '-'}</p>
+             </div>
+           </div>
         </div>
 
         {/* Shipping Info */}

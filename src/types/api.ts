@@ -81,6 +81,8 @@ export interface AuctionDetail {
   size: string;
   manufactureYear: number;
   isPremium: boolean;
+  condition?: string; // 상품 상태
+  productCount?: number; // 상품 구성 개수
   sellerId: number;
   sellerName: string;
   sellerDescription: string;
@@ -96,6 +98,7 @@ export interface AuctionDetail {
   maxBid: number;
   minimumBid: number;
   totalBids: number;
+  point?: number; // 적립 포인트
   tags?: string[]; // 판매자가 등록한 태그들
 }
 

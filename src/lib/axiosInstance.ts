@@ -29,12 +29,14 @@ const refreshToken = async () => {
     throw new Error('Refresh token not found');
   }
 
+  console.log('토큰 갱신 시도 중...');
   const response = await refreshAccessToken(refreshTokenValue);
   const { accessToken: newAccessToken, refreshToken: newRefreshToken } = response.data;
   
   // 새로운 토큰들을 저장합니다.
   saveTokens(newAccessToken, newRefreshToken);
   
+  console.log('토큰 갱신 성공');
   return newAccessToken;
 };
 
@@ -52,6 +54,7 @@ axiosInstance.interceptors.request.use(
 
     // 2. 토큰이 있고 곧 만료될 예정이면 갱신을 시도합니다.
     if (token && isTokenExpiringSoon(token)) {
+      console.log('토큰이 곧 만료되어 갱신을 시도합니다.');
       if (!isRefreshing) {
         isRefreshing = true;
         
@@ -62,7 +65,11 @@ axiosInstance.interceptors.request.use(
         } catch (error) {
           processQueue(error);
           clearTokens();
-          window.location.href = '/login';
+          console.error('토큰 갱신 실패로 인한 로그아웃:', error);
+          // 로그인 페이지로 리다이렉트
+          if (typeof window !== 'undefined') {
+            window.location.href = '/login';
+          }
           return Promise.reject(error);
         } finally {
           isRefreshing = false;
@@ -83,6 +90,7 @@ axiosInstance.interceptors.request.use(
     // 3. 토큰이 존재하면 헤더에 추가합니다.
     if (token) {
       config.headers['Authorization'] = `Bearer ${token}`;
+      console.log('요청에 토큰 헤더 추가:', config.url);
     }
 
     return config;
@@ -99,8 +107,9 @@ axiosInstance.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config;
 
-    // 401 에러이고 아직 재시도하지 않은 요청인 경우
-    if (error.response?.status === 401 && !originalRequest._retry) {
+    // 401 또는 403 에러이고 아직 재시도하지 않은 요청인 경우
+    if ((error.response?.status === 401 || error.response?.status === 403) && !originalRequest._retry) {
+      console.log(`토큰 인증 오류 (${error.response?.status}) - 토큰 갱신 시도:`, originalRequest.url);
       originalRequest._retry = true;
 
       if (!isRefreshing) {
@@ -113,11 +122,16 @@ axiosInstance.interceptors.response.use(
           originalRequest.headers['Authorization'] = `Bearer ${newAccessToken}`;
           processQueue(null, newAccessToken);
           
+          console.log('토큰 갱신 후 요청 재시도:', originalRequest.url);
           return axiosInstance(originalRequest);
         } catch (refreshError) {
           processQueue(refreshError);
           clearTokens();
-          window.location.href = '/login';
+          console.error('토큰 갱신 실패로 인한 로그아웃:', refreshError);
+          // 로그인 페이지로 리다이렉트
+          if (typeof window !== 'undefined') {
+            window.location.href = '/login';
+          }
           return Promise.reject(refreshError);
         } finally {
           isRefreshing = false;

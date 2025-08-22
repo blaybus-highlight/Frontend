@@ -48,13 +48,13 @@ export const isTokenExpired = (token: string): boolean => {
   }
 };
 
-// Access Token이 곧 만료될 예정인지 확인 (5분 전)
+// Access Token이 곧 만료될 예정인지 확인 (10분 전)
 export const isTokenExpiringSoon = (token: string): boolean => {
   try {
     const payload = JSON.parse(atob(token.split('.')[1]));
     const currentTime = Date.now() / 1000;
-    const fiveMinutes = 5 * 60; // 5분
-    return payload.exp - currentTime < fiveMinutes;
+    const tenMinutes = 10 * 60; // 10분
+    return payload.exp - currentTime < tenMinutes;
   } catch (error) {
     return true;
   }

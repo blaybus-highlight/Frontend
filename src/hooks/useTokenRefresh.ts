@@ -10,20 +10,24 @@ export const useTokenRefresh = () => {
     const refreshToken = getRefreshToken();
 
     if (!accessToken || !refreshToken) {
+      console.log('토큰이 없어서 갱신 스케줄링을 건너뜁니다.');
       return;
     }
 
     // 현재 토큰의 남은 시간을 계산
     const remainingTime = getTokenRemainingTime(accessToken);
+    console.log(`토큰 남은 시간: ${Math.floor(remainingTime / 60)}분 ${Math.floor(remainingTime % 60)}초`);
     
-    // 토큰이 이미 만료되었거나 5분 이내에 만료될 예정이면 즉시 갱신
-    if (remainingTime <= 300) { // 5분 = 300초
+    // 토큰이 이미 만료되었거나 10분 이내에 만료될 예정이면 즉시 갱신
+    if (remainingTime <= 600) { // 10분 = 600초
+      console.log('토큰이 곧 만료되어 즉시 갱신을 시도합니다.');
       refreshTokenNow();
       return;
     }
 
-    // 토큰 갱신을 5분 전에 스케줄링
-    const refreshTime = (remainingTime - 300) * 1000; // 밀리초로 변환
+    // 토큰 갱신을 10분 전에 스케줄링
+    const refreshTime = (remainingTime - 600) * 1000; // 밀리초로 변환
+    console.log(`토큰 갱신을 ${Math.floor(refreshTime / 1000 / 60)}분 후에 스케줄링합니다.`);
 
     // 기존 타이머가 있으면 제거
     if (refreshTimerRef.current) {
