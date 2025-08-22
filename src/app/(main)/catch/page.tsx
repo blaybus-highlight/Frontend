@@ -1,11 +1,11 @@
 "use client"
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Image from "next/image";
 import nafalflower from "@/assets/flower.png";
 
-const PaymentCompletePage: React.FC = () => {
+const PaymentCompleteContent: React.FC = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -96,6 +96,14 @@ const PaymentCompletePage: React.FC = () => {
         </button>
       </div>
     </div>
+  );
+};
+
+const PaymentCompletePage: React.FC = () => {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <PaymentCompleteContent />
+    </Suspense>
   );
 };
 
