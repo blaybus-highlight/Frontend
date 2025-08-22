@@ -34,6 +34,8 @@ const ProductInfo = ({ product, auction }: ProductInfoProps) => {
   const [liveNotification, setLiveNotification] = useState<string | null>(null);
   const [activeBidders, setActiveBidders] = useState(0);
   const [timeLeft, setTimeLeft] = useState<string>('');
+  const [isEndingSoon, setIsEndingSoon] = useState(false);
+  const [endingSoonTimeLeft, setEndingSoonTimeLeft] = useState<string>('');
   const [showResultModal, setShowResultModal] = useState(false);
   const [auctionResult, setAuctionResult] = useState<AuctionResult | null>(null);
   const [showBuyNowModal, setShowBuyNowModal] = useState(false);
@@ -93,7 +95,7 @@ const ProductInfo = ({ product, auction }: ProductInfoProps) => {
 
   // STOMP WebSocket 연결
   const { isConnected: isWebSocketConnected, subscribe, unsubscribe } = useSTOMPSocket({
-    url: 'http://ec2-52-78-128-131.ap-northeast-2.compute.amazonaws.com:8085/ws',
+    url: process.env.NEXT_PUBLIC_WS_URL || 'http://ec2-52-78-128-131.ap-northeast-2.compute.amazonaws.com:8085/ws',
     onMessage: (message) => {
       if (message.data?.auctionId !== auction?.auctionId) return;
 
@@ -365,8 +367,22 @@ const ProductInfo = ({ product, auction }: ProductInfoProps) => {
         } else {
           setTimeLeft(`${minutes}분 ${seconds}초`);
         }
+
+        // 마감 임박 상태 체크 (10분 이내)
+        const isEndingSoon = difference <= 10 * 60 * 1000;
+        setIsEndingSoon(isEndingSoon);
+        
+        if (isEndingSoon) {
+          const endingMinutes = Math.floor(difference / (1000 * 60));
+          const endingSeconds = Math.floor((difference % (1000 * 60)) / 1000);
+          setEndingSoonTimeLeft(`${endingMinutes}:${endingSeconds.toString().padStart(2, '0')}`);
+        } else {
+          setEndingSoonTimeLeft('');
+        }
       } else {
         setTimeLeft('경매 종료');
+        setIsEndingSoon(false);
+        setEndingSoonTimeLeft('');
       }
     };
 
@@ -531,22 +547,37 @@ const ProductInfo = ({ product, auction }: ProductInfoProps) => {
           </div>
         </div>
       )}
-      {/* Left Column: Image Only */}
-      <div className='relative w-full'>
-        <Image
-          alt={auction ? auction.productName : (product?.name || '')}
-          className='h-auto w-full rounded-2xl object-cover'
-          height={676}
-          src={auction ? (auction.images[0]?.imageUrl || '/placeholder.jpg') : (product?.imageUrl || '/placeholder.jpg')}
-          width={676}
-        />
-        {auction?.category === 'Premium' && (
-          <div className='absolute top-0 flex h-[40px] w-[140px] items-center justify-center gap-[4px] rounded-tl-2xl bg-black text-[12px]/[14px] font-semibold text-white'>
-            <Leaf />
-            Premium
-          </div>
-        )}
-      </div>
+             {/* Left Column: Image Only */}
+       <div className='relative w-full'>
+         <Image
+           alt={auction ? auction.productName : (product?.name || '')}
+           className='h-auto w-full rounded-2xl object-cover'
+           height={676}
+           src={auction ? (auction.images[0]?.imageUrl || '/placeholder.jpg') : (product?.imageUrl || '/placeholder.jpg')}
+           width={676}
+         />
+         
+         {/* Premium 배지 */}
+         {auction?.category === 'Premium' && (
+           <div className='absolute top-0 flex h-[40px] w-[140px] items-center justify-center gap-[4px] rounded-tl-2xl bg-black text-[12px]/[14px] font-semibold text-white'>
+             <Leaf />
+             Premium
+           </div>
+         )}
+         
+         {/* 마감 임박 카운트다운 바 */}
+         {isEndingSoon && endingSoonTimeLeft && (
+           <div className='absolute top-0 left-0 right-0 text-white py-2 px-4 rounded-t-2xl z-10' style={{ backgroundColor: '#E6493B' }}>
+             <div className='flex items-center justify-center gap-2'>
+               <div className='w-2 h-2 bg-white rounded-full animate-pulse'></div>
+               <span className='text-sm font-bold'>
+                 마감까지 남은 시간 {endingSoonTimeLeft}
+               </span>
+               <div className='w-2 h-2 bg-white rounded-full animate-pulse'></div>
+             </div>
+           </div>
+         )}
+       </div>
 
       {/* Right Column: All Textual Information */}
       <div className='relative flex flex-col'>

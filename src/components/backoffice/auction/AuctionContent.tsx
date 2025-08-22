@@ -200,7 +200,7 @@ const AuctionContent = () => {
         <div className="flex flex-col items-start self-stretch overflow-x-auto w-full">
           {/* Table Header */}
           <div className="grid grid-cols-[1fr_2fr_1fr_1fr_1fr_1fr_1fr] md:grid-cols-[1fr_3fr_1fr_1fr_1fr_1fr_1fr] w-full items-center bg-gray-50 mb-0.5 border-b-2 border-gray-300 px-4 py-3 gap-2">
-            <span className="text-[#616161] text-sm font-bold text-center">상품 ID</span>
+            <span className="text-[#616161] text-sm font-bold text-center">경매 ID</span>
             <span className="text-[#616161] text-sm font-bold text-center">제품명</span>
             <span className="text-[#616161] text-sm font-bold text-center">시작가</span>
             <span className="text-[#616161] text-sm font-bold text-center">현재 입찰가</span>
@@ -212,11 +212,11 @@ const AuctionContent = () => {
           {activeAuctions.length > 0 ? (
             activeAuctions.map((auction) => (
               <div
-                key={auction.productId}
+                key={auction.auctionId}
                 className="grid grid-cols-[1fr_2fr_1fr_1fr_1fr_1fr_1fr] md:grid-cols-[1fr_3fr_1fr_1fr_1fr_1fr_1fr] w-full items-center border-b border-gray-200 last:border-b-0 px-4 py-4 gap-2 bg-white"
               >
                 <span className="truncate whitespace-nowrap text-[#616161] text-base text-center">
-                  {auction.productId}
+                  {auction.auctionId}
                 </span>
                 <span className="truncate whitespace-nowrap text-black text-base text-center">
                   {auction.productName}
@@ -233,7 +233,7 @@ const AuctionContent = () => {
                 <div className="flex justify-center">
                   <button
                     className="bg-[#FFEEEC] text-black text-sm py-1 px-3 rounded-lg hover:bg-[#FFE0DD] transition-colors cursor-pointer"
-                    onClick={() => onStatusClick("진행중", auction.productId)}
+                    onClick={() => onStatusClick("진행중", auction.auctionId)}
                   >
                     진행중
                   </button>
@@ -241,15 +241,15 @@ const AuctionContent = () => {
                 <div className="flex justify-center">
                   <button
                     className={`p-2 rounded transition-colors ${
-                      endingAuctionId === auction.productId 
+                      endingAuctionId === auction.auctionId 
                         ? 'bg-gray-200 cursor-not-allowed' 
                         : 'hover:bg-gray-100'
                     }`}
-                    onClick={() => onEndAuctionClick(auction.productId)}
-                    disabled={endingAuctionId === auction.productId}
+                    onClick={() => onEndAuctionClick(auction.auctionId)}
+                    disabled={endingAuctionId === auction.auctionId}
                     title="경매 종료"
                   >
-                    {endingAuctionId === auction.productId ? (
+                    {endingAuctionId === auction.auctionId ? (
                       <div className="w-4 h-4 border-2 border-gray-400 border-t-transparent rounded-full animate-spin"></div>
                     ) : (
                       <Trash2 className="w-4 h-4 text-gray-600" />
@@ -274,7 +274,7 @@ const AuctionContent = () => {
         <div className="flex flex-col self-stretch overflow-x-auto w-full">
           {/* Table Header */}
           <div className="grid grid-cols-[1fr_2fr_1fr_1fr_1fr_1fr] md:grid-cols-[1fr_3fr_1fr_1fr_1fr_1fr] w-full items-center bg-gray-50 border-b-2 border-gray-300 px-4 py-3 gap-2">
-            <span className="text-[#616161] text-sm font-bold text-center">상품 ID</span>
+            <span className="text-[#616161] text-sm font-bold text-center">경매 ID</span>
             <span className="text-[#616161] text-sm font-bold text-center">제품명</span>
             <span className="text-[#616161] text-sm font-bold text-center">시작일시</span>
             <span className="text-[#616161] text-sm font-bold text-center">시작가</span>
@@ -285,11 +285,11 @@ const AuctionContent = () => {
             {pendingAuctions.length > 0 ? (
               pendingAuctions.map((auction) => (
                 <div
-                  key={auction.productId}
+                  key={auction.auctionId}
                   className="grid grid-cols-[1fr_2fr_1fr_1fr_1fr_1fr] md:grid-cols-[1fr_3fr_1fr_1fr_1fr_1fr] w-full items-center border-b border-gray-200 last:border-b-0 px-4 py-4 gap-2 bg-white"
                 >
                   <span className="truncate whitespace-nowrap text-[#616161] text-base text-center">
-                    {auction.productId}
+                    {auction.auctionId}
                   </span>
                   <span className="truncate whitespace-nowrap text-black text-base text-center">
                     {auction.productName}
@@ -303,7 +303,7 @@ const AuctionContent = () => {
                   <div className="flex justify-center">
                     <button
                       className="bg-[#F4FEFC] text-[#616161] text-sm py-1 px-3 rounded-lg hover:bg-[#E8FDF8] transition-colors cursor-pointer"
-                      onClick={() => onStatusClick("보류중", auction.productId)}
+                      onClick={() => onStatusClick("보류중", auction.auctionId)}
                     >
                       예약중
                     </button>
@@ -311,7 +311,7 @@ const AuctionContent = () => {
                   <div className="flex justify-center gap-2">
                     <button
                       className="p-2 hover:bg-gray-100 rounded transition-colors"
-                      onClick={() => onEditClick(auction.productId)}
+                      onClick={() => onEditClick(auction.auctionId)}
                     >
                       <Edit className="w-4 h-4 text-gray-600" />
                     </button>
@@ -335,7 +335,7 @@ const AuctionContent = () => {
         <div className="flex flex-col items-start self-stretch overflow-x-auto w-full">
           {/* Table Header */}
           <div className="grid grid-cols-[1fr_2fr_1fr_1fr_1fr_1fr_1fr] md:grid-cols-[1fr_3fr_1fr_1fr_1fr_1fr_1fr] w-full items-center bg-gray-50 mb-0.5 border-b-2 border-gray-300 px-4 py-3 gap-2">
-            <span className="text-[#616161] text-sm font-bold text-center">상품 ID</span>
+            <span className="text-[#616161] text-sm font-bold text-center">경매 ID</span>
             <span className="text-[#616161] text-sm font-bold text-center">제품명</span>
             <span className="text-[#616161] text-sm font-bold text-center">최종 입찰가</span>
             <span className="text-[#616161] text-sm font-bold text-center">종료 날짜</span>
@@ -347,11 +347,11 @@ const AuctionContent = () => {
           {endedAuctions.length > 0 ? (
             endedAuctions.map((auction) => (
               <div
-                key={auction.productId}
+                key={auction.auctionId}
                 className="grid grid-cols-[1fr_2fr_1fr_1fr_1fr_1fr_1fr] md:grid-cols-[1fr_3fr_1fr_1fr_1fr_1fr_1fr] w-full items-center border-b border-gray-200 last:border-b-0 px-4 py-4 gap-2 bg-white"
               >
                 <span className="truncate whitespace-nowrap text-[#616161] text-base text-center">
-                  {auction.productId}
+                  {auction.auctionId}
                 </span>
                 <span className="truncate whitespace-nowrap text-black text-base text-center">
                   {auction.productName}
@@ -373,7 +373,7 @@ const AuctionContent = () => {
                 <div className="flex justify-center">
                   <button
                     className="bg-black text-white text-sm py-1.5 px-3 rounded-lg hover:bg-gray-800 transition-colors"
-                    onClick={() => onShippingClick(auction.productId)}
+                    onClick={() => onShippingClick(auction.auctionId)}
                   >
                     배송 관리
                   </button>

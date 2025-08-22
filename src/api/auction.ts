@@ -4,6 +4,7 @@ import axiosInstance from "@/lib/axiosInstance";
 import { convertLocalToUTC, convertUTCToLocal } from '@/utils/timeUtils';
 
 export interface AuctionItem {
+  auctionId: number;
   productId: number;
   productName: string;
   startPrice: number | null;
@@ -23,7 +24,7 @@ export interface AuctionListResponse {
 
 // API 응답 인터페이스
 interface ApiAuctionItem {
-  id: number;
+  auctionId: number;
   product: {
     id: number;
     productName: string;
@@ -81,6 +82,7 @@ export const getAuctionList = async (
     
     // 필요한 필드만 추출하여 변환 (시간을 로컬 시간으로 변환)
     const auctions: AuctionItem[] = data.content.map((item: ApiAuctionItem) => ({
+      auctionId: item.auctionId || 0,
       productId: item.product?.id || 0,
       productName: item.product?.productName || '',
       startPrice: item.startPrice,
@@ -468,7 +470,7 @@ export const getProductDetail = async (productId: number): Promise<ProductRegist
  */
 export const endAuction = async (auctionId: number): Promise<void> => {
   try {
-    const response = await axiosInstance.post(`/api/admin/auctions/${auctionId}/cancel-now`);
+    const response = await axiosInstance.post(`/api/admin/auctions/${auctionId}/end-now`);
     
     if (!response.data.success) {
       throw new Error(response.data.message || '경매 종료에 실패했습니다.');

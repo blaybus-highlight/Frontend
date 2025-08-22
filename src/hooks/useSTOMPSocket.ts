@@ -24,14 +24,17 @@ export const useSTOMPSocket = ({ url, onMessage, onConnect, onDisconnect, onErro
   useEffect(() => {
     const connectSTOMP = () => {
       try {
+        console.log('🔌 STOMP 연결 시도:', url);
+        
         // SockJS 소켓 생성
         const socket = new SockJS(url);
         
         // STOMP 클라이언트 생성
         client.current = new Client({
           webSocketFactory: () => socket as any,
-          debug: () => {
-            // 실시간 디버그 로그 비활성화 (너무 많은 로그 방지)
+          debug: (str) => {
+            // AWS 서버에서 연결 문제 디버깅을 위해 로그 활성화
+            console.log('🔍 STOMP Debug:', str);
           },
           onConnect: (frame) => {
             console.log('🔌 STOMP 연결 성공:', frame);

@@ -227,7 +227,7 @@ const ProductsContent = () => {
                  <span className="text-white text-sm font-bold">상품 등록</span>
                </button>
 
-                                                                                               <button
+                <button
                     className="flex items-center bg-gray-500 text-white py-2.5 px-6 gap-2 rounded-none hover:bg-gray-600 transition-colors"
                     onClick={() => {
                       if (selectedProducts.length === 0) {
