@@ -240,7 +240,7 @@ export default function MyPage() {
                 <div className="w-full">
                   <div className="flex justify-between text-sm mb-1">
                     <span className="font-bold">등급 <span className={rankInfo.color}>{data.rankDescription}</span></span>
-                    <span className="text-gray-400">다음 등급까지 참여 <b className="text-black">{data.requiredParticipationForNextRank - data.participationCount}</b>회 남았어요!</span>
+                    <span className="text-gray-400">다음 등급까지 참여 <b className="text-black">{data.requiredParticipationForNextRank}</b>회 남어요!</span>
                   </div>
                   <div className="w-full bg-gray-200 rounded-full h-2.5">
                     <div className={`${rankInfo.progressColor} h-2.5 rounded-full`} style={{ width: `${data.rankProgress}%` }}></div>

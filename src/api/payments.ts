@@ -77,6 +77,7 @@ export interface ProcessPaymentResponse {
     paymentId: string;
     status: string;
     completedAt: string;
+    pointReward?: number; // 포인트 보상
   };
   message: string;
 }
