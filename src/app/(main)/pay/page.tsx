@@ -424,7 +424,9 @@ const CheckoutPage: React.FC = () => {
         
         // 배송비, 할인, 총액 업데이트
         const newShippingFee = parsedPreview.shippingFee || defaultShippingFee;
-        const newDiscount = parsedPreview.maxUsablePoint || parsedPreview.userPoint || defaultDiscount; // 사용 가능한 포인트
+        // 포인트가 0이어도 그대로 사용 (기본값 사용하지 않음)
+        const newDiscount = parsedPreview.maxUsablePoint !== undefined ? parsedPreview.maxUsablePoint : 
+                           parsedPreview.userPoint !== undefined ? parsedPreview.userPoint : 0;
         const newTotal = parsedPreview.actualPaymentAmount || 
           ((parsedPreview.winningBidAmount || parsedPreview.productPrice || 0) + newShippingFee - newDiscount);
         
