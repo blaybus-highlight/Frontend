@@ -15,7 +15,7 @@ import { useSTOMPSocket } from '@/hooks/useSTOMPSocket';
 import { useAuctionStatus } from '@/hooks/useAuctionStatus';
 import { useWishlistStatus, useWishlistToggle } from '@/hooks/useWishlist';
 import { productsApi } from '@/api/products';
-import { buyItNow, BuyItNowRequest } from '@/api/payments';
+import { buyItNow, BuyItNowRequest, getPaymentPreview } from '@/api/payments';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import AuctionResultModal from './AuctionResultModal';
 import BuyItNowModal from './BuyItNowModal';
@@ -377,10 +377,26 @@ const ProductInfo = ({ product, auction }: ProductInfoProps) => {
   }, [auction?.scheduledEndTime]);
 
   // 모달 액션 핸들러들
-  const handlePayment = () => {
-    // 낙찰 성공 시 결제 페이지로 이동
-    if (auctionResult?.resultType === 'WON') {
-      router.push('/pay');
+  const handlePayment = async () => {
+    // 낙찰 성공 시 결제 미리보기 API 호출 후 결제 페이지로 이동
+    if (auctionResult?.resultType === 'WON' && auction?.auctionId) {
+      try {
+        console.log('결제 미리보기 API 호출 시작:', auction.auctionId);
+        const previewResponse = await getPaymentPreview(auction.auctionId);
+        
+        if (previewResponse.success) {
+          console.log('결제 미리보기 성공:', previewResponse.data);
+          // preview 데이터를 URL 파라미터로 인코딩하여 결제 페이지로 이동
+          const previewData = encodeURIComponent(JSON.stringify(previewResponse.data));
+          router.push(`/pay?preview=${previewData}`);
+        } else {
+          console.error('결제 미리보기 실패:', previewResponse.message);
+          alert(`결제 미리보기 실패: ${previewResponse.message}`);
+        }
+      } catch (error) {
+        console.error('결제 미리보기 API 호출 실패:', error);
+        alert('결제 미리보기를 불러오는 중 오류가 발생했습니다.');
+      }
     } else if (auctionResult?.actionUrl) {
       alert(`${auctionResult.actionUrl}로 이동합니다.`);
       // TODO: window.location.href = auctionResult.actionUrl;

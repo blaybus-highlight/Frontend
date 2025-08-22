@@ -70,7 +70,7 @@ export function ProductGrid({ title, searchParams = {} }: ProductGridProps) {
 
   if (error) {
     return (
-      <section className='px-6 py-12'>
+      <section className='bg-white px-6 py-12'>
         <div className='mx-auto max-w-7xl'>
           {title && <h2 className='mb-8 text-2xl font-bold text-gray-900'>{title}</h2>}
           <div className='text-center text-red-500'>
@@ -82,7 +82,7 @@ export function ProductGrid({ title, searchParams = {} }: ProductGridProps) {
   }
 
   return (
-    <section className='px-6 py-12'>
+    <section className='bg-white px-6 py-12'>
       <div className='mx-auto max-w-7xl'>
         {title && <h2 className='mb-8 text-2xl font-bold text-gray-900'>{title}</h2>}
         {products.length === 0 ? (

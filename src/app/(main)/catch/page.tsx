@@ -1,10 +1,27 @@
 "use client"
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import Image from "next/image";
+import nafalflower from "@/assets/flower.png";
 
 const PaymentCompletePage: React.FC = () => {
   const router = useRouter();
+
+  // 👉 예시: 나중에 API나 로직으로 값 받아오게 연결 가능
+  const [points, setPoints] = useState(34);
+  const [trees, setTrees] = useState(3);
+  const [extraPoints, setExtraPoints] = useState(35);
+
+  // 예시: 컴포넌트 로드 시 API 호출해서 값 업데이트
+  useEffect(() => {
+    // fetch("/api/payment-result").then(res => res.json()).then(data => {
+    //   setPoints(data.points);
+    //   setTrees(data.trees);
+    //   setExtraPoints(data.extraPoints);
+    // })
+  }, []);
+
 
   const handleGoHome = () => {
     router.push('/');
@@ -14,153 +31,71 @@ const PaymentCompletePage: React.FC = () => {
     router.push('/mypage');
   };
 
-  const handleGoBack = () => {
-    router.back();
-  };
-
-  return (
-    <div style={{
-      width: '100%',
-      maxWidth: '600px',
-      margin: '200px auto 100px',
-      padding: '40px 20px',
-      textAlign: 'center',
-      fontFamily: 'Pretendard, sans-serif',
-    }}>
-      <div style={{
-        background: 'white',
-        borderRadius: '16px',
-        padding: '40px',
-        boxShadow: '0 4px 20px rgba(0, 0, 0, 0.1)',
-      }}>
-        {/* 성공 아이콘 */}
-        <div style={{
-          width: '80px',
-          height: '80px',
-          background: 'linear-gradient(135deg, #4CAF50, #45a049)',
-          borderRadius: '50%',
-          margin: '0 auto 24px',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          fontSize: '40px',
-          color: 'white',
-        }}>
-          ✓
-        </div>
-
-        {/* 제목 */}
-        <h1 style={{
-          fontSize: '28px',
-          fontWeight: '700',
-          color: '#333',
-          marginBottom: '16px',
-        }}>
-          결제가 완료되었습니다!
-        </h1>
-
-        {/* 설명 */}
-        <p style={{
-          fontSize: '16px',
-          color: '#666',
-          lineHeight: '1.6',
-          marginBottom: '40px',
-        }}>
-          주문이 성공적으로 처리되었습니다.<br />
-          배송 정보는 마이페이지에서 확인하실 수 있습니다.
-        </p>
-
-        {/* 주문 정보 */}
-        <div style={{
-          background: '#f8f9fa',
-          borderRadius: '12px',
-          padding: '24px',
-          marginBottom: '32px',
-          textAlign: 'left',
-        }}>
-          <h3 style={{
-            fontSize: '18px',
-            fontWeight: '600',
-            color: '#333',
-            marginBottom: '16px',
-          }}>
-            주문 정보
-          </h3>
-          <div style={{ fontSize: '14px', color: '#666', lineHeight: '1.8' }}>
-            <div>상품: 홍익대 예술대 졸업작품전 출품작 20</div>
-            <div>결제 금액: 125,968원</div>
-            <div>결제 방법: payments</div>
-            <div>주문일시: {new Date().toLocaleString('ko-KR')}</div>
+ 
+    return (
+    <div className="flex flex-col items-center justify-center min-h-screen bg-white p-4">
+      <div className="flex flex-col w-full max-w-sm sm:max-w-md mx-auto">
+        <span className="text-gray-800 text-2xl sm:text-[28px] font-bold text-center mt-32 mb-3">
+          {"결제 완료"}
+        </span>
+        <span className="text-black text-sm sm:text-base text-center mb-6">
+          {"지속 가능한 선택이 지구를 더 푸르게 만들었어요!"}
+        </span>
+        
+        {/* 주문 정보 카드 */}
+        <div className="flex flex-col items-center bg-neutral-50 p-6 mb-3 rounded-lg w-full">
+          {/* 로고 이미지 영역 */}
+          <div className="w-32 h-32 flex items-center justify-center">
+            {/*
+              요청하신 대로 로고를 삽입할 수 있는 <img> 태그를 사용했습니다.
+              src 속성에 실제 이미지 URL을 입력해주세요.
+              이미지가 로드되지 않을 경우를 대비하여 placeholder 이미지를 사용했습니다.
+            */}
+              <Image
+                  src={nafalflower}
+                  alt="결제 성공 로고"
+                  className="w-full h-full object-fill rounded-lg"
+              />
           </div>
-        </div>
 
-        {/* 버튼들 */}
-        <div style={{
-          display: 'flex',
-          gap: '12px',
-          justifyContent: 'center',
-        }}>
-          <button
-            onClick={handleGoBack}
-            style={{
-              background: '#6c757d',
-              color: 'white',
-              border: 'none',
-              borderRadius: '8px',
-              padding: '12px 24px',
-              fontSize: '16px',
-              fontWeight: '600',
-              cursor: 'pointer',
-              transition: 'background-color 0.2s',
-            }}
-            onMouseOver={(e) => e.currentTarget.style.background = '#5a6268'}
-            onMouseOut={(e) => e.currentTarget.style.background = '#6c757d'}
-          >
-            이전으로
-          </button>
-          <button
-            onClick={handleGoHome}
-            style={{
-              padding: '14px 28px',
-              background: '#007bff',
-              color: 'white',
-              border: 'none',
-              borderRadius: '8px',
-              fontSize: '16px',
-              fontWeight: '600',
-              cursor: 'pointer',
-              transition: 'background-color 0.2s',
-            }}
-            onMouseOver={(e) => e.currentTarget.style.background = '#0056b3'}
-            onMouseOut={(e) => e.currentTarget.style.background = '#007bff'}
-          >
-            홈으로
-          </button>
-          <button
-            onClick={handleGoMyPage}
-            style={{
-              padding: '14px 28px',
-              background: 'white',
-              color: '#007bff',
-              border: '2px solid #007bff',
-              borderRadius: '8px',
-              fontSize: '16px',
-              fontWeight: '600',
-              cursor: 'pointer',
-              transition: 'all 0.2s',
-            }}
-            onMouseOver={(e) => {
-              e.currentTarget.style.background = '#007bff';
-              e.currentTarget.style.color = 'white';
-            }}
-            onMouseOut={(e) => {
-              e.currentTarget.style.background = 'white';
-              e.currentTarget.style.color = '#007bff';
-            }}
-          >
-            마이페이지
-          </button>
-        </div>
+          <div className="flex items-center my-2">
+            <span className="text-gray-600 text-lg sm:text-xl font-bold mr-2">
+              {"적립"}
+            </span>
+            <span className="text-gray-900 text-2xl sm:text-[28px] font-bold mr-2">
+              {points}   {/* ✅ state 값으로 대체 */}
+            </span>
+            <span className="text-gray-900 text-xl sm:text-2xl font-bold">
+              {"나팔꽃"}
+            </span>
+          </div>
+          <span className="text-black text-sm sm:text-base text-center leading-normal whitespace-pre-line">
+              {`🌲 ${trees} 그루의 나무가 자랄 수 있는 환경 기여 
+              ✨ ${extraPoints} 나팔꽃으로 더 많은 선택의 기회 
+              💚 지속 가능한 소비 실천으로 지구 보호`}
+          </span>
+          </div>
+        
+
+        {/* 확인하기 버튼 */}
+        <button
+          onClick={handleGoMyPage}
+          className="flex justify-center items-center w-full bg-black py-4 mb-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-black focus:ring-opacity-50 transition-colors duration-200"
+        >
+          <span className="text-white text-base font-bold">
+            {"확인하기"}
+          </span>
+        </button>
+
+        {/* 홈으로 버튼 */}
+        <button
+          onClick={handleGoHome}
+          className="flex justify-center items-center w-full bg-white py-4 mb-32 border border-gray-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-opacity-50 transition-colors duration-200 hover:bg-gray-100"
+        >
+          <span className="text-black text-base font-bold">
+            {"홈으로"}
+          </span>
+        </button>
       </div>
     </div>
   );
