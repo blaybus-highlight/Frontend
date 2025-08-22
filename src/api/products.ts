@@ -85,7 +85,7 @@ export const productsApi = {
       params: { 
         page, 
         size, 
-        sort: sort // 배열 그대로 전송 (axios가 자동으로 sort=bidTime&sort=desc로 변환)
+        sort: `${sort[0]},${sort[1]}` // "bidTime,desc" 형식으로 변경
       },
     });
 
