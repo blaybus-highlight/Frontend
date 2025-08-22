@@ -114,7 +114,7 @@ export const useAuctionNotifications = ({
   }, [onWinNotification, onLostNotification, onCancelNotification, showToasts]);
 
   const { isConnected, subscribe, unsubscribe } = useSTOMPSocket({
-    url: process.env.NEXT_PUBLIC_WS_URL || 'http://ec2-52-78-128-131.ap-northeast-2.compute.amazonaws.com:8082/ws',
+    url: process.env.NEXT_PUBLIC_WS_URL || 'http://localhost:8080/ws',
     onMessage: handleMessage,
     onConnect: () => {
       console.log('🔔 알림 WebSocket 연결됨');

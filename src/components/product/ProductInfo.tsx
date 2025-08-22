@@ -93,7 +93,7 @@ const ProductInfo = ({ product, auction }: ProductInfoProps) => {
 
   // STOMP WebSocket 연결
   const { isConnected: isWebSocketConnected, subscribe, unsubscribe } = useSTOMPSocket({
-    url: process.env.NEXT_PUBLIC_WS_URL || 'http://ec2-52-78-128-131.ap-northeast-2.compute.amazonaws.com:8082/ws',
+    url: process.env.NEXT_PUBLIC_WS_URL || 'http://localhost:8085/ws',
     onMessage: (message) => {
       if (message.data?.auctionId !== auction?.auctionId) return;
 
