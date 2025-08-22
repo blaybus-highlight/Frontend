@@ -11,16 +11,71 @@
   // 컴포넌트를 'export default'로 내보내어 React에서 올바르게 인식하도록 수정했습니다.
   export function MainBanner() {
     const banners = [
-      { src: '/images/banner1.png', alt: '배너 1' },
-      { src: '/images/banner2.png', alt: '배너 2' },
-      { src: '/images/banner3.png', alt: '배너 3' },
-      { src: '/images/banner1.png', alt: '배너 1' },
-      { src: '/images/banner2.png', alt: '배너 2' },
-      { src: '/images/banner3.png', alt: '배너 3' },
-      { src: '/images/banner1.png', alt: '배너 1' },
-      { src: '/images/banner2.png', alt: '배너 2' },
-      { src: '/images/banner3.png', alt: '배너 3' },
+      { 
+        src: '/images/banner1.png', 
+        alt: '배너 1',
+        title: '덕질은\n삶의 에너지니까',
+        subtitle: null,
+        subSubtitle: '오직 나팔에서만'
+      },
+      { 
+        src: '/images/banner2.png', 
+        alt: '배너 2',
+        title: '나만의 특별한 공간',
+        subtitle: null,
+        subSubtitle: '오직 나팔에서만'
+      },
+      { 
+        src: '/images/banner3.png', 
+        alt: '배너 3',
+        title: '당신의 공간을 비추는',
+        subtitle: null,
+        subSubtitle: '무드를 바꾸는 포터블 조명\n9월 12일 오픈예정'
+      },
+      { 
+        src: '/images/banner4.png', 
+        alt: '배너 4',
+        title: '나만의 특별한 공간',
+        subtitle: null,
+        subSubtitle: '오직 나팔에서만'
+      },
+      { 
+        src: '/images/banner5.png', 
+        alt: '배너 5',
+        title: '덕질은\n삶의 에너지니까',
+        subtitle: null,
+        subSubtitle: '오직 나팔에서만'
+      },
+      { 
+        src: '/images/banner6.png', 
+        alt: '배너 6',
+        title: '나만의 특별한 공간',
+        subtitle: null,
+        subSubtitle: '오직 나팔에서만'
+      },
+      { 
+        src: '/images/banner7.png', 
+        alt: '배너 7',
+        title: '라이프집\n오프라인 팝업 10월 오픈',
+        subtitle: null,
+        subSubtitle: '오직 나팔에서만'
+      },
+      { 
+        src: '/images/banner8.png', 
+        alt: '배너 8',
+        title: '덕질은\n삶의 에너지니까',
+        subtitle: null,
+        subSubtitle: '오직 나팔에서만'
+      },
+      { 
+        src: '/images/banner9.png', 
+        alt: '배너 9',
+        title: 'KANU HOUSE\n12/24 오픈',
+        subtitle: null,
+        subSubtitle: '오직 나팔에서만'
+      },
     ];
+    
     
 
     const [currentIndex, setCurrentIndex] = useState(0);
@@ -37,6 +92,16 @@
         prev + itemsPerSlide >= banners.length ? 0 : prev + itemsPerSlide
       );
     };
+
+    const intervalTime = 3000; // 3초
+  useEffect(() => {
+    const interval = setInterval(() => {
+      goToNext();
+    }, intervalTime);
+    return () => clearInterval(interval);
+  }, [currentIndex]); 
+
+
     const currentBanners = banners.slice(currentIndex, currentIndex + itemsPerSlide);
 
 
@@ -49,7 +114,9 @@
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-0 items-center">
               {currentBanners.map((banner, index) => (
                 <div key={index} className="relative">
-                  <div className="relative w-full overflow-hidden">
+
+                    {/* ✅ 이미지가 일률적인 사이즈를 가지도록 aspect클래스를 추가했습니다.*/}
+                  <div className="relative w-full overflow-hidden aspect-[3/4]">
                     <img
                       alt={banner.alt}
                       className="object-cover w-full h-full"
@@ -58,16 +125,27 @@
     
                 {/* 텍스트 오버레이 */}
                 <div className='absolute inset-0 bg-black/20' />
-                <div className='absolute bottom-3 sm:bottom-6 left-1/2 -translate-x-1/2 text-white text-center'>
+                
+                <div className='absolute inset-0 flex flex-col justify-end p-6 text-white text-center'>
                   <div className='mb-1 sm:mb-2'>
-                    <span className='text-lg sm:text-2xl font-bold'>덕질은</span>
+                  <div className='text-lg sm:text-2xl font-bold whitespace-pre-line'>
+                  {banner.title}
                   </div>
-                  <div className='mb-1'>
-                    <span className='text-sm sm:text-lg font-medium'>삶의 에너지니까</span>
                   </div>
-                  <div>
-                    <span className='text-xs sm:text-sm text-gray-200'>오직 나팔에서만</span>
-                  </div>
+                    {/* Conditional rendering for subtitle */}
+                    {banner.subtitle && (
+                      <div className='mb-1'>
+                        <span className='text-sm sm:text-lg font-medium'>{banner.subtitle}</span>
+                      </div>
+                    )}
+                  
+                      {/* subSubtitle이 존재할 때만 렌더링합니다. */}
+                   {banner.subSubtitle && (
+                    <div>
+                      <span className='text-xs sm:text-sm text-gray-200'>{banner.subSubtitle}</span>
+                    </div>
+                  )}
+              
                 </div>
               </div>
             </div>
