@@ -1,6 +1,8 @@
 "use client"
 
 import { useRouter } from "next/navigation"
+import { useEffect, useState } from "react"
+import { isSuperAdmin } from "@/lib/tokenUtils"
 
 interface SidebarProps {
   activeMenu: string
@@ -9,7 +11,17 @@ interface SidebarProps {
 
 export default function Sidebar({ activeMenu, onMenuClick }: SidebarProps) {
   const router = useRouter()
-  const menus = ["경매", "상품", "고객", "권한", "설정"]
+  const [hasSuperAdminAccess, setHasSuperAdminAccess] = useState(false)
+  
+  useEffect(() => {
+    setHasSuperAdminAccess(isSuperAdmin())
+  }, [])
+
+  const baseMenus = ["경매", "상품", "고객"]
+  const adminMenus = hasSuperAdminAccess ? ["권한"] : []
+  const commonMenus = ["설정"]
+  const menus = [...baseMenus, ...adminMenus, ...commonMenus]
+  
   const menuToPath: Record<string, string> = {
     "경매": "/backoffice/auction",
     "상품": "/backoffice/products",

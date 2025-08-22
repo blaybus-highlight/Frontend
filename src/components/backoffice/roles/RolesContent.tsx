@@ -1,7 +1,7 @@
 'use client';
 
-import { useState } from "react";
-import { Trash2, Edit } from "lucide-react";
+import { useState, useMemo } from "react";
+import { Trash2, Edit, Search } from "lucide-react";
 
 const PermissionManagementPage = () => {
   // 상태 관리
@@ -11,6 +11,7 @@ const PermissionManagementPage = () => {
   const [editingUser, setEditingUser] = useState<any>(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [deleteItemId, setDeleteItemId] = useState<string | null>(null);
+  const [searchTerm, setSearchTerm] = useState("");
 
   // 더미 데이터
   const permissionUsers = [
@@ -26,10 +27,19 @@ const PermissionManagementPage = () => {
     { id: "wlwnfkdlw12", permission: "대표" },
   ];
 
+  // 검색 필터링된 사용자 목록
+  const filteredUsers = useMemo(() => {
+    if (!searchTerm) return permissionUsers;
+    return permissionUsers.filter(user => 
+      user.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      user.permission.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  }, [searchTerm, permissionUsers]);
+
   const permissionItemsPerPage = 10;
-  const permissionTotalPages = Math.ceil(permissionUsers.length / permissionItemsPerPage);
+  const permissionTotalPages = Math.ceil(filteredUsers.length / permissionItemsPerPage);
   const permissionStartIndex = (permissionCurrentPage - 1) * permissionItemsPerPage;
-  const currentPermissionUsers = permissionUsers.slice(permissionStartIndex, permissionStartIndex + permissionItemsPerPage);
+  const currentPermissionUsers = filteredUsers.slice(permissionStartIndex, permissionStartIndex + permissionItemsPerPage);
 
   // 핸들러 함수들
   const handlePermissionChange = (userId: string, newPermission: string) => {
@@ -48,6 +58,15 @@ const PermissionManagementPage = () => {
 
   const handlePermissionPageClick = (page: number) => {
     setPermissionCurrentPage(page);
+  };
+
+  const handleAddRegistration = () => {
+    alert('추가등록 기능이 실행되었습니다');
+  };
+
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchTerm(e.target.value);
+    setPermissionCurrentPage(1); // 검색 시 첫 페이지로 이동
   };
 
   return (
@@ -70,6 +89,29 @@ const PermissionManagementPage = () => {
         {/* 테이블 영역 */}
         <div className="px-8 py-6">
           <div className="bg-white rounded-lg border border-[#E5E7EB] overflow-hidden">
+            {/* 검색 및 추가등록 버튼 영역 */}
+            <div className="flex items-center justify-end gap-3 px-6 py-4 border-b border-[#F3F4F6]">
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <Search className="h-5 w-5 text-[#9CA3AF]" />
+                </div>
+                <input
+                  type="text"
+                  placeholder="Search"
+                  value={searchTerm}
+                  onChange={handleSearchChange}
+                  className="block w-80 pl-10 pr-3 py-2 border border-[#D1D5DB] rounded-md leading-5 bg-white placeholder-[#9CA3AF] text-[#111827] focus:outline-none focus:ring-2 focus:ring-[#3B82F6] focus:border-transparent text-sm"
+                />
+              </div>
+              
+              <button
+                onClick={handleAddRegistration}
+                className="bg-[#111827] text-white px-6 py-2 rounded-md text-sm font-medium hover:bg-[#1F2937] transition-colors"
+              >
+                추가등록
+              </button>
+            </div>
+
             {/* 테이블 */}
             <table className="w-full">
               <thead>

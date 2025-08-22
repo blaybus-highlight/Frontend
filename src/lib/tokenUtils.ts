@@ -80,3 +80,24 @@ export const getTokenRemainingTime = (token: string): number => {
     return 0;
   }
 };
+
+// 토큰에서 사용자 역할 가져오기
+export const getUserRoleFromToken = (): string | null => {
+  try {
+    const token = getAccessToken();
+    if (!token) return null;
+    
+    const payload = JSON.parse(atob(token.split('.')[1]));
+    console.log('Token payload:', payload); // 디버깅용
+    return payload.role || payload.adminRole || null;
+  } catch (error) {
+    console.error('토큰에서 역할 추출 중 오류:', error);
+    return null;
+  }
+};
+
+// SUPER_ADMIN 권한 확인
+export const isSuperAdmin = (): boolean => {
+  const role = getUserRoleFromToken();
+  return role === 'SUPER_ADMIN';
+};
