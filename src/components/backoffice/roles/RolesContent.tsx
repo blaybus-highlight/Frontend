@@ -1,7 +1,200 @@
 'use client';
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { Trash2, Edit, Search } from "lucide-react";
+import { Button } from '@/components/ui/button';
+
+// 알림 모달 컴포넌트
+const NotificationModal = ({ 
+  isOpen, 
+  onClose, 
+  title, 
+  message, 
+  type = 'info' 
+}: { 
+  isOpen: boolean; 
+  onClose: () => void; 
+  title?: string;
+  message: string;
+  type?: 'success' | 'error' | 'info';
+}) => {
+  if (!isOpen) return null;
+
+  const getIconColor = () => {
+    switch (type) {
+      case 'success': return 'text-green-600';
+      case 'error': return 'text-red-600';
+      default: return 'text-blue-600';
+    }
+  };
+
+  const getIcon = () => {
+    switch (type) {
+      case 'success': return '✓';
+      case 'error': return '⚠';
+      default: return 'ℹ';
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 flex items-center justify-center z-50" onClick={onClose}>
+      <div className="bg-white rounded-lg p-6 w-[400px] shadow-xl border" onClick={(e) => e.stopPropagation()}>
+        <div className="flex items-center mb-4">
+          <div className={`w-8 h-8 rounded-full flex items-center justify-center mr-3 ${getIconColor()} bg-opacity-10`}>
+            <span className={`text-xl ${getIconColor()}`}>{getIcon()}</span>
+          </div>
+          {title && <h2 className="text-lg font-semibold text-gray-800">{title}</h2>}
+        </div>
+        <p className="text-gray-700 mb-6">{message}</p>
+        <div className="flex justify-end">
+          <button
+            onClick={onClose}
+            className="px-6 py-2 bg-gray-800 text-white rounded-md hover:bg-gray-900 transition-colors"
+          >
+            확인
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// 삭제 확인 모달 컴포넌트
+const DeleteConfirmModal = ({ isOpen, onClose, onConfirm }: { 
+  isOpen: boolean; 
+  onClose: () => void; 
+  onConfirm: () => void; 
+}) => {
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 flex items-center justify-center z-50" onClick={onClose}>
+      <div className="bg-white rounded-lg p-6 w-[400px] shadow-lg" onClick={(e) => e.stopPropagation()}>
+        <h2 className="text-xl font-bold text-black mb-4">삭제 확인</h2>
+        <p className="text-gray-700 mb-6">정말로 이 계정을 삭제하시겠습니까?</p>
+        
+        <div className="flex space-x-3">
+          <button
+            onClick={onConfirm}
+            className="flex-1 bg-red-600 text-white py-2 px-4 rounded-md hover:bg-red-700 transition-colors"
+          >
+            삭제
+          </button>
+          <button
+            onClick={onClose}
+            className="flex-1 bg-gray-300 text-black py-2 px-4 rounded-md hover:bg-gray-400 transition-colors"
+          >
+            취소
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// 계정 등록 모달 컴포넌트
+const AccountRegistrationModal = ({ 
+  isOpen, 
+  onClose, 
+  onAddUser, 
+  existingUsers,
+  showNotification 
+}: { 
+  isOpen: boolean; 
+  onClose: () => void; 
+  onAddUser: (user: { id: string; permission: string }) => void;
+  existingUsers: { id: string; permission: string }[];
+  showNotification: (message: string, type: 'success' | 'error' | 'info', title?: string) => void;
+}) => {
+  const [adminId, setAdminId] = useState('');
+  const [role, setRole] = useState('대표');
+
+  const handleSubmit = () => {
+    // ID 입력 체크
+    if (!adminId.trim()) {
+      showNotification('아이디를 입력해주세요.', 'error', '입력 오류');
+      return;
+    }
+
+    // 중복 체크
+    const isDuplicate = existingUsers.some(user => user.id === adminId.trim());
+    if (isDuplicate) {
+      showNotification('이미 존재하는 아이디입니다.', 'error', '중복 오류');
+      return;
+    }
+
+    // 실제 등록 로직
+    onAddUser({ id: adminId.trim(), permission: role });
+    
+    // 모달 닫기 및 초기화
+    setAdminId('');
+    setRole('대표');
+    onClose();
+    
+    // 등록 완료 알림 (모달이 닫힌 후)
+    setTimeout(() => {
+      showNotification('계정이 성공적으로 등록되었습니다.', 'success', '등록 완료');
+    }, 100);
+  };
+
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 flex items-center justify-center z-50" onClick={onClose}>
+      <div className="bg-white rounded-lg p-6 w-[600px]" onClick={(e) => e.stopPropagation()}>
+        {/* 제목 */}
+        <h2 className="text-xl font-bold text-black mb-6">계정 등록</h2>
+        
+                 {/* 입력 필드들 - 하나의 행에 가로로 배치 */}
+         <div className="flex space-x-4">
+           {/* ID 입력 */}
+           <div className="flex-1">
+             <label className="block text-sm font-medium text-black mb-2">ID</label>
+             <input
+               type="text"
+               value={adminId}
+               onChange={(e) => setAdminId(e.target.value)}
+               placeholder="아이디를 입력해주세요"
+               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+             />
+           </div>
+           
+           {/* 권한 선택 */}
+           <div className="flex-1">
+             <label className="block text-sm font-medium text-black mb-2">권한</label>
+             <select
+               value={role}
+               onChange={(e) => setRole(e.target.value)}
+               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+             >
+               <option value="대표">대표</option>
+               <option value="관리자">관리자</option>
+               <option value="직원">직원</option>
+               <option value="인턴">인턴</option>
+             </select>
+           </div>
+         </div>
+        
+        {/* 버튼들 */}
+        <div className="flex space-x-3 mt-6">
+          <button
+            onClick={handleSubmit}
+            className="flex-1 bg-black text-white py-2 px-4 rounded-md hover:bg-gray-800 transition-colors"
+          >
+            등록하기
+          </button>
+          <button
+            onClick={onClose}
+            className="flex-1 bg-white text-black border border-gray-300 py-2 px-4 rounded-md hover:bg-gray-50 transition-colors"
+          >
+            취소
+          </button>
+        </div>
+      </div>
+
+    </div>
+  );
+};
 
 const PermissionManagementPage = () => {
   // 상태 관리
@@ -12,9 +205,20 @@ const PermissionManagementPage = () => {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [deleteItemId, setDeleteItemId] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [notification, setNotification] = useState<{
+    isOpen: boolean;
+    message: string;
+    type: 'success' | 'error' | 'info';
+    title?: string;
+  }>({
+    isOpen: false,
+    message: '',
+    type: 'info'
+  });
 
-  // 더미 데이터
-  const permissionUsers = [
+  // 기본 더미 데이터
+  const defaultUsers = [
     { id: "qlwkdnfd11", permission: "대표" },
     { id: "wlwnfkdlw12", permission: "대표" },
     { id: "qlwkdnfd11", permission: "대표" },
@@ -26,6 +230,18 @@ const PermissionManagementPage = () => {
     { id: "qlwkdnfd11", permission: "대표" },
     { id: "wlwnfkdlw12", permission: "대표" },
   ];
+
+  // localStorage에서 데이터 로드
+  const [permissionUsers, setPermissionUsers] = useState<{id: string; permission: string}[]>([]);
+
+  useEffect(() => {
+    const savedUsers = localStorage.getItem('permissionUsers');
+    if (savedUsers) {
+      setPermissionUsers(JSON.parse(savedUsers));
+    } else {
+      setPermissionUsers(defaultUsers);
+    }
+  }, []);
 
   // 검색 필터링된 사용자 목록
   const filteredUsers = useMemo(() => {
@@ -42,8 +258,16 @@ const PermissionManagementPage = () => {
   const currentPermissionUsers = filteredUsers.slice(permissionStartIndex, permissionStartIndex + permissionItemsPerPage);
 
   // 핸들러 함수들
-  const handlePermissionChange = (userId: string, newPermission: string) => {
-    alert(`${userId}의 권한이 ${newPermission}로 변경되었습니다`);
+  const handlePermissionChange = (userIndex: number, newPermission: string) => {
+    const updatedUsers = [...permissionUsers];
+    const userId = updatedUsers[userIndex].id;
+    updatedUsers[userIndex].permission = newPermission;
+    
+    setPermissionUsers(updatedUsers);
+    localStorage.setItem('permissionUsers', JSON.stringify(updatedUsers));
+    
+    // 권한 변경 완료 알림
+    showNotification(`${userId}의 권한이 ${newPermission}으로 변경되었습니다.`, 'success', '권한 변경 완료');
   };
 
   const handlePermissionEdit = (user: any) => {
@@ -56,17 +280,40 @@ const PermissionManagementPage = () => {
     setShowDeleteModal(true);
   };
 
+  const confirmDelete = () => {
+    if (deleteItemId) {
+      const updatedUsers = permissionUsers.filter((_, index) => `${permissionUsers[index].id}-${index}` !== deleteItemId);
+      setPermissionUsers(updatedUsers);
+      localStorage.setItem('permissionUsers', JSON.stringify(updatedUsers));
+      setShowDeleteModal(false);
+      setDeleteItemId(null);
+      
+      // 삭제 완료 알림
+      showNotification('계정이 성공적으로 삭제되었습니다.', 'success', '삭제 완료');
+    }
+  };
+
   const handlePermissionPageClick = (page: number) => {
     setPermissionCurrentPage(page);
   };
 
   const handleAddRegistration = () => {
-    alert('추가등록 기능이 실행되었습니다');
+    setIsModalOpen(true);
   };
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(e.target.value);
     setPermissionCurrentPage(1); // 검색 시 첫 페이지로 이동
+  };
+
+  const handleAddUser = (newUser: { id: string; permission: string }) => {
+    const updatedUsers = [...permissionUsers, newUser];
+    setPermissionUsers(updatedUsers);
+    localStorage.setItem('permissionUsers', JSON.stringify(updatedUsers));
+  };
+
+  const showNotification = (message: string, type: 'success' | 'error' | 'info', title?: string) => {
+    setNotification({ isOpen: true, message, type, title });
   };
 
   return (
@@ -147,7 +394,7 @@ const PermissionManagementPage = () => {
                         <select
                           className="appearance-none bg-white border border-[#D1D5DB] rounded-md px-4 py-2 pr-10 text-[14px] text-[#374151] focus:outline-none focus:ring-2 focus:ring-[#3B82F6] focus:border-transparent shadow-sm min-w-[100px]"
                           value={user.permission}
-                          onChange={(e) => handlePermissionChange(user.id, e.target.value)}
+                          onChange={(e) => handlePermissionChange(permissionStartIndex + index, e.target.value)}
                         >
                           <option value="대표">대표</option>
                           <option value="관리자">관리자</option>
@@ -208,6 +455,34 @@ const PermissionManagementPage = () => {
           </div>
         </div>
       </div>
+
+      {/* 계정 등록 모달 */}
+      <AccountRegistrationModal 
+        isOpen={isModalOpen} 
+        onClose={() => setIsModalOpen(false)} 
+        onAddUser={handleAddUser}
+        existingUsers={permissionUsers}
+        showNotification={showNotification}
+      />
+
+      {/* 삭제 확인 모달 */}
+      <DeleteConfirmModal 
+        isOpen={showDeleteModal} 
+        onClose={() => {
+          setShowDeleteModal(false);
+          setDeleteItemId(null);
+        }} 
+        onConfirm={confirmDelete}
+      />
+
+      {/* 알림 모달 */}
+      <NotificationModal
+        isOpen={notification.isOpen}
+        onClose={() => setNotification(prev => ({ ...prev, isOpen: false }))}
+        title={notification.title}
+        message={notification.message}
+        type={notification.type}
+      />
     </div>
   );
 };
