@@ -54,15 +54,27 @@ export const loginUser = async ({ userId, password }: LoginCredentials) => {
  */
 export const refreshAccessToken = async (refreshToken: string): Promise<TokenRefreshResponse> => {
   try {
-    const response = await axiosInstance.post(`${API_BASE_URL}/api/public/refresh`, {
-      refreshToken: refreshToken
+    // axiosInstance 대신 일반 fetch 사용하여 순환 참조 방지
+    const response = await fetch(`${API_BASE_URL}/api/public/refresh`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ refreshToken: refreshToken })
     });
 
-    if (!response.data.success) {
-      throw new Error(response.data.message || '토큰 갱신에 실패했습니다.');
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message || '토큰 갱신에 실패했습니다.');
     }
 
-    return response.data;
+    const data = await response.json();
+    
+    if (!data.success) {
+      throw new Error(data.message || '토큰 갱신에 실패했습니다.');
+    }
+
+    return data;
   } catch (error) {
     console.error('토큰 갱신 실패:', error);
     throw new Error('토큰 갱신에 실패했습니다. 다시 로그인해주세요.');
