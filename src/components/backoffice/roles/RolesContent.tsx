@@ -2,6 +2,77 @@
 
 import { useState, useMemo } from "react";
 import { Trash2, Edit, Search } from "lucide-react";
+import { Button } from '@/components/ui/button';
+
+// 계정 등록 모달 컴포넌트
+const AccountRegistrationModal = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) => {
+  const [adminId, setAdminId] = useState('');
+  const [role, setRole] = useState('대표');
+
+  const handleSubmit = () => {
+    // TODO: 실제 등록 로직 구현
+    console.log('계정 등록:', { adminId, role });
+    alert('계정이 등록되었습니다.');
+    onClose();
+  };
+
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div className="bg-white rounded-lg p-6 w-[600px]">
+        {/* 제목 */}
+        <h2 className="text-xl font-bold text-black mb-6">계정 등록</h2>
+        
+                 {/* 입력 필드들 - 하나의 행에 가로로 배치 */}
+         <div className="flex space-x-4">
+           {/* ID 입력 */}
+           <div className="flex-1">
+             <label className="block text-sm font-medium text-black mb-2">ID</label>
+             <input
+               type="text"
+               value={adminId}
+               onChange={(e) => setAdminId(e.target.value)}
+               placeholder="아이디를 입력해주세요"
+               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+             />
+           </div>
+           
+           {/* 권한 선택 */}
+           <div className="flex-1">
+             <label className="block text-sm font-medium text-black mb-2">권한</label>
+             <select
+               value={role}
+               onChange={(e) => setRole(e.target.value)}
+               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+             >
+               <option value="대표">대표</option>
+               <option value="관리자">관리자</option>
+               <option value="일반">직원</option>
+               <option value="일반">인턴</option>
+             </select>
+           </div>
+         </div>
+        
+        {/* 버튼들 */}
+        <div className="flex space-x-3 mt-6">
+          <button
+            onClick={handleSubmit}
+            className="flex-1 bg-black text-white py-2 px-4 rounded-md hover:bg-gray-800 transition-colors"
+          >
+            등록하기
+          </button>
+          <button
+            onClick={onClose}
+            className="flex-1 bg-white text-black border border-gray-300 py-2 px-4 rounded-md hover:bg-gray-50 transition-colors"
+          >
+            취소
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
 
 const PermissionManagementPage = () => {
   // 상태 관리
@@ -12,6 +83,7 @@ const PermissionManagementPage = () => {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [deleteItemId, setDeleteItemId] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   // 더미 데이터
   const permissionUsers = [
@@ -61,7 +133,7 @@ const PermissionManagementPage = () => {
   };
 
   const handleAddRegistration = () => {
-    alert('추가등록 기능이 실행되었습니다');
+    setIsModalOpen(true);
   };
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -208,6 +280,12 @@ const PermissionManagementPage = () => {
           </div>
         </div>
       </div>
+
+      {/* 계정 등록 모달 */}
+      <AccountRegistrationModal 
+        isOpen={isModalOpen} 
+        onClose={() => setIsModalOpen(false)} 
+      />
     </div>
   );
 };
