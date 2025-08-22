@@ -78,6 +78,7 @@ const StyleProvider = () => {
       object-fit: cover;
       border-radius: 8px;
       background-color: #f0f0f0;
+      border: 1px solid #e0e0e0;
     }
     .checkoutProductDetails {
       display: flex;
@@ -225,16 +226,29 @@ const formatCurrency = (amount: number) => {
 // --- [리팩토링] 작은 단위의 UI 컴포넌트들 ---
 
 // 1. 주문 상품 정보 컴포넌트
-const OrderSummary: React.FC<{ product: Product }> = ({ product }) => (
-  <div className="checkoutProductInfo">
-    <img src={product.imageUrl} alt={product.name} className="checkoutProductImage" />
-    <div className="checkoutProductDetails">
-      <p className="checkoutProductName">{product.name}</p>
-      <p className="checkoutProductCategory">{product.category}</p>
-      <p className="checkoutProductQuantity">수량 {product.quantity}개</p>
+const OrderSummary: React.FC<{ product: Product }> = ({ product }) => {
+  const [imageError, setImageError] = useState(false);
+
+  const handleImageError = () => {
+    setImageError(true);
+  };
+
+  return (
+    <div className="checkoutProductInfo">
+      <img 
+        src={imageError ? 'https://via.placeholder.com/100x100?text=이미지' : product.imageUrl} 
+        alt={product.name} 
+        className="checkoutProductImage"
+        onError={handleImageError}
+      />
+      <div className="checkoutProductDetails">
+        <p className="checkoutProductName">{product.name}</p>
+        <p className="checkoutProductCategory">{product.category}</p>
+        <p className="checkoutProductQuantity">수량 {product.quantity}개</p>
+      </div>
     </div>
-  </div>
-);
+  );
+};
 
 // 2. 가격 정보 컴포넌트
 const PriceDetails: React.FC<{ productPrice: number, shipping: number, discountAmount: number, total: number }> = ({ productPrice, shipping, discountAmount, total }) => {
@@ -250,7 +264,7 @@ const PriceDetails: React.FC<{ productPrice: number, shipping: number, discountA
           <dd>{formatCurrency(shipping)}</dd>
         </div>
         <div className="checkoutPriceItem">
-          <dt>나눔꽃</dt>
+          <dt>나눔꽃 사용</dt>
           <dd>-{discountAmount} 송이</dd>
         </div>
       </dl>
@@ -369,6 +383,7 @@ const ShippingInfo: React.FC<{
 // --- [리팩토링] 메인 컴포넌트 ---
 
 const CheckoutPage: React.FC = () => {
+  
   const router = useRouter();
   const searchParams = useSearchParams();
   const [productData, setProductData] = useState(defaultProductData);
@@ -381,7 +396,7 @@ const CheckoutPage: React.FC = () => {
   // 배송 정보 상태 관리
   const [shippingData, setShippingData] = React.useState({
     name: '김이원',
-    phone: '010-123-4567',
+    phone: '010-1234-5678',
     address: '서울특별시 서대문구 북아현로 22 3층',
     zipCode: '08198',
     memo: '도착시 문자 주세요'
@@ -389,7 +404,10 @@ const CheckoutPage: React.FC = () => {
 
   // URL 파라미터에서 결제 미리보기 데이터 추출
   useEffect(() => {
+    console.log('useEffect 실행됨');
     const previewParam = searchParams.get('preview');
+    console.log('previewParam:', previewParam);
+    
     if (previewParam) {
       try {
         const parsedPreview = JSON.parse(decodeURIComponent(previewParam));
@@ -399,12 +417,14 @@ const CheckoutPage: React.FC = () => {
         setProductData({
           ...defaultProductData,
           name: parsedPreview.productName || defaultProductData.name,
-          price: parsedPreview.winningBidAmount || parsedPreview.productPrice || defaultProductData.price
+          category: '경매 상품', // 카테고리 기본값 설정
+          price: parsedPreview.winningBidAmount || parsedPreview.productPrice || defaultProductData.price,
+          imageUrl: parsedPreview.productImageUrl || defaultProductData.imageUrl
         });
         
-        // 배송비, 할인, 총액 업데이트 (기본값 사용)
+        // 배송비, 할인, 총액 업데이트
         const newShippingFee = parsedPreview.shippingFee || defaultShippingFee;
-        const newDiscount = parsedPreview.userPoint || defaultDiscount; // userPoint를 나눔꽃으로 사용
+        const newDiscount = parsedPreview.maxUsablePoint || parsedPreview.userPoint || defaultDiscount; // 사용 가능한 포인트
         const newTotal = parsedPreview.actualPaymentAmount || 
           ((parsedPreview.winningBidAmount || parsedPreview.productPrice || 0) + newShippingFee - newDiscount);
         
@@ -412,12 +432,12 @@ const CheckoutPage: React.FC = () => {
         setDiscount(newDiscount);
         setTotalPrice(newTotal);
         setAuctionId(parsedPreview.auctionId);
-        
+
         // 배송 정보 업데이트 (기본값 사용)
         if (parsedPreview.shippingAddress) {
           setShippingData({
             name: parsedPreview.shippingAddress.name || '김이원',
-            phone: parsedPreview.shippingAddress.phone || '010-123-4567',
+            phone: parsedPreview.shippingAddress.phone || '010-1234-5678',
             address: parsedPreview.shippingAddress.address || '서울특별시 서대문구 북아현로 22 3층',
             zipCode: parsedPreview.shippingAddress.zipCode || '08198',
             memo: parsedPreview.shippingAddress.memo || '도착시 문자 주세요'
@@ -437,6 +457,8 @@ const CheckoutPage: React.FC = () => {
     }));
   };
 
+  console.log('현재 상태:', { productData, shippingFee, discount, totalPrice, auctionId });
+  
   return (
     <>
       <StyleProvider />
