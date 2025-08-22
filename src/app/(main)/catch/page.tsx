@@ -1,26 +1,25 @@
 "use client"
 
 import React, { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Image from "next/image";
 import nafalflower from "@/assets/flower.png";
 
 const PaymentCompletePage: React.FC = () => {
   const router = useRouter();
+  const searchParams = useSearchParams();
 
-  // 👉 예시: 나중에 API나 로직으로 값 받아오게 연결 가능
-  const [points, setPoints] = useState(34);
-  const [trees, setTrees] = useState(3);
-  const [extraPoints, setExtraPoints] = useState(35);
+  // URL 파라미터에서 포인트 값 받아오기
+  const [points, setPoints] = useState(0);
 
-  // 예시: 컴포넌트 로드 시 API 호출해서 값 업데이트
+  // 컴포넌트 로드 시 URL 파라미터에서 포인트 값 추출
   useEffect(() => {
-    // fetch("/api/payment-result").then(res => res.json()).then(data => {
-    //   setPoints(data.points);
-    //   setTrees(data.trees);
-    //   setExtraPoints(data.extraPoints);
-    // })
-  }, []);
+    const pointsParam = searchParams.get('points');
+    if (pointsParam) {
+      const pointsValue = parseInt(pointsParam, 10);
+      setPoints(pointsValue);
+    }
+  }, [searchParams]);
 
 
   const handleGoHome = () => {
@@ -70,8 +69,7 @@ const PaymentCompletePage: React.FC = () => {
             </span>
           </div>
           <span className="text-black text-sm sm:text-base text-center leading-normal whitespace-pre-line">
-              {`🌲 ${trees} 그루의 나무가 자랄 수 있는 환경 기여 
-              ✨ ${extraPoints} 나팔꽃으로 더 많은 선택의 기회 
+              {`✨ ${points} 나팔꽃으로 더 많은 선택의 기회 
               💚 지속 가능한 소비 실천으로 지구 보호`}
           </span>
           </div>

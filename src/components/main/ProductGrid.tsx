@@ -13,28 +13,23 @@ interface ProductGridProps {
 export function ProductGrid({ title, searchParams = {} }: ProductGridProps) {
   const { data, isLoading, error } = useProducts(searchParams);
 
-  // 종료된 경매는 메인페이지에서 제외하고, 섹션별로 적절한 상품만 표시
+  // 새로운 status 분류에 따라 상품 필터링
   const products = (data?.data?.content || []).filter((product) => {
     const status = product.auctionStatus;
     
-    // 먼저 종료된 경매는 모든 섹션에서 제외
-    if (status === 'ENDED' || status === 'COMPLETED' || status === 'CANCELLED') {
-      return false;
-    }
+         // status 파라미터가 있으면 해당 상태의 경매만 표시
+     if (searchParams.status) {
+       // "진행중인 경매" (IN_PROGRESS) 섹션
+       if (searchParams.status === 'IN_PROGRESS') {
+         return status === 'IN_PROGRESS';
+       }
+       // "예약된 경매" (SCHEDULED) 섹션
+       if (searchParams.status === 'SCHEDULED') {
+         return status === 'SCHEDULED';
+       }
+     }
     
-    // 섹션별 필터링
-    if (searchParams.status) {
-      // "오늘의 경매 상품" (IN_PROGRESS) 섹션: 진행 중 + 마감 임박 경매만
-      if (searchParams.status === 'IN_PROGRESS') {
-        return status === 'IN_PROGRESS' || status === 'ENDING_SOON';
-      }
-      // "경매 예정 상품" (SCHEDULED) 섹션: 예정 경매만
-      if (searchParams.status === 'SCHEDULED') {
-        return status === 'SCHEDULED';
-      }
-    }
-    
-    // status 파라미터가 없으면 모든 활성 경매 표시
+    // status 파라미터가 없으면 모든 경매 표시
     return true;
   });
 
@@ -96,19 +91,19 @@ export function ProductGrid({ title, searchParams = {} }: ProductGridProps) {
         ) : (
           <div className={`grid ${getGridClass()}`}>
             {products.map((product) => (
-              <ProductCard
-                key={product.id}
-                bidCount={product.bidCount}
-                brand={title === '경매 예정 상품' ? 'SCHEDULED' : product.auctionStatus}
-                buyNowPrice={product.buyNowPrice}
-                id={String(product.id)}
-                image={product.thumbnailUrl}
-                productName={product.productName}
-                startPrice={product.currentHighestBid || product.minimumBid}
-                timeLeft={product.endTime}
-                category={product.category}
-                brandName={product.brand}
-              />
+                             <ProductCard
+                 key={product.id}
+                 bidCount={product.bidCount}
+                 brand={product.auctionStatus}
+                 buyNowPrice={product.buyNowPrice}
+                 id={String(product.id)}
+                 image={product.thumbnailUrl}
+                 productName={product.productName}
+                 startPrice={product.currentHighestBid || product.minimumBid}
+                 timeLeft={product.endTime}
+                 category={product.category}
+                 brandName={product.brand}
+               />
             ))}
           </div>
         )}

@@ -302,8 +302,9 @@ const PaymentMethod: React.FC<{
       if (response.success) {
         console.log('결제 성공:', response.data);
         alert('결제가 완료되었습니다!');
-        // 결제 완료 후 완료 페이지로 이동
-        router.push('/catch');
+        // 결제 완료 후 포인트 값과 함께 완료 페이지로 이동
+        const earnedPoints = discount; // 사용한 포인트만큼 적립
+        router.push(`/catch?points=${earnedPoints}`);
       } else {
         alert(`결제 실패: ${response.message}`);
       }

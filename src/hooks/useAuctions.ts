@@ -23,7 +23,7 @@ export const useAuctions = (options: UseAuctionsOptions = {}) => {
       
       const response: AuctionListResponse = await getAuctionList(
         currentPage,
-        options.limit || 10,
+        options.limit || 50,
         options.status,
         options.searchTerm
       );

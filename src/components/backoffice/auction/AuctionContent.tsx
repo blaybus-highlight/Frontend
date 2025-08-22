@@ -80,7 +80,8 @@ const AuctionContent = () => {
 
   // 가격 포맷팅 함수
   const formatPrice = (price: number | null) => {
-    if (price === null) return "미정"
+    if (price === null || price === undefined) return "미정"
+    // 0인 경우에도 "0 원"으로 표시
     return price.toLocaleString() + " 원"
   }
 
@@ -118,7 +119,7 @@ const AuctionContent = () => {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 items-stretch self-stretch p-4 gap-4">
         {[
           { label: "진행중", count: activeAuctions.length },
-          { label: "보류중", count: pendingAuctions.length },
+          { label: "예약중", count: pendingAuctions.length },
           { label: "완료됨", count: endedAuctions.length },
           { label: "전체", count: totalCount },
         ].map((stat) => (
@@ -198,9 +199,10 @@ const AuctionContent = () => {
       <div className="flex flex-col items-start self-stretch px-4">
         <div className="flex flex-col items-start self-stretch overflow-x-auto w-full">
           {/* Table Header */}
-          <div className="grid grid-cols-[1fr_2fr_1fr_1fr_1fr_1fr] md:grid-cols-[1fr_3fr_1fr_1fr_1fr_1fr] w-full items-center bg-gray-50 mb-0.5 border-b-2 border-gray-300 px-4 py-3 gap-2">
+          <div className="grid grid-cols-[1fr_2fr_1fr_1fr_1fr_1fr_1fr] md:grid-cols-[1fr_3fr_1fr_1fr_1fr_1fr_1fr] w-full items-center bg-gray-50 mb-0.5 border-b-2 border-gray-300 px-4 py-3 gap-2">
             <span className="text-[#616161] text-sm font-bold text-center">상품 ID</span>
             <span className="text-[#616161] text-sm font-bold text-center">제품명</span>
+            <span className="text-[#616161] text-sm font-bold text-center">시작가</span>
             <span className="text-[#616161] text-sm font-bold text-center">현재 입찰가</span>
             <span className="text-[#616161] text-sm font-bold text-center">남은 시간</span>
             <span className="text-[#616161] text-sm font-bold text-center">상태</span>
@@ -211,13 +213,16 @@ const AuctionContent = () => {
             activeAuctions.map((auction) => (
               <div
                 key={auction.productId}
-                className="grid grid-cols-[1fr_2fr_1fr_1fr_1fr_1fr] md:grid-cols-[1fr_3fr_1fr_1fr_1fr_1fr] w-full items-center border-b border-gray-200 last:border-b-0 px-4 py-4 gap-2 bg-white"
+                className="grid grid-cols-[1fr_2fr_1fr_1fr_1fr_1fr_1fr] md:grid-cols-[1fr_3fr_1fr_1fr_1fr_1fr_1fr] w-full items-center border-b border-gray-200 last:border-b-0 px-4 py-4 gap-2 bg-white"
               >
                 <span className="truncate whitespace-nowrap text-[#616161] text-base text-center">
                   {auction.productId}
                 </span>
                 <span className="truncate whitespace-nowrap text-black text-base text-center">
                   {auction.productName}
+                </span>
+                <span className="text-[#616161] text-base text-center">
+                  {formatPrice(auction.startPrice)}
                 </span>
                 <span className="text-[#616161] text-base text-center">
                   {formatPrice(auction.currentHighestBid)}
@@ -263,7 +268,7 @@ const AuctionContent = () => {
 
       {/* 보류 중인 경매 */}
       <span className="text-[#111416] text-xl font-bold my-5 ml-4">
-        보류 중인 경매
+        예약 중인 경매
       </span>
       <div className="flex flex-col items-start self-stretch px-4">
         <div className="flex flex-col self-stretch overflow-x-auto w-full">
@@ -300,7 +305,7 @@ const AuctionContent = () => {
                       className="bg-[#F4FEFC] text-[#616161] text-sm py-1 px-3 rounded-lg hover:bg-[#E8FDF8] transition-colors cursor-pointer"
                       onClick={() => onStatusClick("보류중", auction.productId)}
                     >
-                      보류중
+                      예약중
                     </button>
                   </div>
                   <div className="flex justify-center gap-2">

@@ -77,11 +77,26 @@ export default function AuctionSubmitModal({ isOpen, onClose, selectedProduct }:
         if (formData.startDate && formData.startTime && formData.endDate && formData.endTime) {
             const startDateTime = new Date(`${formData.startDate}T${formData.startTime}`);
             const endDateTime = new Date(`${formData.endDate}T${formData.endTime}`);
-            const now = new Date();
             
-            if (startDateTime <= now) {
-                errors.startDate = '시작 시간은 현재 시간보다 이후여야 합니다';
+            // 한국 시간으로 현재 시간 계산
+            const now = new Date();
+            const koreaTime = new Date(now.getTime() + (9 * 60 * 60 * 1000)); // UTC+9 (한국 시간)
+            
+            // 현재 날짜와 시작 날짜가 같은 경우, 시간만 비교
+            const today = koreaTime.toISOString().split('T')[0]; // YYYY-MM-DD 형식
+            const startDateOnly = formData.startDate;
+            
+            if (startDateOnly === today) {
+                // 오늘 날짜인 경우, 현재 시간보다 이후인지만 확인
+                const currentTime = koreaTime.toTimeString().split(' ')[0]; // HH:MM:SS 형식
+                if (formData.startTime <= currentTime) {
+                    errors.startTime = '오늘 날짜를 선택한 경우, 시작 시간은 현재 시간보다 이후여야 합니다';
+                }
+            } else if (startDateOnly < today) {
+                // 과거 날짜인 경우
+                errors.startDate = '시작 날짜는 오늘 이후여야 합니다';
             }
+            
             if (endDateTime <= startDateTime) {
                 errors.endDate = '마감 시간은 시작 시간보다 이후여야 합니다';
             }
@@ -103,10 +118,12 @@ export default function AuctionSubmitModal({ isOpen, onClose, selectedProduct }:
                 return;
             }
 
-            // 날짜와 시간을 합쳐서 ISO 형식으로 변환 (초는 00으로 고정)
+            // 날짜와 시간을 합쳐서 UTC 시간으로 변환
             const formatDateTime = (date: string, time: string) => {
                 if (!date || !time) return '';
-                return `${date}T${time}:00`;
+                // 한국 시간을 UTC로 변환 (9시간 빼기)
+                const koreaDateTime = new Date(`${date}T${time}:00+09:00`);
+                return koreaDateTime.toISOString();
             };
 
             const scheduledStartTime = formatDateTime(formData.startDate, formData.startTime);

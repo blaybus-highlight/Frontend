@@ -115,7 +115,7 @@ export interface ProductSearchParams {
   brand?: string;
   eventName?: string;
   isPremium?: boolean;
-  status?: 'IN_PROGRESS' | 'SCHEDULED' | 'ENDING_SOON';
+  status?: 'SCHEDULED' | 'IN_PROGRESS';
   sortCode?: 'ending' | 'popular' | 'newest';
   page?: number;
   size?: number;
