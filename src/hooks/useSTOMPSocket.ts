@@ -24,47 +24,74 @@ export const useSTOMPSocket = ({ url, onMessage, onConnect, onDisconnect, onErro
   useEffect(() => {
     const connectSTOMP = () => {
       try {
+        console.log('🔄 STOMP 연결 시도:', url);
+        
         // SockJS 소켓 생성
         const socket = new SockJS(url);
+        
+        // 소켓 연결 상태 모니터링
+        socket.onopen = () => {
+          console.log('✅ SockJS 소켓 연결 성공');
+        };
+        
+        socket.onerror = (error) => {
+          console.error('❌ SockJS 소켓 오류:', error);
+        };
+        
+        socket.onclose = (event) => {
+          console.log('🔌 SockJS 소켓 닫힘:', event);
+        };
         
         // STOMP 클라이언트 생성
         client.current = new Client({
           webSocketFactory: () => socket as any,
-          debug: () => {
-            // 실시간 디버그 로그 비활성화 (너무 많은 로그 방지)
+          debug: (str) => {
+            // 연결/재연결 관련 로그만 표시
+            if (str.includes('Connect') || str.includes('Disconnect') || str.includes('Error')) {
+              console.log('🔍 STOMP Debug:', str);
+            }
           },
           onConnect: (frame) => {
-            console.log('🔌 STOMP 연결 성공:', frame);
+            console.log('🔌 STOMP 연결 성공:', frame.headers);
             setIsConnected(true);
             onConnect?.();
           },
           onDisconnect: (frame) => {
-            console.log('🔌 STOMP 연결 종료:', frame);
+            console.log('🔌 STOMP 연결 종료:', frame?.headers);
             setIsConnected(false);
             onDisconnect?.();
           },
           onStompError: (frame) => {
-            console.error('❌ STOMP 오류:', frame);
+            console.error('❌ STOMP 프로토콜 오류:', frame.headers, frame.body);
+            setIsConnected(false);
             onError?.(frame);
           },
           onWebSocketError: (error) => {
-            console.error('❌ WebSocket 오류:', error);
+            console.error('❌ WebSocket 연결 오류:', error);
+            setIsConnected(false);
             onError?.(error);
           },
-          reconnectDelay: 5000,
-          heartbeatIncoming: 4000,
-          heartbeatOutgoing: 4000,
+          onWebSocketClose: (event) => {
+            console.log('🔌 WebSocket 연결 닫힘:', event?.code, event?.reason);
+            setIsConnected(false);
+          },
+          reconnectDelay: 3000,
+          heartbeatIncoming: 10000,
+          heartbeatOutgoing: 10000,
+          maxReconnectAttempts: 10,
         });
 
         // 연결 시작
         client.current.activate();
 
       } catch (error) {
-        console.error('STOMP 연결 실패:', error);
+        console.error('❌ STOMP 초기화 실패:', error);
+        setIsConnected(false);
         onError?.(error);
       }
     };
 
+    // 초기 연결
     connectSTOMP();
 
     return () => {
