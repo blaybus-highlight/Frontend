@@ -35,7 +35,7 @@ const NotificationManager = ({ userId, currentAuctionId }: NotificationManagerPr
       relatedId: data.auctionId,
       actionUrl: `/successbid?data=${encodeURIComponent(JSON.stringify(data))}`,
       productName: data.productName,
-      productImage: data.productImageUrl,
+      productImage: data.productImage,
       amount: data.finalPrice || data.winningBidAmount
     });
   };
@@ -53,7 +53,7 @@ const NotificationManager = ({ userId, currentAuctionId }: NotificationManagerPr
       relatedId: data.auctionId,
       actionUrl: `/product/${data.auctionId}`,
       productName: data.productName,
-      productImage: data.productImageUrl,
+      productImage: data.productImage,
       amount: data.finalPrice || data.winningBidAmount
     });
   };
@@ -71,7 +71,7 @@ const NotificationManager = ({ userId, currentAuctionId }: NotificationManagerPr
       relatedId: data.auctionId,
       actionUrl: `/product/${data.auctionId}`,
       productName: data.productName,
-      productImage: data.productImageUrl
+      productImage: data.productImage
     });
   };
 
