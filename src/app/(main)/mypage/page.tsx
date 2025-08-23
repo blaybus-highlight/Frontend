@@ -6,6 +6,8 @@ import { FaYoutube, FaInstagram } from "react-icons/fa";
 // [백엔드 연동] 1. 실제 데이터 통신을 위한 커스텀 훅과 로딩 UI를 다시 import 합니다.
 import { useMyPage } from "@/hooks/useMyPage";
 import { Skeleton } from "@/components/ui/skeleton";
+import PremiumItemsList, { PremiumItemList } from "@/components/product/PremiumItemsList";
+
 
 
 // --- 타입 정의 추가 ---
@@ -243,6 +245,8 @@ const MyPageSidebar = () => {
   );
 };
 
+
+
 // 2. 로그인 정보 행 컴포넌트
 const InfoRowWithButton = ({ label, value }: { label: string, value: string }) => (
   <div className="flex justify-between items-center py-4 border-b-2 border-gray-200">
@@ -466,7 +470,14 @@ export default function MyPage() {
               <div className="p-6 rounded-lg border border-gray-200"><div className="flex items-center justify-between"><div><p className="text-2xl font-bold text-green-600">{data.point.toLocaleString()} 송이</p></div><div className="text-right"><p className="text-gray-500 text-sm">총 참여 횟수</p><p className="text-lg font-bold">{data.participationCount}회</p></div></div></div>
             </div>
 
-            {/* 3. 로그인 정보 */}
+             {/* 3. 프리미엄 아이템 소장 리스트 추가 */}
+            <PremiumItemsList />
+           
+          
+
+
+
+            {/* 4. 로그인 정보 */}
             <div>
               <h2 className="text-lg font-bold mb-6">로그인 정보</h2>
               <div className="border-t border-gray-200">
@@ -478,7 +489,7 @@ export default function MyPage() {
               </div>
             </div>
 
-             {/* 4. 아이템 구매 섹션 */}
+             {/* 5. 아이템 구매 섹션 */}
             <div>
               <div className="flex justify-between items-center mb-6">
                 <h2 className="text-lg font-bold">아이템 구매</h2>
