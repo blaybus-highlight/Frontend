@@ -222,13 +222,25 @@ export default function ProductDetailPage() {
           </div>
         </div>
 
+
+
+            {/* 버튼 그룹 - 왼쪽 정렬, 간격 */}
+        <div className="flex gap-4 justify-start">
+        
         {/* 상품 수정하기 버튼 */}
-        <div className="text-center">
           <button
             onClick={() => window.history.back()}
             className="bg-black text-white px-8 py-3 rounded hover:bg-gray-800 transition-colors font-medium"
           >
             상품 수정하기
+          </button>
+
+        {/* 삭제하기 버튼 */}
+          <button
+            onClick={() => console.log("삭제하기 클릭")}
+            className="bg-white text-black px-8 py-3 rounded border border-gray-300 hover:bg-gray-100 transition-colors font-medium"
+          >
+            삭제하기
           </button>
         </div>
       </div>
