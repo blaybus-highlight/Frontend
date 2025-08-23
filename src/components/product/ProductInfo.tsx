@@ -14,11 +14,13 @@ import { useBidHistory } from '@/hooks/useBidHistory';
 import { useSTOMPSocket } from '@/hooks/useSTOMPSocket';
 import { useAuctionStatus } from '@/hooks/useAuctionStatus';
 import { useWishlistStatus, useWishlistToggle } from '@/hooks/useWishlist';
+import { useAuth } from '@/hooks/useAuth';
 import { productsApi } from '@/api/products';
 import { buyItNow, BuyItNowRequest, getPaymentPreview } from '@/api/payments';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import AuctionResultModal from './AuctionResultModal';
 import BuyItNowModal from './BuyItNowModal';
+import LoginModal from '@/components/auth/LoginModal';
 
 interface ProductInfoProps {
   product?: Product;
@@ -39,12 +41,16 @@ const ProductInfo = ({ product, auction }: ProductInfoProps) => {
   const [showResultModal, setShowResultModal] = useState(false);
   const [auctionResult, setAuctionResult] = useState<AuctionResult | null>(null);
   const [showBuyNowModal, setShowBuyNowModal] = useState(false);
+  const [showLoginModal, setShowLoginModal] = useState(false);
 
   // 찜 상태 조회
   const { data: wishlistData, isLoading: isWishlistLoading } = useWishlistStatus(
     auction?.auctionId || 0
   );
   const wishlistToggle = useWishlistToggle();
+
+  // 인증 상태 확인
+  const { isAuthenticated } = useAuth();
 
   // Use auction data if available, otherwise fall back to product data
   // const productDetails = auction || product;
@@ -245,6 +251,12 @@ const ProductInfo = ({ product, auction }: ProductInfoProps) => {
   const handleBid = () => {
     console.log('🎯 입찰하기 핸들러 호출:', { auctionId: auction?.auctionId, bidAmount, isAutoBid });
     
+    // 로그인 체크
+    if (!isAuthenticated) {
+      setShowLoginModal(true);
+      return;
+    }
+    
     if (!auction?.auctionId) {
       alert('경매 정보를 찾을 수 없습니다.');
       return;
@@ -306,6 +318,12 @@ const ProductInfo = ({ product, auction }: ProductInfoProps) => {
 
   // 즉시구매 핸들러
   const handleBuyNow = () => {
+    // 로그인 체크
+    if (!isAuthenticated) {
+      setShowLoginModal(true);
+      return;
+    }
+    
     if (!auction?.auctionId) {
       alert('경매 정보를 찾을 수 없습니다.');
       return;
@@ -452,6 +470,12 @@ const ProductInfo = ({ product, auction }: ProductInfoProps) => {
 
   // 찜 토글 핸들러
   const handleWishlistToggle = () => {
+    // 로그인 체크
+    if (!isAuthenticated) {
+      setShowLoginModal(true);
+      return;
+    }
+    
     if (!auction?.auctionId) {
       alert('상품 정보를 찾을 수 없습니다.');
       return;
@@ -1146,6 +1170,16 @@ const ProductInfo = ({ product, auction }: ProductInfoProps) => {
           buyItNowPrice={auction?.buyItNowPrice || 0}
           auctionId={auction?.auctionId || 0}
           isLoading={false}
+        />
+
+        {/* 로그인 모달 */}
+        <LoginModal
+          isOpen={showLoginModal}
+          onClose={() => setShowLoginModal(false)}
+          onLoginSuccess={() => {
+            // 로그인 성공 후 페이지 새로고침하여 인증 상태 업데이트
+            window.location.reload();
+          }}
         />
     </div>
   );
