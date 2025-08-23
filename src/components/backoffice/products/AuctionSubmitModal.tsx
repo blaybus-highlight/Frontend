@@ -63,8 +63,15 @@ export default function AuctionSubmitModal({ isOpen, onClose, selectedProduct }:
         const localTimeOffset = now.getTimezoneOffset(); // 로컬 시간대 오프셋 (분)
         const koreaTime = new Date(now.getTime() + (koreaTimeOffset + localTimeOffset) * 60 * 1000);
         
-        const currentDate = koreaTime.toISOString().split('T')[0]; // YYYY-MM-DD 형식
-        const currentTime = koreaTime.toTimeString().slice(0, 5); // HH:MM 형식
+        // 한국 시간 기준으로 날짜와 시간 추출
+        const year = koreaTime.getFullYear();
+        const month = String(koreaTime.getMonth() + 1).padStart(2, '0');
+        const day = String(koreaTime.getDate()).padStart(2, '0');
+        const hours = String(koreaTime.getHours()).padStart(2, '0');
+        const minutes = String(koreaTime.getMinutes()).padStart(2, '0');
+        
+        const currentDate = `${year}-${month}-${day}`; // YYYY-MM-DD 형식
+        const currentTime = `${hours}:${minutes}`; // HH:MM 형식
         
         setFormData(prev => ({
             ...prev,
