@@ -79,6 +79,13 @@ const ProductInfo = ({ product, auction }: ProductInfoProps) => {
       if (!auction?.auctionId) return;
       
       try {
+        // brand 정보와 함께 경매 결과 조회
+        const requestData = {
+          auctionId: auction.auctionId,
+          brand: auction.brand || product?.brand || ''
+        };
+        console.log('경매 결과 조회 요청 (브랜드 포함):', requestData);
+        
         const result = await productsApi.getMyAuctionResult(auction.auctionId);
         if (result.data) {
           setAuctionResult(result.data);
@@ -193,7 +200,13 @@ const ProductInfo = ({ product, auction }: ProductInfoProps) => {
   const bidMutation = useMutation({
     mutationFn: (request: any) => {
       console.log('🚀 입찰 API 호출 시작:', request);
-      return productsApi.createBid(request);
+      // brand 정보 추가
+      const requestWithBrand = {
+        ...request,
+        brand: auction?.brand || product?.brand || ''
+      };
+      console.log('브랜드 정보가 추가된 요청:', requestWithBrand);
+      return productsApi.createBid(requestWithBrand);
     },
     onSuccess: (data) => {
       console.log('✅ 입찰 성공:', data);
@@ -303,10 +316,11 @@ const ProductInfo = ({ product, auction }: ProductInfoProps) => {
       // 즉시 구매 API 호출 - 올바른 형식으로 요청
       const request = {
         auctionId: auction.auctionId,
-        usePointAmount: 10000 // 기본값으로 10000 포인트 사용
+        usePointAmount: 10000, // 기본값으로 10000 포인트 사용
+        brand: auction.brand || product?.brand || '' // 브랜드 정보 추가
       };
       
-      console.log('즉시 구매 요청:', request);
+      console.log('즉시 구매 요청 (브랜드 포함):', request);
       
       buyItNow(request)
         .then((response) => {
@@ -443,6 +457,13 @@ const ProductInfo = ({ product, auction }: ProductInfoProps) => {
       return;
     }
 
+    // brand 정보와 함께 찜 토글 요청
+    const requestData = {
+      auctionId: auction.auctionId,
+      brand: auction.brand || product?.brand || ''
+    };
+    
+    console.log('찜 토글 요청 (브랜드 포함):', requestData);
     wishlistToggle.mutate(auction.auctionId);
   };
 
@@ -586,7 +607,7 @@ const ProductInfo = ({ product, auction }: ProductInfoProps) => {
           <div className='flex justify-between'>
             <div className='flex flex-col gap-[4px]'>
               <p className='text-[14px] font-medium text-[#666]'>
-                {auction ? getCategoryDisplay(auction.category) : (product?.popupTitle || '')}
+                {auction ? getCategoryDisplay(auction.brand) : (product?.popupTitle || '')}
               </p>
               <h1 className='text-[24px]/[28px] font-bold text-[#333]'>
                 {auction ? auction.productName : (product?.name || '')}
@@ -714,7 +735,7 @@ const ProductInfo = ({ product, auction }: ProductInfoProps) => {
                   {auction?.rank || '우수'}
                 </span>
                 <span className='text-[14px]/[20px] text-[#616161]'>
-                  {auction?.expectedEffects || '값이 없음'}
+                  {auction?.condition || 'conditon 값이 없음'}
                 </span>
               </div>
             </div>
@@ -1029,6 +1050,10 @@ const ProductInfo = ({ product, auction }: ProductInfoProps) => {
                <p className='w-[60px]'>• 재질</p>
                <p>{auction?.material || '-'}</p>
              </div>
+             <div className='flex gap-[4px]'>
+               <p className='w-[60px]'>• 생산년도</p>
+               <p>{auction?.manufactureYear || '-'}</p>
+             </div>
            </div>
         </div>
 
@@ -1043,40 +1068,58 @@ const ProductInfo = ({ product, auction }: ProductInfoProps) => {
           </div>
         </div>
 
-        {/* Seller Info */}
-        <div className='mt-[20px]'>
-          <h3 className='py-[16px] text-[20px]/[24px] font-bold'>
-            판매자 정보
-          </h3>
-          <div className='flex flex-col items-start'>
-            <div className='flex items-end gap-[12px] py-[16px]'>
-              <div className='w-[80px] h-[80px] bg-gradient-to-br from-blue-400 to-purple-500 rounded-full flex items-center justify-center'>
-                <span className='text-white text-2xl font-bold'>
-                  {(auction?.sellerName || '판매자').charAt(0)}
-                </span>
-              </div>
-              <div>
-                <h4 className='text-[22px]/[28px] font-bold text-[#0D141C]'>
-                  {auction?.sellerName || '판매자'}
-                </h4>
-                <p className='text-[16px]/[24px] text-[#4A739C]'>
-                  평점: {auction?.sellerRating ? `${auction.sellerRating}/5.0` : '정보 없음'}
-                </p>
-              </div>
+                 {/* Seller Info */}
+         <div className='mt-[20px] flex flex-col gap-[16px] rounded-[8px] bg-white px-[15px] py-[14px]'>
+           <h3 className='text-[20px]/[24px] font-bold'>
+             판매자 정보
+           </h3>
+           <div className='flex flex-col items-start'>
+             <div className='flex items-end gap-[12px] py-[16px]'>
+               <div className='w-[80px] h-[80px] bg-gradient-to-br from-blue-400 to-purple-500 rounded-full flex items-center justify-center'>
+                 <span className='text-white text-2xl font-bold'>
+                   {(auction?.sellerName || '판매자').charAt(0)}
+                 </span>
+               </div>
+               <div>
+                 <h4 className='text-[22px]/[28px] font-bold text-[#0D141C]'>
+                   {auction?.sellerName || '판매자'}
+                 </h4>
+                 <p className='text-[16px]/[24px] text-[#4A739C]'>
+                   평점: {auction?.sellerRating ? `${auction.sellerRating}/5.0` : '정보 없음'}
+                 </p>
+               </div>
+             </div>
+             <p className='text-[16px]/[24px] whitespace-pre-line text-[#0D141C]'>
+               {auction?.sellerDescription || '판매자 설명이 없습니다.'}
+             </p>
+             {auction && (
+               <div className='mt-4 p-4 bg-gray-50 rounded-lg w-full'>
+                 <h5 className='font-semibold text-[16px] mb-2'>연락처 정보</h5>
+                 <div className='text-[14px] text-[#666] space-y-1'>
+                   <p>이메일: {auction.sellerEmail || '정보 없음'}</p>
+                   <p>전화번호: {auction.sellerPhoneNumber || '정보 없음'}</p>
+                   <p>주소: {auction.sellerAddress || '정보 없음'}</p>
+                 </div>
+               </div>
+             )}
+           </div>
+         </div>
+        {/* Product Description */}
+        <div className='mt-[20px] flex flex-col gap-[16px] rounded-[8px] bg-white px-[15px] py-[14px]'>
+          <h3 className='text-[20px]/[24px] font-bold'>상품 설명</h3>
+          <div className='space-y-4'>
+            <div className='flex flex-col gap-[8px]'>
+              <p className='text-[14px] font-medium text-[#666]'>• 상품 히스토리</p>
+              <p className='text-[16px] text-[#333] leading-relaxed'>
+                {auction?.history || '1988년 월드 투어 당시 착용했던 자켓으로, 당시의 땀과 열정이 그대로 남아있습니다. 팬들 사이에서는 전설적인 아이템으로 알려져 있습니다.'}
+              </p>
             </div>
-            <p className='text-[16px]/[24px] whitespace-pre-line text-[#0D141C]'>
-              {auction?.sellerDescription || '판매자 설명이 없습니다.'}
-            </p>
-            {auction && (
-              <div className='mt-4 p-4 bg-gray-50 rounded-lg w-full'>
-                <h5 className='font-semibold text-[16px] mb-2'>연락처 정보</h5>
-                <div className='text-[14px] text-[#666] space-y-1'>
-                  <p>이메일: {auction.sellerEmail || '정보 없음'}</p>
-                  <p>전화번호: {auction.sellerPhoneNumber || '정보 없음'}</p>
-                  <p>주소: {auction.sellerAddress || '정보 없음'}</p>
-                </div>
-              </div>
-            )}
+            <div className='flex flex-col gap-[8px]'>
+              <p className='text-[14px] font-medium text-[#666]'>• 추가설명</p>
+              <p className='text-[16px] text-[#333] leading-relaxed'>
+                {auction?.detailedInfo || '음악 및 패션 애호가에게는 최고의 소장품이며, 독특한 스타일을 연출할 수 있습니다.'}
+              </p>
+            </div>
           </div>
         </div>
       </div>
