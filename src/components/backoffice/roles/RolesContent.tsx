@@ -140,7 +140,7 @@ const AccountRegistrationModal = ({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center z-50" onClick={onClose}>
+    <div className="fixed inset-0 bg-black/30 backdrop-blur-md flex items-center justify-center z-50" onClick={onClose}>
       <div className="bg-white rounded-lg p-6 w-[600px]" onClick={(e) => e.stopPropagation()}>
         {/* 제목 */}
         <h2 className="text-xl font-bold text-black mb-6">계정 등록</h2>
