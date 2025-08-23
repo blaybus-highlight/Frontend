@@ -368,7 +368,13 @@ const ProductsContent = () => {
                    </div>
 
                                        <span className="text-[#181D27] text-sm text-center">{product.category}</span>
-                    <span className="text-[#181D27] text-sm text-center truncate">{product.productName}</span>
+                    <span 
+                      className="text-[#181D27] text-sm text-center truncate cursor-pointer hover:text-blue-600 hover:underline"
+                      onClick={() => router.push(`/backoffice/products/${product.id}`)}
+                      title="상품 상세 보기"
+                    >
+                      {product.productName}
+                    </span>
                     <span className="text-[#181D27] text-sm text-center">{product.size || "-"}</span>
                     <span className="text-[#181D27] text-sm text-center">{product.productCount}</span>
                     <div className="flex items-center justify-center">
@@ -419,7 +425,13 @@ const ProductsContent = () => {
                      </div>
                      <div>
                        <span className="text-[#535862] font-bold">상품명:</span>
-                       <span className="text-[#181D27] ml-2 truncate">{product.productName}</span>
+                       <span 
+                         className="text-[#181D27] ml-2 truncate cursor-pointer hover:text-blue-600 hover:underline"
+                         onClick={() => router.push(`/backoffice/products/${product.id}`)}
+                         title="상품 상세 보기"
+                       >
+                         {product.productName}
+                       </span>
                      </div>
                                            <div>
                         <span className="text-[#535862] font-bold">사이즈:</span>
