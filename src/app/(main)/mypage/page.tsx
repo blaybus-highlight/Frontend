@@ -75,7 +75,7 @@ const NapalflowerModal = ({ isOpen, onClose, onUse }: NapalflowerModalProps) => 
       <div className="flex flex-col items-center gap-8">
         <h3 className="text-xl md:text-2xl font-bold">아이템 구매 완료</h3>
         <p className="text-center text-sm md:text-base text-gray-700">
-          아이템 적용 시 낙찰 성공 시 나팔꽃이 2배 적립됩니다<br />
+          아이템 적용시 낙찰 성공시 나팔꽃이 2배 적립됩니다<br />
           유효기간 - 8/29 까지 사용가능
         </p>
         <div className="flex w-full gap-4">
@@ -104,7 +104,7 @@ const NapalflowerUseCompleteModal = ({ isOpen, onClose }: NapalflowerUseComplete
       <div className="flex flex-col items-center gap-8">
         <h3 className="text-xl md:text-2xl font-bold">사용 완료</h3>
         <p className="text-center text-sm md:text-base text-gray-700">
-          다음 경매 낙찰 성공 시 나팔꽃이 2배 적립됩니다
+          다음 경매 낙찰 성공시 나팔꽃이 2배 적립됩니다
         </p>
         <div className="flex w-full justify-center">
           <button
@@ -126,7 +126,7 @@ const PriorityModal = ({ isOpen, onClose, onShowAutoModal }: PriorityModalProps)
       <div className="flex flex-col items-center gap-8">
         <h3 className="text-xl md:text-2xl font-bold">아이템 구매 완료</h3>
         <p className="text-center text-sm md:text-base text-gray-700">
-          아이템 적용 시 동 가격 입찰 시 우선권이 부여됩니다
+          아이템 적용시 동 가격 입찰시 우선권이 부여됩니다
         </p>
         <div className="flex w-full justify-center">
           <button
@@ -148,8 +148,8 @@ const TreeDonationModal = ({ isOpen, onClose }: TreeDonationModalProps) => {
       <div className="flex flex-col items-center gap-8">
         <h3 className="text-xl md:text-2xl font-bold">아이템 구매 완료</h3>
         <p className="text-center text-sm md:text-base text-gray-700">
-          나팔 x 나무심기 캠페인에 나무 1그루가 기부되었어요<br />
-          내 나무는 마이페이지 &gt; 기부에서 확인할 수 있어요
+        <span className="font-bold">나팔 x 나무심기</span> 캠페인에 나무 1그루가 기부되었어요<br />
+          내 나무는 <span className="font-bold">마이페이지 &gt; 기부</span>에서 확인할 수 있어요
         </p>
         <div className="flex w-full justify-center gap-4">
           <button
@@ -177,16 +177,16 @@ const TreeDonationModal = ({ isOpen, onClose }: TreeDonationModalProps) => {
 const PriorityAutoModal = ({ isOpen, onClose, onUse }: PriorityAutoModalProps) => {
   return (
     <ModalWrapper isOpen={isOpen} onClose={onClose}>
-       <div className="inline-flex flex-col items-center gap-8 p-6 md:p-12 bg-white shadow-xl rounded-xl">
-    <h3 className="text-xl md:text-2xl font-bold">같은 가격 선입찰자 존재</h3>
+       <div className="inline-flex flex-col items-center justify-center gap-8">
+    <h3 className="text-xl md:text-2xl font-bold">같은 가격 선입찰 존재</h3>
     <p className="text-center text-sm md:text-base text-gray-700">
-      '서울대동창회' 님의 입찰가와 같은 가격을 먼저 제시한 참가자가 있어요.<br />
-      동 입찰권 우선권을 사용하면 이번 입찰이 우선권 적용돼요.
+      '서울대 출품작 28번'에 회원님의 입찰가와<br />같은 가격을 먼저 제시한 참가자가 있어요.<br />
+      동 입찰권 우선권을 사용하면 이번 입찰이 우선 적용돼요.
     </p>
     <p className="text-center text-xs text-red-500">
-      *다음에 사용 시 선입찰자가 낙찰됩니다
+      *다음에 사용시 선입찰자가 낙찰됩니다
     </p>
-    <div className="flex w-full justify-center gap-4">
+    <div className="flex w-full justify-center gap-4 px-6">
       {/* 지금 사용 버튼 */}
       <button
         onClick={onUse}
