@@ -42,6 +42,7 @@ const ProductInfo = ({ product, auction }: ProductInfoProps) => {
   const [auctionResult, setAuctionResult] = useState<AuctionResult | null>(null);
   const [showBuyNowModal, setShowBuyNowModal] = useState(false);
   const [showLoginModal, setShowLoginModal] = useState(false);
+  const [bidError, setBidError] = useState<string>('');
 
   // 찜 상태 조회
   const { data: wishlistData, isLoading: isWishlistLoading } = useWishlistStatus(
@@ -366,7 +367,30 @@ const ProductInfo = ({ product, auction }: ProductInfoProps) => {
   // 입찰가 포맷팅
   const handleBidAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value.replace(/[^0-9]/g, '');
-    const formatted = value ? parseInt(value).toLocaleString('ko-KR') : '';
+    
+    if (!value) {
+      setBidAmount('');
+      setBidError('');
+      return;
+    }
+    
+    const numericValue = parseInt(value);
+    const startPrice = product?.startPrice || 0;
+    const buyItNowPrice = auction?.buyItNowPrice || 0;
+    
+    // 시작가보다 작거나 즉시구매가보다 크면 입력 제한
+    if (numericValue < startPrice) {
+      setBidError(`입찰가는 시작가(${formatPrice(startPrice)}원) 이상이어야 합니다.`);
+      return;
+    }
+    
+    if (buyItNowPrice > 0 && numericValue >= buyItNowPrice) {
+      setBidError(`입찰가는 즉시구매가(${formatPrice(buyItNowPrice)}원) 미만이어야 합니다.`);
+      return;
+    }
+    
+    setBidError('');
+    const formatted = numericValue.toLocaleString('ko-KR');
     setBidAmount(formatted);
   };
 
@@ -789,7 +813,7 @@ const ProductInfo = ({ product, auction }: ProductInfoProps) => {
                    {/* 입찰가 입력 가능 범위 */}
                    <div className='flex justify-end'>
                      <span className='text-[18px] font-semibold text-[#333]'>
-                       입찰가 입력 가능 범위: 5,000원 ~ 15,000원
+                       입찰가 입력 가능 범위: {formatPrice(product?.startPrice || 0)}원 ~ {auction?.buyItNowPrice ? formatPrice(auction.buyItNowPrice - 1000) : '무제한'}원
                      </span>
                    </div>
                    
@@ -848,6 +872,13 @@ const ProductInfo = ({ product, auction }: ProductInfoProps) => {
                        </button>
                      </div>
                    </div>
+                   
+                   {/* 오류 메시지 표시 */}
+                   {bidError && (
+                     <div className='mt-2 text-red-600 text-sm font-medium'>
+                       {bidError}
+                     </div>
+                   )}
                  </div>
 
           
