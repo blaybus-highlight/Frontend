@@ -29,6 +29,7 @@ interface UseAuctionNotificationsProps {
   onLostNotification?: (data: NotificationData) => void;
   onCancelNotification?: (data: NotificationData) => void;
   showToasts?: boolean;
+  addNotificationToCenter?: (notification: any) => void;
 }
 
 export const useAuctionNotifications = ({
@@ -37,6 +38,7 @@ export const useAuctionNotifications = ({
   onLostNotification,  
   onCancelNotification,
   showToasts = true,
+  addNotificationToCenter,
 }: UseAuctionNotificationsProps) => {
   const [notifications, setNotifications] = useState<NotificationState[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
@@ -54,6 +56,11 @@ export const useAuctionNotifications = ({
 
     setNotifications(prev => [notification, ...prev]);
     setUnreadCount(prev => prev + 1);
+
+    // 알림 센터에 추가
+    if (addNotificationToCenter) {
+      addNotificationToCenter(message.data || message);
+    }
 
     // 토스트 알림 표시
     if (showToasts && (window as any).showNotificationToast) {
@@ -111,7 +118,7 @@ export const useAuctionNotifications = ({
         onCancelNotification?.(message.data);
         break;
     }
-  }, [onWinNotification, onLostNotification, onCancelNotification, showToasts]);
+  }, [onWinNotification, onLostNotification, onCancelNotification, showToasts, addNotificationToCenter]);
 
   const { isConnected, subscribe, unsubscribe } = useSTOMPSocket({
     url: process.env.NEXT_PUBLIC_WS_URL || 'http://localhost:8080/ws',
