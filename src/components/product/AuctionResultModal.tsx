@@ -77,7 +77,7 @@ const AuctionResultModal = ({
   const content = getModalContent();
 
   return (
-    <div className='fixed inset-0 z-50 flex items-center justify-center' style={{ backgroundColor: 'rgba(0, 0, 0, 0.3)' }}>
+    <div className="fixed inset-0 bg-black/30 backdrop-blur-md flex justify-center items-center z-50">
       <div className='bg-white rounded-2xl shadow-2xl max-w-md w-full mx-4 overflow-hidden'>
         {/* Header */}
         <div className='relative bg-gradient-to-r from-blue-500 to-purple-600 text-white p-6 text-center'>

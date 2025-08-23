@@ -60,7 +60,7 @@ const ModalWrapper = ({ isOpen, onClose, children }: ModalWrapperProps) => {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+    <div className="fixed inset-0 bg-black/30 backdrop-blur-md flex justify-center items-center z-50">
       <div className="bg-white rounded-xl shadow-xl p-6 md:p-12 max-w-lg w-full">
         {children}
       </div>
