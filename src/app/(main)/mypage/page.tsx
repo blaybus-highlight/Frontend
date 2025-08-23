@@ -375,7 +375,7 @@ export default function MyPage() {
   const purchaseItemsData: PurchaseItem[] = [
     {
       id: 1,
-      imageUrl: "/images/flower2.png",
+      imageUrl: "/images/mypage/coin.png",
       title: "낙찰 성공 시 나팔꽃 X2 적립",
       price: "나팔꽃 15송이",
       quantity: 2,
@@ -384,7 +384,7 @@ export default function MyPage() {
     },
     {
       id: 2,
-      imageUrl: "/images/leaflet.png",
+      imageUrl: "/images/mypage/ticket.png",
       title: "우선 입찰권",
       price: "나팔꽃 30송이",
       quantity: 1,
@@ -393,7 +393,7 @@ export default function MyPage() {
     },
     {
       id: 3,
-      imageUrl: "/images/trunker.png",
+      imageUrl: "/images/mypage/tree.png",
       title: "나무 심기",
       price: "나팔꽃 50송이",
       quantity: 0,
