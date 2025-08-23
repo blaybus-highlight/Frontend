@@ -31,11 +31,10 @@ const ProductsContent = () => {
         setLoading(true)
         setError(null)
         
-        const response = await getProductList(
-          productCurrentPage, 
-          10, 
-          "경매대기" // statusDescription 필터
-        )
+                 const response = await getProductList(
+           productCurrentPage, 
+           10
+         )
         
         console.log('API 응답 전체:', response)
         
@@ -379,14 +378,24 @@ const ProductsContent = () => {
                     <span className="text-[#181D27] text-sm text-center">{product.productCount}</span>
                     <div className="flex items-center justify-center">
                       <button
-                        className={`px-4 py-1 rounded-2xl text-sm font-medium cursor-pointer transition-colors ${
-                          product.statusDescription === "경매대기"
-                            ? "bg-[#B5F5EB] text-black hover:bg-[#A0F0E6]"
-                            : "bg-[#E8FCF9] text-black hover:bg-[#D0F9F4]"
-                        }`}
+                                                 className={`px-4 py-1 rounded-2xl text-sm font-medium cursor-pointer transition-colors ${
+                           product.status === 'AUCTION_COMPLETED'
+                             ? "bg-red-100 text-red-800 hover:bg-red-200 font-bold"
+                             : product.status === 'IN_AUCTION'
+                             ? "bg-blue-100 text-blue-800 hover:bg-blue-200 font-semibold"
+                             : product.statusDescription === "경매대기"
+                             ? "bg-[#B5F5EB] text-black hover:bg-[#A0F0E6]"
+                             : "bg-[#E8FCF9] text-black hover:bg-[#D0F9F4]"
+                         }`}
                         onClick={() => handleProductConditionClick(product.statusDescription, product.id.toString())}
                       >
-                        {product.statusDescription}
+                                                   {product.status === 'DRAFT' ? '임시저장' :
+                            product.status === 'ACTIVE' ? '경매 가능' :
+                            product.status === 'INACTIVE' ? '비활성' :
+                            product.status === 'AUCTION_READY' ? '경매대기' :
+                            product.status === 'IN_AUCTION' ? '경매중' :
+                            product.status === 'AUCTION_COMPLETED' ? '경매완료' :
+                            product.statusDescription || product.status}
                       </button>
                     </div>
                     <span className="text-[#181D27] text-sm text-center">{product.material || "-"}</span>
@@ -444,14 +453,24 @@ const ProductsContent = () => {
                       <div>
                         <span className="text-[#535862] font-bold">상태:</span>
                         <button
-                          className={`ml-2 px-2 py-1 rounded-lg text-xs font-medium cursor-pointer transition-colors ${
-                            product.statusDescription === "경매대기"
-                              ? "bg-[#B5F5EB] text-black hover:bg-[#A0F0E6]"
-                              : "bg-[#E8FCF9] text-black hover:bg-[#D0F9F4]"
-                          }`}
+                                                     className={`ml-2 px-2 py-1 rounded-lg text-xs font-medium cursor-pointer transition-colors ${
+                             product.status === 'AUCTION_COMPLETED'
+                               ? "bg-red-100 text-red-800 hover:bg-red-200 font-bold"
+                               : product.status === 'IN_AUCTION'
+                               ? "bg-blue-100 text-blue-800 hover:bg-blue-200 font-semibold"
+                               : product.statusDescription === "경매대기"
+                               ? "bg-[#B5F5EB] text-black hover:bg-[#A0F0E6]"
+                               : "bg-[#E8FCF9] text-black hover:bg-[#D0F9F4]"
+                           }`}
                           onClick={() => handleProductConditionClick(product.statusDescription, product.id.toString())}
                         >
-                          {product.statusDescription}
+                          {product.status === 'DRAFT' ? '임시저장' :
+                          product.status === 'ACTIVE' ? '경매 가능' :
+                          product.status === 'INACTIVE' ? '비활성' :
+                          product.status === 'AUCTION_READY' ? '경매대기' :
+                          product.status === 'IN_AUCTION' ? '경매중' :
+                          product.status === 'AUCTION_COMPLETED' ? '경매완료' :
+                          product.statusDescription || product.status}
                         </button>
                       </div>
                       <div>

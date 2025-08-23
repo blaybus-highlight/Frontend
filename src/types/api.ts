@@ -119,7 +119,7 @@ export interface ProductSearchParams {
   brand?: string;
   eventName?: string;
   isPremium?: boolean;
-  status?: 'SCHEDULED' | 'IN_PROGRESS';
+  status?: 'SCHEDULED' | 'IN_PROGRESS' | 'IN_AUCTION' | 'ACTIVE';
   sortCode?: 'ending' | 'popular' | 'newest';
   page?: number;
   size?: number;
