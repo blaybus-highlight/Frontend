@@ -498,7 +498,7 @@ export default function MyPage() {
 
             {/* 2. 포인트 정보 */}
             <div>
-              <div className="flex justify-between items-center mb-4"><h2 className="text-lg font-bold">포인트</h2></div>
+              <div className="flex justify-between items-center mb-4"><h2 className="text-lg font-bold">나팔꽃</h2></div>
               <div className="p-6 rounded-lg border border-gray-200"><div className="flex items-center justify-between"><div><p className="text-2xl font-bold text-green-600">{data.point.toLocaleString()} 송이</p></div><div className="text-right"><p className="text-gray-500 text-sm">총 참여 횟수</p><p className="text-lg font-bold">{data.participationCount}회</p></div></div></div>
             </div>
 
