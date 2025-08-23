@@ -79,10 +79,10 @@ export default function ProductDetailPageContent({ productId }: ProductDetailPag
               <ProductCard
                 key={product.id}
                 id={String(product.id)}
-                brand={product.auctionStatus}
+                brand={product.brand || product.auctionStatus}
                 productName={product.productName}
-                startPrice={product.startPrice}
-                buyNowPrice={product.buyNowPrice}
+                startPrice={product.startPrice || 0}
+                buyNowPrice={product.buyNowPrice || 0}
                 image={product.primaryImageUrl || '/placeholder.jpg'}
                 bidCount={product.bidCount}
                 timeLeft={product.endTime}
