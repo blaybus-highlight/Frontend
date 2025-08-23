@@ -41,7 +41,7 @@ const NafalLoginForm = () => {
 
   return (
     <div className="flex flex-col items-center self-stretch py-[120px] mb-[1px]">
-      <div className="flex flex-col items-center self-stretch px-[60px] py-[40px] bg-white rounded-lg shadow-lg">
+      <div className="flex flex-col items-center self-stretch px-[60px] py-[40px] bg-white rounded-lg ">
         <h1 className="text-[32px] font-bold text-[#111416] mb-[40px]">
           관리자 로그인
         </h1>
