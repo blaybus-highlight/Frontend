@@ -285,6 +285,13 @@ const PermissionManagementPage = () => {
       const updatedUsers = permissionUsers.filter((_, index) => `${permissionUsers[index].id}-${index}` !== deleteItemId);
       setPermissionUsers(updatedUsers);
       localStorage.setItem('permissionUsers', JSON.stringify(updatedUsers));
+      
+      // 삭제 후 페이지 조정
+      const newTotalPages = Math.ceil(updatedUsers.length / permissionItemsPerPage);
+      if (permissionCurrentPage > newTotalPages && newTotalPages > 0) {
+        setPermissionCurrentPage(newTotalPages);
+      }
+      
       setShowDeleteModal(false);
       setDeleteItemId(null);
       
@@ -310,6 +317,10 @@ const PermissionManagementPage = () => {
     const updatedUsers = [...permissionUsers, newUser];
     setPermissionUsers(updatedUsers);
     localStorage.setItem('permissionUsers', JSON.stringify(updatedUsers));
+    
+    // 새 사용자가 들어갈 페이지 계산 (마지막 아이템의 페이지)
+    const newUserPageNumber = Math.ceil(updatedUsers.length / permissionItemsPerPage);
+    setPermissionCurrentPage(newUserPageNumber);
   };
 
   const showNotification = (message: string, type: 'success' | 'error' | 'info', title?: string) => {
@@ -435,20 +446,74 @@ const PermissionManagementPage = () => {
             <div className="px-6 py-5 bg-white border-t border-[#F3F4F6]">
               <div className="flex justify-center">
                 <div className="flex items-center gap-1">
-                  {[1, 2, 3, "...", 8, 9, 10].map((page, index) => (
+                  {/* 이전 버튼 */}
+                  {permissionCurrentPage > 1 && (
                     <button
-                      key={index}
-                      className={`px-3 py-2 text-sm font-medium transition-colors ${
-                        page === permissionCurrentPage 
-                          ? "text-[#111827] text-base" 
-                          : "text-[#6B7280] text-sm hover:text-[#374151]"
-                      }`}
-                      onClick={() => typeof page === "number" && handlePermissionPageClick(page)}
-                      disabled={typeof page !== "number"}
+                      onClick={() => handlePermissionPageClick(permissionCurrentPage - 1)}
+                      className="px-3 py-2 text-sm font-medium text-[#6B7280] hover:text-[#374151] transition-colors"
                     >
-                      {page}
+                      ‹
                     </button>
-                  ))}
+                  )}
+                  
+                  {/* 동적 페이지 번호 생성 */}
+                  {(() => {
+                    const pages = [];
+                    const current = permissionCurrentPage;
+                    const total = permissionTotalPages;
+                    
+                    if (total <= 7) {
+                      // 총 페이지가 7 이하면 모든 페이지 표시
+                      for (let i = 1; i <= total; i++) {
+                        pages.push(i);
+                      }
+                    } else {
+                      // 총 페이지가 7 초과시 동적 표시
+                      if (current <= 4) {
+                        // 현재 페이지가 앞쪽에 있을 때
+                        for (let i = 1; i <= 5; i++) pages.push(i);
+                        pages.push('...');
+                        pages.push(total);
+                      } else if (current >= total - 3) {
+                        // 현재 페이지가 뒤쪽에 있을 때
+                        pages.push(1);
+                        pages.push('...');
+                        for (let i = total - 4; i <= total; i++) pages.push(i);
+                      } else {
+                        // 현재 페이지가 중간에 있을 때
+                        pages.push(1);
+                        pages.push('...');
+                        for (let i = current - 1; i <= current + 1; i++) pages.push(i);
+                        pages.push('...');
+                        pages.push(total);
+                      }
+                    }
+                    
+                    return pages.map((page, index) => (
+                      <button
+                        key={index}
+                        className={`px-3 py-2 text-sm font-medium transition-colors ${
+                          page === permissionCurrentPage 
+                            ? "text-[#111827] bg-[#F3F4F6] rounded-md" 
+                            : "text-[#6B7280] hover:text-[#374151] hover:bg-[#F9FAFB] rounded-md"
+                        }`}
+                        onClick={() => typeof page === "number" && handlePermissionPageClick(page)}
+                        disabled={typeof page !== "number"}
+                      >
+                        {page}
+                      </button>
+                    ));
+                  })()}
+                  
+                  {/* 다음 버튼 */}
+                  {permissionCurrentPage < permissionTotalPages && (
+                    <button
+                      onClick={() => handlePermissionPageClick(permissionCurrentPage + 1)}
+                      className="px-3 py-2 text-sm font-medium text-[#6B7280] hover:text-[#374151] transition-colors"
+                    >
+                      ›
+                    </button>
+                  )}
                 </div>
               </div>
             </div>
