@@ -56,6 +56,23 @@ export default function AuctionSubmitModal({ isOpen, onClose, selectedProduct }:
         }));
     };
 
+    const setCurrentDateTime = () => {
+        // 한국 시간대로 현재 시간 계산
+        const now = new Date();
+        const koreaTimeOffset = 9 * 60; // 한국은 UTC+9
+        const localTimeOffset = now.getTimezoneOffset(); // 로컬 시간대 오프셋 (분)
+        const koreaTime = new Date(now.getTime() + (koreaTimeOffset + localTimeOffset) * 60 * 1000);
+        
+        const currentDate = koreaTime.toISOString().split('T')[0]; // YYYY-MM-DD 형식
+        const currentTime = koreaTime.toTimeString().slice(0, 5); // HH:MM 형식
+        
+        setFormData(prev => ({
+            ...prev,
+            startDate: currentDate,
+            startTime: currentTime
+        }));
+    };
+
     const handleSubmit = async () => {
         setIsSubmitted(true);
         
@@ -245,6 +262,7 @@ export default function AuctionSubmitModal({ isOpen, onClose, selectedProduct }:
                                      </div>
                                  </div>
                              </div>
+                             <button type="button" onClick={setCurrentDateTime} className="bg-black text-white hover:bg-gray-800 px-4 py-2 mt-px">즉시 시작</button>
                          </div>
                      </div>
 
