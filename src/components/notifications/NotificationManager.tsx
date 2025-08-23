@@ -36,7 +36,7 @@ const NotificationManager = ({ userId, currentAuctionId }: NotificationManagerPr
       actionUrl: `/successbid?data=${encodeURIComponent(JSON.stringify(data))}`,
       productName: data.productName,
       productImage: data.productImage,
-      amount: data.finalPrice || data.winningBidAmount
+      amount: data.bidAmount || data.currentHighestBid
     });
   };
 
@@ -54,7 +54,7 @@ const NotificationManager = ({ userId, currentAuctionId }: NotificationManagerPr
       actionUrl: `/product/${data.auctionId}`,
       productName: data.productName,
       productImage: data.productImage,
-      amount: data.finalPrice || data.winningBidAmount
+      amount: data.bidAmount || data.currentHighestBid
     });
   };
 
