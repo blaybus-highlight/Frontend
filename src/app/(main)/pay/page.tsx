@@ -302,7 +302,7 @@ const PaymentMethod: React.FC<{
       if (response.success) {
         console.log('결제 성공:', response.data);
         alert('결제가 완료되었습니다!');
-        // 결제 완료 후 pointReward 값을 catch 페이지로 전달
+        // 결제 완료 후 백엔드에서 계산된 1% 적립 포인트를 catch 페이지로 전달
         const pointReward = response.data.pointReward || 0;
         router.push(`/catch?points=${pointReward}`);
       } else {
