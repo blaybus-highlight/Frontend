@@ -7,7 +7,206 @@ import { FaYoutube, FaInstagram } from "react-icons/fa";
 import { useMyPage } from "@/hooks/useMyPage";
 import { Skeleton } from "@/components/ui/skeleton";
 
+
+// --- 타입 정의 추가 ---
+interface ModalWrapperProps {
+  isOpen: boolean;
+  onClose: () => void;
+  children: React.ReactNode;
+}
+
+interface NapalflowerModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  onUse: () => void;
+}
+
+interface NapalflowerUseCompleteModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+}
+
+interface PriorityModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  onShowAutoModal: () => void;
+}
+
+interface TreeDonationModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+}
+
+interface PriorityAutoModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  onUse: () => void;
+}
+
+interface PurchaseItem {
+  id: number;
+  imageUrl: string;
+  title: string;
+  price: string;
+  quantity: number;
+  quantityType: string;
+  modalType: 'napalflower' | 'priority' | 'tree';
+}
+
 // --- 개별 UI 컴포넌트 정의 ---
+
+// --- 모달 컴포넌트들 추가 ---
+const ModalWrapper = ({ isOpen, onClose, children }: ModalWrapperProps) => {
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+      <div className="bg-white rounded-xl shadow-xl p-6 md:p-12 max-w-lg w-full">
+        {children}
+      </div>
+    </div>
+  );
+};
+
+// 1. 나팔꽃 2배 적립 모달
+const NapalflowerModal = ({ isOpen, onClose, onUse }: NapalflowerModalProps) => {
+  return (
+    <ModalWrapper isOpen={isOpen} onClose={onClose}>
+      <div className="flex flex-col items-center gap-8">
+        <h3 className="text-xl md:text-2xl font-bold">아이템 구매 완료</h3>
+        <p className="text-center text-sm md:text-base text-gray-700">
+          아이템 적용 시 낙찰 성공 시 나팔꽃이 2배 적립됩니다<br />
+          유효기간 - 8/29 까지 사용가능
+        </p>
+        <div className="flex w-full gap-4">
+          <button
+            onClick={onUse}
+            className="flex-1 py-2 bg-black text-white rounded-none hover:bg-gray-800 transition-colors"
+          >
+            <span className="text-xs font-bold">지금 사용(보유 2개)</span>
+          </button>
+          <button
+            onClick={onClose}
+            className="flex-1 py-2 bg-gray-200 text-gray-800 rounded-none hover:bg-gray-300 transition-colors"
+          >
+            <span className="text-xs font-bold">다음에 사용</span>
+          </button>
+        </div>
+      </div>
+    </ModalWrapper>
+  );
+};
+
+// 2. 나팔꽃 2배 적립 - 사용 완료 모달
+const NapalflowerUseCompleteModal = ({ isOpen, onClose }: NapalflowerUseCompleteModalProps) => {
+  return (
+    <ModalWrapper isOpen={isOpen} onClose={onClose}>
+      <div className="flex flex-col items-center gap-8">
+        <h3 className="text-xl md:text-2xl font-bold">사용 완료</h3>
+        <p className="text-center text-sm md:text-base text-gray-700">
+          다음 경매 낙찰 성공 시 나팔꽃이 2배 적립됩니다
+        </p>
+        <div className="flex w-full justify-center">
+          <button
+            onClick={onClose}
+            className="flex-1 py-2 bg-black text-white rounded-none hover:bg-gray-800 transition-colors"
+          >
+            <span className="text-xs font-bold">확인(보유 2개)</span>
+          </button>
+        </div>
+      </div>
+    </ModalWrapper>
+  );
+};
+
+// 3. 동 가격 입찰 시 우선권 모달
+const PriorityModal = ({ isOpen, onClose, onShowAutoModal }: PriorityModalProps) => {
+  return (
+    <ModalWrapper isOpen={isOpen} onClose={onClose}>
+      <div className="flex flex-col items-center gap-8">
+        <h3 className="text-xl md:text-2xl font-bold">아이템 구매 완료</h3>
+        <p className="text-center text-sm md:text-base text-gray-700">
+          아이템 적용 시 동 가격 입찰 시 우선권이 부여됩니다
+        </p>
+        <div className="flex w-full justify-center">
+          <button
+            onClick={onShowAutoModal}
+            className="flex-1 py-2 bg-black text-white rounded-none hover:bg-gray-800 transition-colors"
+          >
+            <span className="text-xs font-bold">확인</span>
+          </button>
+        </div>
+      </div>
+    </ModalWrapper>
+  );
+};
+
+// 4. 나무 1그루 기부 모달
+const TreeDonationModal = ({ isOpen, onClose }: TreeDonationModalProps) => {
+  return (
+    <ModalWrapper isOpen={isOpen} onClose={onClose}>
+      <div className="flex flex-col items-center gap-8">
+        <h3 className="text-xl md:text-2xl font-bold">아이템 구매 완료</h3>
+        <p className="text-center text-sm md:text-base text-gray-700">
+          나팔 x 나무심기 캠페인에 나무 1그루가 기부되었어요<br />
+          내 나무는 마이페이지 &gt; 기부에서 확인할 수 있어요
+        </p>
+        <div className="flex w-full justify-center gap-4">
+          <button
+            onClick={() => {
+              console.log("보러가기 버튼 클릭");
+              onClose();
+            }}
+            className="flex-1 py-2 bg-black text-white rounded-none hover:bg-gray-800 transition-colors"
+          >
+            <span className="text-xs font-bold">보러가기</span>
+          </button>
+          <button
+            onClick={onClose}
+            className="flex-1 py-2 bg-gray-200 text-gray-800 rounded-none hover:bg-gray-300 transition-colors"
+          >
+            <span className="text-xs font-bold">확인</span>
+          </button>
+        </div>
+      </div>
+    </ModalWrapper>
+  );
+};
+
+// 5. 동 가격 입찰시 사용 여부 자동 띄우기 모달
+const PriorityAutoModal = ({ isOpen, onClose, onUse }: PriorityAutoModalProps) => {
+  return (
+    <ModalWrapper isOpen={isOpen} onClose={onClose}>
+       <div className="inline-flex flex-col items-center gap-8 p-6 md:p-12 bg-white shadow-xl rounded-xl">
+    <h3 className="text-xl md:text-2xl font-bold">같은 가격 선입찰자 존재</h3>
+    <p className="text-center text-sm md:text-base text-gray-700">
+      '서울대동창회' 님의 입찰가와 같은 가격을 먼저 제시한 참가자가 있어요.<br />
+      동 입찰권 우선권을 사용하면 이번 입찰이 우선권 적용돼요.
+    </p>
+    <p className="text-center text-xs text-red-500">
+      *다음에 사용 시 선입찰자가 낙찰됩니다
+    </p>
+    <div className="flex w-full justify-center gap-4">
+      {/* 지금 사용 버튼 */}
+      <button
+        onClick={onUse}
+        className="flex-1 h-[40px] bg-black text-white font-bold text-sm flex items-center justify-center rounded-none hover:bg-gray-800 transition-colors"
+      >
+        지금 사용(보유 2개)
+      </button>
+
+      {/* 다음에 사용 버튼 */}
+      <button
+        onClick={onClose}
+        className="flex-1 h-[40px] bg-white border border-gray-400 text-black font-bold text-sm flex items-center justify-center rounded-none hover:bg-gray-100 transition-colors"
+      >
+        다음에 사용
+      </button>
+    </div>
+  </div>
+</ModalWrapper>
+  );
+};
 
 // 1. 마이페이지 사이드바 네비게이션
 const MyPageSidebar = () => {
@@ -55,68 +254,57 @@ const InfoRowWithButton = ({ label, value }: { label: string, value: string }) =
   </div>
 );
 
-// 3. 푸터 컴포넌트
-const Footer = () => (
-  <footer className="bg-white py-12 px-8 border-t mt-20">
-    <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8 text-sm">
-      <div className="space-y-4">
-        <div className="text-2xl font-bold">NAFAL</div>
-        <p className="text-gray-500">믿을 수 있는 가치 플랫폼, 나팔<br/>갖고 싶은 한정판 제품은 다 나팔에서</p>
-        <div className="flex gap-4">
-          <a href="#"><FaYoutube size={20} className="text-gray-400 hover:text-black" /></a>
-          <a href="#"><FaInstagram size={20} className="text-gray-400 hover:text-black" /></a>
-        </div>
+
+
+
+//푸터 제거//
+
+
+
+
+
+
+
+// 4. 아이템 구매 카드 컴포넌트 (모달 기능 추가)
+const PurchaseItemCard = ({ 
+  imageUrl, 
+  title, 
+  price, 
+  quantity = 0, 
+  quantityType = "구매", 
+  onPurchaseClick 
+}: { 
+  imageUrl: string; 
+  title: string; 
+  price: string; 
+  quantity?: number;
+  quantityType?: string;
+  onPurchaseClick: () => void;
+}) => (
+  <div className="w-[200px] h-[280px] border border-gray-200 flex flex-col overflow-hidden relative">
+    {quantity > 0 && (
+      <div className="absolute top-2 right-2 z-10 bg-[#BDBDBD] py-1 px-2">
+        <span className="text-black text-xs font-bold whitespace-nowrap">
+          {quantity.toString().padStart(2, '0')}개 {quantityType}
+        </span>
       </div>
-      <div className="md:col-span-2 grid grid-cols-2 sm:grid-cols-3 gap-8">
-        <div>
-          <h3 className="font-bold mb-3">고객센터</h3>
-          <ul className="space-y-2 text-gray-500">
-            <li>02-786-8978</li>
-            <li>support@nafal.kr</li>
-            <li>평일 10:00 - 18:00</li>
-          </ul>
-        </div>
-        <div>
-          <h3 className="font-bold mb-3">서비스</h3>
-          <ul className="space-y-2 text-gray-500">
-            <li><a href="#" className="hover:underline">회사소개</a></li>
-            <li><a href="#" className="hover:underline">검수기준</a></li>
-            <li><a href="#" className="hover:underline">페널티정책</a></li>
-            <li><a href="#" className="hover:underline">제휴문의</a></li>
-          </ul>
-        </div>
-      </div>
+    )}
+    <div className="h-3/5 relative mt-[3px] mx-[3px]">
+      <Image src={imageUrl} alt={title} layout="fill" objectFit="cover" />
     </div>
-    <div className="max-w-7xl mx-auto mt-8 pt-8 border-t flex justify-between text-xs text-gray-400">
-      <span>©2024 NAFAL. All rights reserved.</span>
-      <div className="flex gap-4">
-        <a href="#" className="hover:underline">이용약관</a>
-        <a href="#" className="hover:underline">개인정보처리방침</a>
-      </div>
+    <div className="flex-grow flex flex-col items-center justify-center px-2 py-1">
+      <p className="text-black text-m text-center leading-tight">{title}</p>
+      <p className="text-gray-600 text-base mt-1">{price}</p>
     </div>
-  </footer>
+    <button 
+      onClick={onPurchaseClick}
+      className="w-full h-[30px] bg-black text-white font-bold text-sm mt-auto flex-shrink-0"
+    >
+      구매하기
+    </button>
+  </div>
 );
 
-// 4. 아이템 구매 카드 컴포넌트
-const PurchaseItemCard = ({ imageUrl, title, price }: { imageUrl: string; title: string; price: string; }) => (
-    <div className="w-[200px] h-[180px] border border-gray-200 flex flex-col overflow-hidden">
-        <div className="h-3/5 relative mt-[3px] mx-[3px]">
-            <Image
-                src={imageUrl}
-                alt={title}
-                layout="fill"
-                objectFit="cover"
-            />
-        </div>
-        <div className="flex-grow flex flex-col items-center justify-center px-2 py-1">
-            <p className="text-black text-m text-center leading-tight">{title}</p>
-            <p className="text-gray-600 text-base mt-1">{price}</p>
-        </div>
-        <button className="w-full h-[30px] bg-black text-white font-bold text-sm mt-auto flex-shrink-0">
-            구매하기
-        </button>
-    </div>
-);
 
 // 5. 로딩 상태 UI (스켈레톤)
 const MyPageSkeleton = () => (
@@ -143,11 +331,63 @@ export default function MyPage() {
   // '아이템 구매' 섹션에 표시될 데이터입니다.
   // 현재는 프론트엔드에 고정되어 있지만, 이 데이터를 별도의 API로 제공하거나
   // 위의 useMyPage()가 반환하는 data 객체 안에 포함시켜 동적으로 관리할 수 있습니다.
-  const purchaseItemsData = [
-    { id: 1, imageUrl: "https://via.placeholder.com/200x120/cccccc/888888?text=Item+1", title: "낙찰 성공 시 나팔꽃 X2 적립", price: "나팔꽃 15송이" },
-    { id: 2, imageUrl: "https://via.placeholder.com/200x120/cccccc/888888?text=Item+2", title: "동 가격 입찰시 우선권", price: "나팔꽃 30송이" },
-    { id: 3, imageUrl: "https://via.placeholder.com/200x120/cccccc/888888?text=Item+3", title: "나무 1그루 기부", price: "나팔꽃 10송이" },
+
+  // 모달 상태 관리 추가 - 타입 명시
+  const [openModal, setOpenModal] = useState<string | null>(null);
+  const [selectedItem, setSelectedItem] = useState<PurchaseItem | null>(null);
+
+
+
+  // 업데이트된 purchaseItemsData (모달 타입과 수량 정보 추가)
+  const purchaseItemsData: PurchaseItem[] = [
+    {
+      id: 1,
+      imageUrl: "/images/flower2.png",
+      title: "낙찰 성공 시 나팔꽃 X2 적립",
+      price: "나팔꽃 15송이",
+      quantity: 2,
+      quantityType: "보유",
+      modalType: "napalflower"
+    },
+    {
+      id: 2,
+      imageUrl: "/images/sametime.png",
+      title: "동 가격 입찰시 우선권",
+      price: "나팔꽃 30송이",
+      quantity: 2,
+      quantityType: "구매",
+      modalType: "priority"
+    },
+    {
+      id: 3,
+      imageUrl: "/images/tree.png",
+      title: "나무 1그루 기부",
+      price: "나팔꽃 10송이",
+      quantity: 1,
+      quantityType: "구매",
+      modalType: "tree"
+    },
   ];
+
+  // 모달 핸들러 함수들
+  const handlePurchaseClick = (item: PurchaseItem) => {
+    setSelectedItem(item);
+    setOpenModal(item.modalType);
+  };
+
+  const handleUseComplete = () => {
+    setOpenModal('napalflower-use-complete');
+  };
+
+  const handleClose = () => {
+    setOpenModal(null);
+    setSelectedItem(null);
+  };
+
+  const handleShowAutoModal = () => {
+    setOpenModal('priority-auto');
+  };
+
 
   // 등급별로 다른 이미지와 색상을 적용하기 위한 함수
   const getRankInfo = (rank: string) => {
@@ -238,26 +478,57 @@ export default function MyPage() {
               </div>
             </div>
 
-            {/* 4. 아이템 구매 섹션 */}
+             {/* 4. 아이템 구매 섹션 */}
             <div>
-                <h2 className="text-lg font-bold mb-6">아이템 구매</h2>
-                <div className="flex flex-wrap gap-4">
-                    {purchaseItemsData.map(item => (
-                        <PurchaseItemCard 
-                            key={item.id} 
-                            imageUrl={item.imageUrl}
-                            title={item.title}
-                            price={item.price}
-                        />
-                    ))}
-                </div>
+              <div className="flex justify-between items-center mb-6">
+                <h2 className="text-lg font-bold">아이템 구매</h2>
+                <a href="#" className="text-gray-500 text-sm md:text-base font-medium hover:underline">
+                  내 아이템 보러가기
+                </a>
+              </div>
+              <div className="flex flex-wrap gap-4">
+                {purchaseItemsData.map(item => (
+                  <PurchaseItemCard
+                    key={item.id}
+                    imageUrl={item.imageUrl}
+                    title={item.title}
+                    price={item.price}
+                    quantity={item.quantity}
+                    quantityType={item.quantityType}
+                    onPurchaseClick={() => handlePurchaseClick(item)}
+                  />
+                ))}
+              </div>
             </div>
-
           </div>
         </div>
       </main>
 
-      <Footer />
+{/* 모달 컴포넌트들 */}
+<NapalflowerModal
+        isOpen={openModal === 'napalflower'}
+        onClose={handleClose}
+        onUse={handleUseComplete}
+      />
+      <NapalflowerUseCompleteModal
+        isOpen={openModal === 'napalflower-use-complete'}
+        onClose={handleClose}
+      />
+      <PriorityModal
+        isOpen={openModal === 'priority'}
+        onClose={handleClose}
+        onShowAutoModal={handleShowAutoModal}
+      />
+      <TreeDonationModal
+        isOpen={openModal === 'tree'}
+        onClose={handleClose}
+      />
+      <PriorityAutoModal
+        isOpen={openModal === 'priority-auto'}
+        onClose={handleClose}
+        onUse={handleClose}
+      />
     </div>
   );
 }
+
