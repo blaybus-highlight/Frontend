@@ -15,11 +15,11 @@ export function ProductGrid({ title, searchParams = {} }: ProductGridProps) {
 
   // 모든 경매 상품을 표시하되 상태에 따라 다르게 처리
   const products = (data?.data?.content || []).map((product) => {
-    // 완료된 경매의 상태를 "입찰완료"로 변경
+    // 완료된 경매의 상태를 "마감"으로 변경
     if (product.auctionStatus === 'COMPLETED' || product.auctionStatus === 'ENDED') {
       return {
         ...product,
-        auctionStatus: '입찰완료'
+        auctionStatus: '마감'
       };
     }
     return product;
