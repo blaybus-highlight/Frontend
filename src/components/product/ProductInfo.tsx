@@ -20,6 +20,7 @@ import { buyItNow, BuyItNowRequest, getPaymentPreview } from '@/api/payments';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import AuctionResultModal from './AuctionResultModal';
 import BuyItNowModal from './BuyItNowModal';
+import AuctionExpiredModal from './AuctionExpiredModal';
 import LoginModal from '@/components/auth/LoginModal';
 
 interface ProductInfoProps {
@@ -41,6 +42,7 @@ const ProductInfo = ({ product, auction }: ProductInfoProps) => {
   const [showResultModal, setShowResultModal] = useState(false);
   const [auctionResult, setAuctionResult] = useState<AuctionResult | null>(null);
   const [showBuyNowModal, setShowBuyNowModal] = useState(false);
+  const [showExpiredModal, setShowExpiredModal] = useState(false);
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [bidError, setBidError] = useState<string>('');
 
@@ -263,6 +265,13 @@ const ProductInfo = ({ product, auction }: ProductInfoProps) => {
       return;
     }
 
+    // 경매 상태 확인
+    const currentStatus = liveStatus?.status || auction?.status;
+    if (currentStatus === 'ENDED' || currentStatus === 'CANCELLED' || timeLeft === '경매 종료') {
+      setShowExpiredModal(true);
+      return;
+    }
+
     const amount = parseInt(bidAmount.replace(/,/g, ''));
     if (!amount || amount <= 0) {
       alert('올바른 입찰가를 입력해주세요.');
@@ -327,6 +336,13 @@ const ProductInfo = ({ product, auction }: ProductInfoProps) => {
     
     if (!auction?.auctionId) {
       alert('경매 정보를 찾을 수 없습니다.');
+      return;
+    }
+
+    // 경매 상태 확인
+    const currentStatus = liveStatus?.status || auction?.status;
+    if (currentStatus === 'ENDED' || currentStatus === 'CANCELLED' || timeLeft === '경매 종료') {
+      setShowExpiredModal(true);
       return;
     }
     
@@ -1190,6 +1206,14 @@ const ProductInfo = ({ product, auction }: ProductInfoProps) => {
         onPayment={handlePayment}
         onOtherAuctions={handleOtherAuctions}
         onMyBids={handleMyBids}
+      />
+
+      {/* 경매 마감 알림 모달 */}
+      <AuctionExpiredModal
+        isOpen={showExpiredModal}
+        onClose={() => setShowExpiredModal(false)}
+        productName={auction?.productName || '상품'}
+        endedAt={auction?.scheduledEndTime}
       />
 
                     {/* 즉시구매 모달 */}
