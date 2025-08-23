@@ -1052,9 +1052,9 @@ const ProductInfo = ({ product, auction }: ProductInfoProps) => {
                <p className='w-[60px]'>• 재질</p>
                <p>{auction?.material || '-'}</p>
              </div>
-             <div className='flex gap-[4px]'>
+             <div className='flex gap-[8px]'>
                <p className='w-[60px]'>• 생산년도</p>
-               <p>{auction?.manufactureYear || '-'}</p>
+               <p>{ auction?.manufactureYear || '-'}</p>
              </div>
            </div>
         </div>

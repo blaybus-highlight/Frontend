@@ -5,7 +5,9 @@ import Image from "next/image";
 import { FaYoutube, FaInstagram } from "react-icons/fa";
 // [백엔드 연동] 1. 실제 데이터 통신을 위한 커스텀 훅과 로딩 UI를 다시 import 합니다.
 import { useMyPage } from "@/hooks/useMyPage";
+import { usePremiumProducts } from "@/hooks/usePremiumProducts";
 import { Skeleton } from "@/components/ui/skeleton";
+import Leaf from '@/assets/leaf-icon.svg';
 
 
 // --- 타입 정의 추가 ---
@@ -53,7 +55,48 @@ interface PurchaseItem {
   modalType: 'napalflower' | 'priority' | 'tree';
 }
 
+interface PremiumProduct {
+  productPrice: number;
+  productName: string;
+  premiumImagesURL: string;
+}
+
 // --- 개별 UI 컴포넌트 정의 ---
+
+// 프리미엄 상품 카드 컴포넌트
+const PremiumProductCard = ({ product }: { product: PremiumProduct }) => {
+  return (
+    <div className="relative w-full max-w-[280px] rounded-lg border border-gray-200 overflow-hidden hover:shadow-lg transition-shadow">
+      {/* Premium 배지 */}
+      <div className="absolute top-0 left-0 flex h-[40px] w-[140px] items-center justify-center gap-[4px] rounded-tl-lg bg-black text-[12px]/[14px] font-semibold text-white z-10">
+        <Leaf />
+        Premium
+      </div>
+      
+      {/* 상품 이미지 */}
+      <div className="relative w-full h-[200px]">
+        <Image
+          src={product.premiumImagesURL}
+          alt={product.productName}
+          fill
+          className="object-cover"
+        />
+      </div>
+      
+      {/* 상품 정보 */}
+      <div className="p-4">
+        <h3 className="font-semibold text-gray-900 mb-2 line-clamp-2">
+          {product.productName}
+        </h3>
+        <div className="flex justify-end items-center text-sm text-gray-600">
+          <span className="font-semibold text-gray-900">
+            {product.productPrice.toLocaleString()}원
+          </span>
+        </div>
+      </div>
+    </div>
+  );
+};
 
 // --- 모달 컴포넌트들 추가 ---
 const ModalWrapper = ({ isOpen, onClose, children }: ModalWrapperProps) => {
@@ -255,16 +298,6 @@ const InfoRowWithButton = ({ label, value }: { label: string, value: string }) =
 );
 
 
-
-
-//푸터 제거//
-
-
-
-
-
-
-
 // 4. 아이템 구매 카드 컴포넌트 (모달 기능 추가)
 const PurchaseItemCard = ({ 
   imageUrl, 
@@ -351,23 +384,26 @@ export default function MyPage() {
     },
     {
       id: 2,
-      imageUrl: "/images/sametime.png",
-      title: "동 가격 입찰시 우선권",
+      imageUrl: "/images/leaflet.png",
+      title: "우선 입찰권",
       price: "나팔꽃 30송이",
-      quantity: 2,
-      quantityType: "구매",
+      quantity: 1,
+      quantityType: "보유",
       modalType: "priority"
     },
     {
       id: 3,
-      imageUrl: "/images/tree.png",
-      title: "나무 1그루 기부",
-      price: "나팔꽃 10송이",
-      quantity: 1,
+      imageUrl: "/images/trunker.png",
+      title: "나무 심기",
+      price: "나팔꽃 50송이",
+      quantity: 0,
       quantityType: "구매",
       modalType: "tree"
-    },
+    }
   ];
+
+  // 프리미엄 상품 데이터 (API에서 받아옴)
+  const { data: premiumProductsData, isLoading: isPremiumProductsLoading } = usePremiumProducts();
 
   // 모달 핸들러 함수들
   const handlePurchaseClick = (item: PurchaseItem) => {
@@ -464,6 +500,36 @@ export default function MyPage() {
             <div>
               <div className="flex justify-between items-center mb-4"><h2 className="text-lg font-bold">포인트</h2></div>
               <div className="p-6 rounded-lg border border-gray-200"><div className="flex items-center justify-between"><div><p className="text-2xl font-bold text-green-600">{data.point.toLocaleString()} 송이</p></div><div className="text-right"><p className="text-gray-500 text-sm">총 참여 횟수</p><p className="text-lg font-bold">{data.participationCount}회</p></div></div></div>
+            </div>
+
+            {/* 5. 프리미엄 상품 섹션 */}
+            <div>
+              <div className="flex justify-between items-center mb-6">
+                <h2 className="text-lg font-bold">구입한 프리미엄 상품</h2>
+                <a href="#" className="text-gray-500 text-sm md:text-base font-medium hover:underline">
+                  전체 보기
+                </a>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {isPremiumProductsLoading ? (
+                  <div className="col-span-full flex items-center justify-center py-8">
+                    <div className="h-4 w-4 animate-spin rounded-full border-2 border-gray-300 border-t-blue-600"></div>
+                    <span className="ml-2 text-gray-500 text-sm">프리미엄 상품 로딩 중...</span>
+                  </div>
+                ) : premiumProductsData && premiumProductsData.length > 0 ? (
+                  premiumProductsData.map((product, index) => (
+                    <PremiumProductCard
+                      key={index}
+                      product={product}
+                    />
+                  ))
+                ) : (
+                  <div className="col-span-full text-center text-gray-500 py-8">
+                    <p>구입한 프리미엄 상품이 없습니다.</p>
+                    <p className="text-sm mt-1">프리미엄 상품을 구입해보세요!</p>
+                  </div>
+                )}
+              </div>
             </div>
 
             {/* 3. 로그인 정보 */}
