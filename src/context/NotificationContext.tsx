@@ -43,7 +43,7 @@ export function NotificationProvider({ children }: { children: React.ReactNode }
       // 실제 상품 데이터에서 정보 추출
       const productName = selectedProduct.productName;
       const productImage = selectedProduct.thumbnailUrl;
-      const relatedId = selectedProduct.auctionId || selectedProduct.id;
+      const relatedId = selectedProduct.id;
       const amount = selectedProduct.currentHighestBid || ((seed + i) % 50 + 20) * 1000;
       const minutesAgo = (seed + i) % 300 + 5; // 5분 ~ 305분 전
       
@@ -83,7 +83,7 @@ export function NotificationProvider({ children }: { children: React.ReactNode }
         message,
         isRead: (seed + i) % 3 === 0, // 약 1/3은 읽음 상태
         createdAt: new Date(Date.now() - minutesAgo * 60 * 1000).toISOString(),
-        relatedId: productIndex + 100,
+        relatedId: relatedId,
         actionUrl: type === 'AUCTION_WON' ? '/successbid' : `/product/${relatedId}`,
         productName,
         productImage,
