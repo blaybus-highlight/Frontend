@@ -29,6 +29,8 @@ export default function SignupPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [showPasswordConfirm, setShowPasswordConfirm] = useState(false);
   const [isphoneNumberVerified, setIsphoneNumberVerified] = useState(false);
+  const [countdown, setCountdown] = useState<number | null>(null);
+  const [isVerificationSent, setIsVerificationSent] = useState(false);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type, checked } = e.target;
@@ -48,6 +50,13 @@ export default function SignupPage() {
       marketingEnabled: checked,
       eventSnsEnabled: checked,
     }));
+  };
+
+  // 카운트다운 포맷팅 함수
+  const formatCountdown = (seconds: number): string => {
+    const minutes = Math.floor(seconds / 60);
+    const remainingSeconds = seconds % 60;
+    return `${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
   };
 
   const handleIndividualChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -82,6 +91,23 @@ export default function SignupPage() {
       alert('인증번호가 발송되었습니다.');
       const data = await verificationPhoneNumber({ phoneNumber });
       console.log('인증번호 발송 응답:', data);
+      
+      // 인증번호 발송 성공 시 카운트다운 시작
+      setIsVerificationSent(true);
+      setCountdown(300); // 5분 = 300초
+      
+      // 카운트다운 타이머 시작
+      const timer = setInterval(() => {
+        setCountdown((prev) => {
+          if (prev === null || prev <= 1) {
+            clearInterval(timer);
+            setIsVerificationSent(false);
+            return null;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+      
     } catch (error) {
       alert('인증번호 발송에 실패했습니다. 잠시 후 다시 시도해주세요.');
       console.error('인증번호 발송 에러:', error);
@@ -173,14 +199,22 @@ export default function SignupPage() {
                 disabled={isphoneNumberVerified}
               />
               <button
-                className='h-[44px] shrink-0 bg-black px-4 text-[14px] font-bold text-white disabled:bg-gray-400'
+                className='h-[44px] w-[100px] shrink-0 bg-black px-4 text-[14px] font-bold text-white disabled:bg-gray-400'
                 type='button'
                 onClick={handleVerify}
-                disabled={isphoneNumberVerified}
+                disabled={isphoneNumberVerified || isVerificationSent}
               >
                 인증하기
               </button>
             </div>
+            
+            {/* 카운트다운 표시 */}
+            {isVerificationSent && countdown !== null && (
+              <div className='text-gray-500 text-sm mt-1'>
+                인증번호 유효시간: {formatCountdown(countdown)}
+              </div>
+            )}
+            
             <div className='mt-[4px] flex gap-[6px]'>
               <input
                 className='w-full flex-grow border border-[#E0E0E0] px-[16px] py-[10px] text-[16px]/[22px] placeholder-[#9E9E9E]'
@@ -193,7 +227,7 @@ export default function SignupPage() {
                 disabled={isphoneNumberVerified}
               />
               <button
-                className='h-[44px] shrink-0 bg-black px-4 text-[14px] font-bold text-white disabled:bg-gray-400'
+                className='h-[44px] w-[100px] shrink-0 bg-black px-4 text-[14px] font-bold text-white disabled:bg-gray-400'
                 type='button'
                 onClick={handleConfirmCode}
                 disabled={isphoneNumberVerified}

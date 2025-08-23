@@ -245,7 +245,6 @@ export default function AuctionSubmitModal({ isOpen, onClose, selectedProduct }:
                                      </div>
                                  </div>
                              </div>
-                             <button type="button" className="bg-black text-white hover:bg-gray-800 px-4 py-2 mt-px">즉시 시작</button>
                          </div>
                      </div>
 
