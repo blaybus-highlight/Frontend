@@ -4,6 +4,7 @@ export interface Product {
   imageUrl: string;
   popupTitle: string;
   name: string;
+  brand?: string; // 브랜드 정보 추가
   status: '진행중' | '마감' | '예정' | '마감임박';
   openDate?: string;
   deadline?: string;

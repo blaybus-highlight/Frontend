@@ -77,6 +77,7 @@ export interface AuctionDetail {
   statusDescription: string;
   rank: string;
   category: string;
+  brand?: string; // 브랜드 정보 추가
   material: string;
   size: string;
   manufactureYear: number;
