@@ -1,9 +1,10 @@
 'use client';
 
-import React from 'react';
-import { useParams } from 'next/navigation';
+import React, { useState } from 'react';
+import { useParams, useRouter } from 'next/navigation';
 import { useQuery } from '@tanstack/react-query';
 import axiosInstance from '@/lib/axiosInstance';
+import { useDeleteProduct } from '@/hooks/useDeleteProduct';
 
 interface ProductDetail {
   id: number;
@@ -39,13 +40,41 @@ const fetchProductDetail = async (productId: string): Promise<{ success: boolean
 
 export default function ProductDetailPage() {
   const params = useParams();
+  const router = useRouter();
   const productId = params.productId as string;
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   const { data, isLoading, error } = useQuery({
     queryKey: ['productDetail', productId],
     queryFn: () => fetchProductDetail(productId),
     enabled: !!productId,
   });
+
+  const deleteProductMutation = useDeleteProduct();
+
+  const handleDeleteClick = () => {
+    setShowDeleteConfirm(true);
+  };
+
+  const handleDeleteConfirm = () => {
+    if (!productId) return;
+    
+    deleteProductMutation.mutate(parseInt(productId), {
+      onSuccess: (data) => {
+        alert('상품이 성공적으로 삭제되었습니다.');
+        router.push('/backoffice/products');
+      },
+      onError: (error: any) => {
+        const errorMessage = error?.response?.data?.message || '상품 삭제 중 오류가 발생했습니다.';
+        alert(`삭제 실패: ${errorMessage}`);
+      }
+    });
+    setShowDeleteConfirm(false);
+  };
+
+  const handleDeleteCancel = () => {
+    setShowDeleteConfirm(false);
+  };
 
   if (isLoading) {
     return (
@@ -222,16 +251,65 @@ export default function ProductDetailPage() {
           </div>
         </div>
 
+
+
+            {/* 버튼 그룹 - 왼쪽 정렬, 간격 */}
+        <div className="flex gap-4 justify-start">
+        
         {/* 상품 수정하기 버튼 */}
-        <div className="text-center">
           <button
-            onClick={() => window.history.back()}
+            onClick={() => router.push(`/backoffice/products/update?id=${productId}`)}
             className="bg-black text-white px-8 py-3 rounded hover:bg-gray-800 transition-colors font-medium"
           >
             상품 수정하기
           </button>
+
+        {/* 삭제하기 버튼 */}
+          <button
+            onClick={handleDeleteClick}
+            disabled={deleteProductMutation.isPending}
+            className={`px-8 py-3 rounded border transition-colors font-medium ${
+              deleteProductMutation.isPending
+                ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                : 'bg-white text-black border-gray-300 hover:bg-gray-100'
+            }`}
+          >
+            {deleteProductMutation.isPending ? '삭제 중...' : '삭제하기'}
+          </button>
         </div>
       </div>
+
+      {/* 삭제 확인 모달 */}
+      {showDeleteConfirm && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">상품 삭제 확인</h3>
+            <p className="text-gray-600 mb-6">
+              정말로 이 상품을 삭제하시겠습니까?<br />
+              <span className="font-medium text-red-600">이 작업은 되돌릴 수 없습니다.</span>
+            </p>
+            <div className="flex gap-3 justify-end">
+              <button
+                onClick={handleDeleteCancel}
+                className="px-4 py-2 text-gray-600 border border-gray-300 rounded hover:bg-gray-50 transition-colors"
+              >
+                취소
+              </button>
+              <button
+                onClick={handleDeleteConfirm}
+                disabled={deleteProductMutation.isPending}
+                className={`px-4 py-2 text-white rounded transition-colors ${
+                  deleteProductMutation.isPending
+                    ? 'bg-red-400 cursor-not-allowed'
+                    : 'bg-red-600 hover:bg-red-700'
+                }`}
+              >
+                {deleteProductMutation.isPending ? '삭제 중...' : '삭제'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

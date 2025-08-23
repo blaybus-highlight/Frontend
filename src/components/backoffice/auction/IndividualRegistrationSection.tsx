@@ -66,6 +66,8 @@ export const IndividualRegistrationSection = ({
         submittingText={submittingText}
         saveDraftText={saveDraftText}
         savingDraftText={savingDraftText}
+        onDelete={() => {}}
+        isDeleting={false}
       />
     </>
   );
