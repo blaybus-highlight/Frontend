@@ -13,24 +13,16 @@ interface ProductGridProps {
 export function ProductGrid({ title, searchParams = {} }: ProductGridProps) {
   const { data, isLoading, error } = useProducts(searchParams);
 
-  // 새로운 status 분류에 따라 상품 필터링
-  const products = (data?.data?.content || []).filter((product) => {
-    const status = product.auctionStatus;
-    
-         // status 파라미터가 있으면 해당 상태의 경매만 표시
-     if (searchParams.status) {
-       // "진행중인 경매" (IN_PROGRESS) 섹션
-       if (searchParams.status === 'IN_PROGRESS') {
-         return status === 'IN_PROGRESS';
-       }
-       // "예약된 경매" (SCHEDULED) 섹션
-       if (searchParams.status === 'SCHEDULED') {
-         return status === 'SCHEDULED';
-       }
-     }
-    
-    // status 파라미터가 없으면 모든 경매 표시
-    return true;
+  // 모든 경매 상품을 표시하되 상태에 따라 다르게 처리
+  const products = (data?.data?.content || []).map((product) => {
+    // 완료된 경매의 상태를 "입찰완료"로 변경
+    if (product.auctionStatus === 'COMPLETED' || product.auctionStatus === 'ENDED') {
+      return {
+        ...product,
+        auctionStatus: '입찰완료'
+      };
+    }
+    return product;
   });
 
   // size에 따라 그리드 레이아웃 결정
