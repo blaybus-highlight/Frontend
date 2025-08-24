@@ -278,7 +278,7 @@ const ProductInfo = ({ product, auction }: ProductInfoProps) => {
       return;
     }
 
-    const currentPrice = liveStatus?.currentHighestBid || auction.currentHighestBid || auction.minimumBid || 0;
+         const currentPrice = liveStatus?.currentHighestBid || auction.currentHighestBid || auction.startPrice || 0;
     if (amount <= currentPrice) {
       alert('현재가보다 높은 금액을 입찰해주세요.');
       return;
@@ -391,14 +391,9 @@ const ProductInfo = ({ product, auction }: ProductInfoProps) => {
     }
     
     const numericValue = parseInt(value);
-    const startPrice = product?.startPrice || 0;
+    const startPrice = auction?.startPrice || 0;
     const buyItNowPrice = auction?.buyItNowPrice || 0;
-    
-    // 시작가보다 작거나 즉시구매가보다 크면 입력 제한
-    if (numericValue < startPrice) {
-      setBidError(`입찰가는 시작가(${formatPrice(startPrice)}원) 이상이어야 합니다.`);
-      return;
-    }
+  
     
     if (buyItNowPrice > 0 && numericValue >= buyItNowPrice) {
       setBidError(`입찰가는 즉시구매가(${formatPrice(buyItNowPrice)}원) 미만이어야 합니다.`);
@@ -756,9 +751,9 @@ const ProductInfo = ({ product, auction }: ProductInfoProps) => {
             <div className='flex items-center justify-between'>
               <span className='text-[16px]/[24px] text-[#666]'>현재가</span>
               <div className='flex items-center gap-2'>
-                <span className='text-[26px] font-bold text-[#333]'>
-                  {formatPrice(liveStatus?.currentHighestBid || auction?.currentHighestBid || auction?.minimumBid || product?.currentPrice || 0)}원
-                </span>
+                                 <span className='text-[26px] font-bold text-[#333]'>
+                   {formatPrice(liveStatus?.currentHighestBid || auction?.currentHighestBid || auction?.startPrice || product?.currentPrice || 0)}원
+                 </span>
                 {liveStatus?.currentWinnerNickname && (
                   <span className='text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full'>
                     {liveStatus.currentWinnerNickname}
@@ -768,9 +763,9 @@ const ProductInfo = ({ product, auction }: ProductInfoProps) => {
             </div>
             <div className='flex items-center justify-between'>
               <span className='text-[16px]/[24px] text-[#666]'>시작가</span>
-              <span className='text-[16px]/[24px] font-semibold text-[#616161]'>
-                {formatPrice(liveStatus?.startingPrice || auction?.minimumBid || product?.startPrice || 0)}원
-              </span>
+                             <span className='text-[16px]/[24px] font-semibold text-[#616161]'>
+                 {formatPrice(liveStatus?.startingPrice || auction?.startPrice || product?.startPrice || 0)}원
+               </span>
             </div>
             <div className='flex items-center justify-between'>
               <span className='text-[16px]/[24px] text-[#666]'>
@@ -829,7 +824,7 @@ const ProductInfo = ({ product, auction }: ProductInfoProps) => {
                    {/* 입찰가 입력 가능 범위 */}
                    <div className='flex justify-end'>
                      <span className='text-[14px] sm:text-[18px] font-semibold text-[#333]'>
-                       입찰가 입력 가능 범위: {formatPrice(product?.startPrice || 0)}원 ~ {auction?.buyItNowPrice ? formatPrice(auction.buyItNowPrice - 1000) : '무제한'}원
+                                               입찰가 입력 가능 범위: {formatPrice(auction?.startPrice || 0)}원 ~ {auction?.buyItNowPrice ? formatPrice(auction.buyItNowPrice - 1000) : '무제한'}원
                      </span>
                    </div>
                    
@@ -863,7 +858,7 @@ const ProductInfo = ({ product, auction }: ProductInfoProps) => {
                          className='h-[44px] px-4 bg-black text-white text-[14px] font-bold hover:bg-gray-800 flex-1'
                          onClick={() => {
                            const currentInputAmount = bidAmount ? parseInt(bidAmount.replace(/,/g, '')) : 0;
-                           const baseAmount = currentInputAmount > 0 ? currentInputAmount : (liveStatus?.currentHighestBid || auction?.currentHighestBid || auction?.minimumBid || 0);
+                           const baseAmount = currentInputAmount > 0 ? currentInputAmount : (liveStatus?.currentHighestBid || auction?.currentHighestBid || auction?.startPrice || 0);
                            const newAmount = baseAmount + 5000;
                            setBidAmount(newAmount.toLocaleString('ko-KR'));
                          }}
@@ -877,7 +872,7 @@ const ProductInfo = ({ product, auction }: ProductInfoProps) => {
                          className='h-[44px] px-4 bg-black text-white text-[14px] font-bold hover:bg-gray-800 flex-1'
                          onClick={() => {
                            const currentInputAmount = bidAmount ? parseInt(bidAmount.replace(/,/g, '')) : 0;
-                           const baseAmount = currentInputAmount > 0 ? currentInputAmount : (liveStatus?.currentHighestBid || auction?.currentHighestBid || auction?.minimumBid || 0);
+                           const baseAmount = currentInputAmount > 0 ? currentInputAmount : (liveStatus?.currentHighestBid || auction?.currentHighestBid || auction?.startPrice || 0);
                            const newAmount = baseAmount + 15000;
                            setBidAmount(newAmount.toLocaleString('ko-KR'));
                          }}
@@ -1047,9 +1042,9 @@ const ProductInfo = ({ product, auction }: ProductInfoProps) => {
                         {/* 간단한 라인 차트 시뮬레이션 */}
                         <div className='h-full flex items-end justify-between space-x-2'>
                           {bidHistoryData.data.content.slice(-10).map((bid, _index) => {
-                            const maxBid = Math.max(...bidHistoryData.data.content.map(b => b.bidAmount));
-                            const minBid = auction?.minimumBid || 0;
-                            const height = ((bid.bidAmount - minBid) / (maxBid - minBid)) * 100;
+                                                         const maxBid = Math.max(...bidHistoryData.data.content.map(b => b.bidAmount));
+                             const minBid = auction?.startPrice || 0;
+                             const height = ((bid.bidAmount - minBid) / (maxBid - minBid)) * 100;
                             
                             return (
                               <div key={bid.bidId} className='flex flex-col items-center'>

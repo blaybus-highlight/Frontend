@@ -101,6 +101,7 @@ export interface AuctionDetail {
   buyItNowPrice: number;
   maxBid: number;
   minimumBid: number;
+  startPrice: number; // 시작가
   totalBids: number;
   point?: number; // 적립 포인트
   tags?: string[]; // 판매자가 등록한 태그들
