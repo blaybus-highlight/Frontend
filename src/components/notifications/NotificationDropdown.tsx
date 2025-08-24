@@ -174,20 +174,6 @@ export function NotificationDropdown() {
         )}
       </div>
 
-      {/* 푸터 */}
-      {notifications.length > 5 && (
-        <div className="px-4 py-3 border-t border-gray-100 bg-gray-50 text-center">
-          <button 
-            className="text-sm text-blue-600 hover:text-blue-800 font-medium"
-            onClick={() => {
-              toggleDropdown();
-              router.push('/notifications');
-            }}
-          >
-            모든 알림 보기
-          </button>
-        </div>
-      )}
     </div>
   );
 }

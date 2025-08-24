@@ -1044,7 +1044,21 @@ const ProductInfo = ({ product, auction }: ProductInfoProps) => {
                         ) : (
                           <tr className='bg-[#EEE]'>
                             <td className='px-3 py-1'>
-                              {isBidHistoryLoading ? '입찰 내역 로딩 중...' : '입찰 내역이 없습니다'}
+                              {isBidHistoryLoading ? '입찰 내역 로딩 중...' : (() => {
+                                const currentStatus = liveStatus?.status || auction?.status;
+                                const isEnded = currentStatus === 'ENDED' || timeLeft === '경매 종료';
+                                const isCancelled = currentStatus === 'CANCELLED';
+                                
+                                if (isCancelled) {
+                                  return '취소된 경매입니다';
+                                } else if (isEnded) {
+                                  return '경매가 종료되었습니다';
+                                } else if (!isAuthenticated) {
+                                  return '로그인하시면 입찰 내역을 확인할 수 있습니다';
+                                } else {
+                                  return '아직 입찰 내역이 없습니다';
+                                }
+                              })()}
                               {!isBidHistoryLoading && bidHistoryData?.success === false && (
                                 <div className='text-xs text-red-500 mt-1'>
                                   데이터 로드 실패. 새로고침 해보세요.
@@ -1222,8 +1236,41 @@ const ProductInfo = ({ product, auction }: ProductInfoProps) => {
                     </div>
                   ) : (
                     <div className='text-center text-gray-500 py-8'>
-                      <p>입찰 내역이 없어 그래프를 표시할 수 없습니다.</p>
-                      <p className='text-sm mt-1'>첫 입찰을 해보세요!</p>
+                      {(() => {
+                        const currentStatus = liveStatus?.status || auction?.status;
+                        const isEnded = currentStatus === 'ENDED' || timeLeft === '경매 종료';
+                        const isCancelled = currentStatus === 'CANCELLED';
+                        
+                        if (isCancelled) {
+                          return (
+                            <>
+                              <p>취소된 경매입니다.</p>
+                              <p className='text-sm mt-1'>그래프를 표시할 수 없습니다.</p>
+                            </>
+                          );
+                        } else if (isEnded) {
+                          return (
+                            <>
+                              <p>경매가 종료되었습니다.</p>
+                              <p className='text-sm mt-1'>입찰 내역이 없어 그래프를 표시할 수 없습니다.</p>
+                            </>
+                          );
+                        } else if (!isAuthenticated) {
+                          return (
+                            <>
+                              <p>로그인하시면 입찰가 그래프를 확인할 수 있습니다.</p>
+                              <p className='text-sm mt-1'>지금 로그인하고 경매에 참여해보세요!</p>
+                            </>
+                          );
+                        } else {
+                          return (
+                            <>
+                              <p>아직 입찰 내역이 없어 그래프를 표시할 수 없습니다.</p>
+                              <p className='text-sm mt-1'>첫 입찰을 해보세요!</p>
+                            </>
+                          );
+                        }
+                      })()}
                     </div>
                   )}
                 </div>
