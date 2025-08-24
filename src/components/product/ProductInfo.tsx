@@ -1104,7 +1104,7 @@ const ProductInfo = ({ product, auction }: ProductInfoProps) => {
                             }));
                             
                             // 부드러운 곡선 경로 생성 (베지어 곡선)
-                            const createSmoothPath = (points) => {
+                            const createSmoothPath = (points: Array<{x: number, y: number, bid: any}>) => {
                               if (points.length < 2) return '';
                               
                               let path = `M ${points[0].x} ${points[0].y}`;
