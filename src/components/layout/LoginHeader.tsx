@@ -103,7 +103,10 @@ export function LoginHeader() {
             >
               홈
             </button>
-            <button className='text-xs text-white px-3 py-1 rounded-full border border-gray-600 hover:bg-gray-700'>
+            <button 
+              className='text-xs text-white px-3 py-1 rounded-full border border-gray-600 hover:bg-gray-700'
+              onClick={() => router.push('/category')}
+            >
               카테고리
             </button>
           </div>
