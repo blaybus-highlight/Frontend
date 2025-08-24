@@ -58,9 +58,10 @@ const AuctionResultModal = ({
         return {
           emoji: '🤔',
           title: '참여하지 않은 경매',
+          message: '이 경매에 참여하지 않으셨습니다.',
           buttonText: '참여하기',
           buttonAction: onClose,
-          buttonColor: 'bg-gray-500 hover:bg-gray-600',
+          buttonColor: 'bg-gray-500 hover:bg-gray-600 text-gray-800',
         };
       default:
         return {
@@ -69,7 +70,7 @@ const AuctionResultModal = ({
           message: '경매 결과를 확인할 수 없습니다',
           buttonText: '확인',
           buttonAction: onClose,
-          buttonColor: 'bg-gray-500 hover:bg-gray-600',
+          buttonColor: 'bg-gray-200 hover:bg-gray-300 text-gray-800',
         };
     }
   };
@@ -77,13 +78,13 @@ const AuctionResultModal = ({
   const content = getModalContent();
 
   return (
-    <div className="fixed inset-0 bg-black/30 backdrop-blur-md flex justify-center items-center z-50">
+    <div className="fixed inset-0 bg-gray-300/50 backdrop-blur-md flex justify-center items-center z-50">
       <div className='bg-white rounded-2xl shadow-2xl max-w-md w-full mx-4 overflow-hidden'>
         {/* Header */}
-        <div className='relative bg-gradient-to-r from-blue-500 to-purple-600 text-white p-6 text-center'>
+        <div className='relative bg-gray-200 text-gray-800 p-6 text-center'>
           <button
             onClick={onClose}
-            className='absolute top-4 right-4 text-white hover:text-gray-200 text-xl'
+            className='absolute top-4 right-4 text-gray-600 hover:text-gray-800 text-xl'
           >
             ✕
           </button>
