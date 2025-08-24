@@ -4,12 +4,15 @@ import { Edit, Trash2, Menu } from "lucide-react"
 import { useState, useEffect } from "react"
 import { useAuctions } from "@/hooks/useAuctions"
 import { AuctionItem, endAuction } from "@/api/auction"
+import AuctionEditModal from "./AuctionEditModal"
 
 const AuctionContent = () => {
   const [activeFilter, setActiveFilter] = useState<string>("전체")
   const [searchTerm, setSearchTerm] = useState<string>("")
   const [showFilter, setShowFilter] = useState<boolean>(false)
   const [endingAuctionId, setEndingAuctionId] = useState<number | null>(null)
+  const [isEditModalOpen, setIsEditModalOpen] = useState<boolean>(false)
+  const [selectedAuctionId, setSelectedAuctionId] = useState<number | null>(null)
 
   // API 호출을 위한 훅 사용
   const { 
@@ -40,7 +43,10 @@ const AuctionContent = () => {
   const onStatusClick = (status: string, id: number) =>
     alert(`${status} 상태의 경매 ${id} 상세 정보를 표시합니다`)
   
-  const onEditClick = (id: number) => alert(`경매 ${id} 설정을 수정합니다`)
+  const onEditClick = (id: number) => {
+    setSelectedAuctionId(id)
+    setIsEditModalOpen(true)
+  }
 
   const onEndAuctionClick = async (id: number) => {
     if (confirm(`경매 ${id}를 종료하시겠습니까?\n\n이 작업은 되돌릴 수 없습니다.`)) {
@@ -63,6 +69,10 @@ const AuctionContent = () => {
 
   const onStatsClick = (type: string, count: number) =>
     alert(`${type}: ${count}건의 상세 목록을 표시합니다`)
+
+  const handleEditSuccess = () => {
+    refetch()
+  }
 
   // 남은 시간 계산 함수
   const getRemainingTime = (endTime: string) => {
@@ -199,7 +209,7 @@ const AuctionContent = () => {
       <div className="flex flex-col items-start self-stretch px-4">
         <div className="flex flex-col items-start self-stretch overflow-x-auto w-full">
           {/* Table Header */}
-          <div className="grid grid-cols-[1fr_2fr_1fr_1fr_1fr_1fr_1fr] md:grid-cols-[1fr_3fr_1fr_1fr_1fr_1fr_1fr] w-full items-center bg-gray-50 mb-0.5 border-b-2 border-gray-300 px-4 py-3 gap-2">
+          <div className="grid grid-cols-[1fr_2fr_1fr_1fr_1fr_1fr_1fr_1fr] md:grid-cols-[1fr_3fr_1fr_1fr_1fr_1fr_1fr_1fr] w-full items-center bg-gray-50 mb-0.5 border-b-2 border-gray-300 px-4 py-3 gap-2">
             <span className="text-[#616161] text-sm font-bold text-center">경매 ID</span>
             <span className="text-[#616161] text-sm font-bold text-center">제품명</span>
             <span className="text-[#616161] text-sm font-bold text-center">시작가</span>
@@ -213,7 +223,7 @@ const AuctionContent = () => {
             activeAuctions.map((auction) => (
               <div
                 key={auction.auctionId}
-                className="grid grid-cols-[1fr_2fr_1fr_1fr_1fr_1fr_1fr] md:grid-cols-[1fr_3fr_1fr_1fr_1fr_1fr_1fr] w-full items-center border-b border-gray-200 last:border-b-0 px-4 py-4 gap-2 bg-white"
+                className="grid grid-cols-[1fr_2fr_1fr_1fr_1fr_1fr_1fr_1fr] md:grid-cols-[1fr_3fr_1fr_1fr_1fr_1fr_1fr_1fr] w-full items-center border-b border-gray-200 last:border-b-0 px-4 py-4 gap-2 bg-white"
               >
                 <span className="truncate whitespace-nowrap text-[#616161] text-base text-center">
                   {auction.auctionId}
@@ -238,7 +248,7 @@ const AuctionContent = () => {
                     진행중
                   </button>
                 </div>
-                <div className="flex justify-center">
+                <div className="flex justify-center gap-2">
                   <button
                     className={`p-2 rounded transition-colors ${
                       endingAuctionId === auction.auctionId 
@@ -273,7 +283,7 @@ const AuctionContent = () => {
       <div className="flex flex-col items-start self-stretch px-4">
         <div className="flex flex-col self-stretch overflow-x-auto w-full">
           {/* Table Header */}
-          <div className="grid grid-cols-[1fr_2fr_1fr_1fr_1fr_1fr] md:grid-cols-[1fr_3fr_1fr_1fr_1fr_1fr] w-full items-center bg-gray-50 border-b-2 border-gray-300 px-4 py-3 gap-2">
+          <div className="grid grid-cols-[1fr_2fr_1fr_1fr_1fr_1fr_1fr] md:grid-cols-[1fr_3fr_1fr_1fr_1fr_1fr_1fr] w-full items-center bg-gray-50 border-b-2 border-gray-300 px-4 py-3 gap-2">
             <span className="text-[#616161] text-sm font-bold text-center">경매 ID</span>
             <span className="text-[#616161] text-sm font-bold text-center">제품명</span>
             <span className="text-[#616161] text-sm font-bold text-center">시작일시</span>
@@ -286,7 +296,7 @@ const AuctionContent = () => {
               pendingAuctions.map((auction) => (
                 <div
                   key={auction.auctionId}
-                  className="grid grid-cols-[1fr_2fr_1fr_1fr_1fr_1fr] md:grid-cols-[1fr_3fr_1fr_1fr_1fr_1fr] w-full items-center border-b border-gray-200 last:border-b-0 px-4 py-4 gap-2 bg-white"
+                  className="grid grid-cols-[1fr_2fr_1fr_1fr_1fr_1fr_1fr] md:grid-cols-[1fr_3fr_1fr_1fr_1fr_1fr_1fr] w-full items-center border-b border-gray-200 last:border-b-0 px-4 py-4 gap-2 bg-white"
                 >
                   <span className="truncate whitespace-nowrap text-[#616161] text-base text-center">
                     {auction.auctionId}
@@ -334,21 +344,21 @@ const AuctionContent = () => {
       <div className="flex flex-col items-start self-stretch px-4 pb-4">
         <div className="flex flex-col items-start self-stretch overflow-x-auto w-full">
           {/* Table Header */}
-          <div className="grid grid-cols-[1fr_2fr_1fr_1fr_1fr_1fr_1fr] md:grid-cols-[1fr_3fr_1fr_1fr_1fr_1fr_1fr] w-full items-center bg-gray-50 mb-0.5 border-b-2 border-gray-300 px-4 py-3 gap-2">
+          <div className="grid grid-cols-[1fr_2fr_1fr_1fr_1fr_1fr_1fr_1fr] md:grid-cols-[1fr_3fr_1fr_1fr_1fr_1fr_1fr_1fr] w-full items-center bg-gray-50 mb-0.5 border-b-2 border-gray-300 px-4 py-3 gap-2">
             <span className="text-[#616161] text-sm font-bold text-center">경매 ID</span>
             <span className="text-[#616161] text-sm font-bold text-center">제품명</span>
             <span className="text-[#616161] text-sm font-bold text-center">최종 입찰가</span>
             <span className="text-[#616161] text-sm font-bold text-center">종료 날짜</span>
             <span className="text-[#616161] text-sm font-bold text-center">상태</span>
             <span className="text-[#616161] text-sm font-bold text-center">배송 단계</span>
-            <span className="text-[#616161] text-sm font-bold text-center">배송 관리</span>
+            <span className="text-[#616161] text-sm font-bold text-center">작업</span>
           </div>
           {/* Table Rows */}
           {endedAuctions.length > 0 ? (
             endedAuctions.map((auction) => (
               <div
                 key={auction.auctionId}
-                className="grid grid-cols-[1fr_2fr_1fr_1fr_1fr_1fr_1fr] md:grid-cols-[1fr_3fr_1fr_1fr_1fr_1fr_1fr] w-full items-center border-b border-gray-200 last:border-b-0 px-4 py-4 gap-2 bg-white"
+                className="grid grid-cols-[1fr_2fr_1fr_1fr_1fr_1fr_1fr_1fr] md:grid-cols-[1fr_3fr_1fr_1fr_1fr_1fr_1fr_1fr] w-full items-center border-b border-gray-200 last:border-b-0 px-4 py-4 gap-2 bg-white"
               >
                 <span className="truncate whitespace-nowrap text-[#616161] text-base text-center">
                   {auction.auctionId}
@@ -370,7 +380,14 @@ const AuctionContent = () => {
                 <span className="text-[#616161] text-base text-center">
                   배송 대기
                 </span>
-                <div className="flex justify-center">
+                <div className="flex justify-center gap-2">
+                  <button
+                    className="p-2 hover:bg-gray-100 rounded transition-colors"
+                    onClick={() => onEditClick(auction.auctionId)}
+                    title="경매 수정"
+                  >
+                    <Edit className="w-4 h-4 text-gray-600" />
+                  </button>
                   <button
                     className="bg-black text-white text-sm py-1.5 px-3 rounded-lg hover:bg-gray-800 transition-colors"
                     onClick={() => onShippingClick(auction.auctionId)}
@@ -406,6 +423,17 @@ const AuctionContent = () => {
           </div>
         </div>
       )}
+
+      {/* 수정 모달 */}
+      <AuctionEditModal
+        isOpen={isEditModalOpen}
+        onClose={() => {
+          setIsEditModalOpen(false)
+          setSelectedAuctionId(null)
+        }}
+        auctionId={selectedAuctionId}
+        onSuccess={handleEditSuccess}
+      />
     </div>
   )
 }
