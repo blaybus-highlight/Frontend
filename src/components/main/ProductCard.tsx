@@ -105,7 +105,7 @@ export function ProductCard({
     if (!timeLeft) return '정보 없음';
     
     try {
-      // ISO 날짜 형식인지 확인하고 시간 계산
+      // ISO 날짜 형식인지 확인하고 시간 계산 (API 응답의 endTime/startTime)
       if (timeLeft.includes('T')) {
         const targetDate = new Date(timeLeft);
         if (isNaN(targetDate.getTime())) {
@@ -132,7 +132,7 @@ export function ProductCard({
           }
         }
         
-        // 진행 중인 경매의 경우 마감까지의 시간 계산
+        // 진행 중인 경매의 경우 마감까지의 시간 계산 (API의 endTime 사용)
         if (diffMs <= 0) return '마감';
         
         const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
@@ -157,11 +157,29 @@ export function ProductCard({
 
   const displayTime = getTimeLeft();
 
+  // 24시간 이내로 남은 시간인지 확인하는 함수 (API 응답의 endTime 사용)
+  const isWithin24Hours = () => {
+    if (!timeLeft || !timeLeft.includes('T')) return false;
+    
+    try {
+      const targetDate = new Date(timeLeft);
+      if (isNaN(targetDate.getTime())) return false;
+      
+      const now = new Date();
+      const diffMs = targetDate.getTime() - now.getTime();
+      
+      // 24시간 = 24 * 60 * 60 * 1000 밀리초
+      return diffMs > 0 && diffMs <= 24 * 60 * 60 * 1000;
+    } catch (error) {
+      return false;
+    }
+  };
+
   const getTimeStyle = () => {
     if (displayTime === '마감') {
       return 'bg-gray-100 text-gray-500';
-    } else if (brand === 'ENDING_SOON' || displayTime.includes('1시간') || displayTime.includes('분 남음')) {
-      return 'bg-red-50 text-red-600'; // 마감 임박은 빨간색
+    } else if (brand === 'ENDING_SOON' || displayTime.includes('분 남음') || isWithin24Hours()) {
+      return 'bg-red-50 text-red-600'; // 마감 임박 또는 24시간 이내는 빨간색
     }
     return 'bg-green-50 text-green-800'; // 예정/진행 중 모두 초록색으로 통일
   };
