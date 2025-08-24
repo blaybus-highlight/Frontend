@@ -14,6 +14,129 @@ export function NotificationProvider({ children }: { children: React.ReactNode }
   const { data: userData, error: userError } = useMyPage();
   const { data: productsData, error: productsError } = useProducts({ size: 50 }); // 최근 50개 상품 가져오기
 
+  // 실제 경매 상태를 정확히 분석하는 함수
+  const analyzeAuctionStatus = (product: any, currentTime: Date) => {
+    // 다양한 상태 속성들 확인
+    const status = product.status || product.auctionStatus || '';
+    
+    // 시간 정보 추출 (여러 속성 체크)
+    const startTime = product.scheduledStartTime || product.startTime;
+    const endTime = product.scheduledEndTime || product.endTime;
+    
+    console.log(`🔍 상품 분석: ${product.productName}`, {
+      status,
+      startTime,
+      endTime,
+      currentTime: currentTime.toISOString()
+    });
+    
+    // 시간 기반 실제 상태 결정
+    if (startTime && endTime) {
+      const start = new Date(startTime);
+      const end = new Date(endTime);
+      
+      if (currentTime < start) {
+        return { realStatus: 'SCHEDULED', startTime: start, endTime: end };
+      } else if (currentTime > end) {
+        return { realStatus: 'ENDED', startTime: start, endTime: end };
+      } else {
+        // 진행 중 - 마감 임박 여부 확인
+        const timeToEnd = end.getTime() - currentTime.getTime();
+        const hoursToEnd = timeToEnd / (1000 * 60 * 60);
+        
+        if (hoursToEnd <= 1) {
+          return { realStatus: 'ENDING_SOON', startTime: start, endTime: end };
+        } else {
+          return { realStatus: 'IN_PROGRESS', startTime: start, endTime: end };
+        }
+      }
+    }
+    
+    // 시간 정보가 불완전한 경우 기존 상태 사용
+    const normalizedStatus = normalizeStatus(status);
+    return { realStatus: normalizedStatus, startTime: null, endTime: null };
+  };
+  
+  // 상태 정규화 함수 
+  const normalizeStatus = (status: string): string => {
+    const statusMap: { [key: string]: string } = {
+      // 한글 -> 영문
+      '예정': 'SCHEDULED',
+      '진행중': 'IN_PROGRESS', 
+      '마감임박': 'ENDING_SOON',
+      '마감': 'ENDED',
+      // 영문 통일
+      'IN_AUCTION': 'IN_PROGRESS',
+      'ACTIVE': 'IN_PROGRESS',
+      'CANCELLED': 'ENDED'
+    };
+    
+    return statusMap[status] || status;
+  };
+
+  // 상태별 적절한 알림 생성 (시간 기반)
+  const generateAppropriateNotification = (
+    product: any,
+    realStatus: string, 
+    startTime: Date | null,
+    endTime: Date | null,
+    currentTime: Date,
+    randomSeed: number
+  ) => {
+    let notificationType: string;
+    let actualMinutesAgo: number;
+    let amount: number;
+    
+    switch (realStatus) {
+      case 'SCHEDULED':
+        // 경매 예정 -> 시작 예고 알림만
+        notificationType = 'AUCTION_START';
+        if (startTime) {
+          const minutesToStart = (startTime.getTime() - currentTime.getTime()) / (1000 * 60);
+          actualMinutesAgo = Math.max(5, Math.floor(minutesToStart * 0.1)) + (randomSeed % 15);
+        } else {
+          actualMinutesAgo = randomSeed % 120; // 2시간 이내
+        }
+        amount = product.minimumBid || product.startPrice || 50000;
+        break;
+        
+      case 'IN_PROGRESS':
+        // 진행 중 -> 입찰 관련 알림
+        const bidTypes = ['NEW_BID', 'BID_OUTBID'];
+        notificationType = bidTypes[randomSeed % bidTypes.length];
+        actualMinutesAgo = randomSeed % 180; // 3시간 이내
+        amount = product.currentHighestBid || product.minimumBid || 50000;
+        break;
+        
+      case 'ENDING_SOON':
+        // 마감 임박 -> 마감 알림
+        notificationType = 'AUCTION_ENDING_SOON';
+        actualMinutesAgo = randomSeed % 45; // 45분 이내
+        amount = product.currentHighestBid || product.minimumBid || 50000;
+        break;
+        
+      case 'ENDED':
+        // 종료 -> 결과 알림
+        notificationType = 'AUCTION_WON';
+        if (endTime) {
+          const minutesSinceEnd = (currentTime.getTime() - endTime.getTime()) / (1000 * 60);
+          actualMinutesAgo = Math.max(10, Math.floor(minutesSinceEnd * 0.8)) + (randomSeed % 30);
+        } else {
+          actualMinutesAgo = randomSeed % 240; // 4시간 이내
+        }
+        amount = product.currentHighestBid || product.minimumBid || 50000;
+        break;
+        
+      default:
+        // 알 수 없는 상태 -> 안전한 기본값
+        notificationType = 'NEW_BID';
+        actualMinutesAgo = randomSeed % 120;
+        amount = product.minimumBid || product.startPrice || 50000;
+    }
+    
+    return { notificationType, actualMinutesAgo, amount, realStatus };
+  };
+
   // 사용자별 개인화된 알림 생성 (실제 등록된 상품만 사용)
   const generateUserSpecificNotifications = (userId: string): NotificationItem[] => {
     try {
@@ -46,23 +169,46 @@ export function NotificationProvider({ children }: { children: React.ReactNode }
       const productName = selectedProduct.productName;
       const productImage = selectedProduct.thumbnailUrl;
       const relatedId = selectedProduct.productId;
-      const amount = selectedProduct.currentHighestBid || ((seed + i) % 50 + 20) * 1000;
-      const minutesAgo = (seed + i) % 300 + 5; // 5분 ~ 305분 전
       
-      const types = ['BID_OUTBID', 'AUCTION_START', 'AUCTION_WON', 'AUCTION_ENDING_SOON', 'NEW_BID'] as const;
-      const type = types[(seed + i) % types.length];
+      // 현재 시간 기준으로 경매 상태 정확히 분석
+      const now = new Date();
+      const { realStatus, startTime, endTime } = analyzeAuctionStatus(selectedProduct, now);
+      
+      // 분석된 실제 상태를 기반으로 적절한 알림 생성
+      const { notificationType, actualMinutesAgo, amount } = generateAppropriateNotification(
+        selectedProduct,
+        realStatus,
+        startTime,
+        endTime,
+        now,
+        seed + i
+      );
+      
+      const type = notificationType as 'BID_OUTBID' | 'AUCTION_START' | 'AUCTION_WON' | 'AUCTION_ENDING_SOON' | 'NEW_BID';
+      
+      console.log(`✅ 알림 생성: ${selectedProduct.productName}`, {
+        realStatus,
+        notificationType,
+        amount: amount.toLocaleString()
+      });
       
       let title = '';
       let message = '';
       
+      // 실제 상태에 맞는 정확한 메시지 생성
       switch (type) {
         case 'BID_OUTBID':
           title = '입찰 경합 발생';
           message = `${productName} 경매에서 더 높은 입찰이 들어왔습니다.`;
           break;
         case 'AUCTION_START':
-          title = '경매 시작';
-          message = `관심 상품 "${productName}"의 경매가 시작되었습니다.`;
+          if (realStatus === 'SCHEDULED') {
+            title = '경매 시작 예정';
+            message = `관심 상품 "${productName}"의 경매가 곧 시작됩니다.`;
+          } else {
+            title = '경매 시작';
+            message = `관심 상품 "${productName}"의 경매가 시작되었습니다.`;
+          }
           break;
         case 'AUCTION_WON':
           title = '낙찰 성공!';
@@ -70,26 +216,52 @@ export function NotificationProvider({ children }: { children: React.ReactNode }
           break;
         case 'AUCTION_ENDING_SOON':
           title = '마감 임박';
-          message = `"${productName}" 경매가 곧 종료됩니다.`;
+          message = `"${productName}" 경매가 곧 종료됩니다. 현재가 ${amount.toLocaleString()}원`;
           break;
         case 'NEW_BID':
           title = '새로운 입찰';
-          message = `"${productName}"에 새로운 입찰이 들어왔습니다.`;
+          message = `"${productName}"에 ${amount.toLocaleString()}원 입찰이 들어왔습니다.`;
           break;
       }
       
+      // 경매 상태에 따른 적절한 이동 경로 설정
+      let actionUrl: string;
+      switch (type) {
+        case 'AUCTION_WON':
+          // 낙찰 성공 시 - 결제/성공 페이지로
+          actionUrl = '/successbid';
+          break;
+        case 'AUCTION_START':
+          if (realStatus === 'SCHEDULED') {
+            // 경매 예정 -> 경매 상세 페이지 (아직 시작 전)
+            actionUrl = `/auction/${selectedProduct.auctionId}`;
+          } else {
+            // 경매 시작됨 -> 경매 상세 페이지 (참여 가능)
+            actionUrl = `/auction/${selectedProduct.auctionId}`;
+          }
+          break;
+        case 'AUCTION_ENDING_SOON':
+        case 'NEW_BID':
+        case 'BID_OUTBID':
+          // 진행중인 경매 -> 경매 상세 페이지 (즉시 참여 가능)
+          actionUrl = `/auction/${selectedProduct.auctionId}`;
+          break;
+        default:
+          actionUrl = `/auction/${selectedProduct.auctionId}`;
+      }
+
       notifications.push({
         id: `user-${userId}-${i}`,
         type,
         title,
         message,
         isRead: (seed + i) % 3 === 0, // 약 1/3은 읽음 상태
-        createdAt: new Date(Date.now() - minutesAgo * 60 * 1000).toISOString(),
+        createdAt: new Date(Date.now() - actualMinutesAgo * 60 * 1000).toISOString(),
         relatedId: selectedProduct.auctionId, // 경매 상세 페이지용 auctionId 사용
-        actionUrl: type === 'AUCTION_WON' ? '/successbid' : `/auction/${selectedProduct.auctionId}`,
+        actionUrl: actionUrl,
         productName,
         productImage,
-        amount: type === 'AUCTION_START' ? undefined : amount
+        amount: amount
       });
     }
     
