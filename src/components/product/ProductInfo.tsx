@@ -617,7 +617,7 @@ const ProductInfo = ({ product, auction }: ProductInfoProps) => {
   };
 
   return (
-    <div className='relative grid grid-cols-1 gap-[40px] md:grid-cols-2'>
+    <div className='relative grid grid-cols-1 gap-6 sm:gap-[40px] md:grid-cols-2'>
       {/* 실시간 알림 토스트 */}
       {liveNotification && (
         <div className='fixed top-4 right-4 z-50 bg-black text-white px-6 py-3 rounded-lg shadow-lg animate-bounce'>
@@ -673,7 +673,7 @@ const ProductInfo = ({ product, auction }: ProductInfoProps) => {
               <p className='text-[14px] font-medium text-[#666]'>
                 {auction ? getCategoryDisplay(auction.brand) : (product?.popupTitle || '')}
               </p>
-              <h1 className='text-[24px]/[28px] font-bold text-[#333]'>
+              <h1 className='text-[20px]/[24px] sm:text-[24px]/[28px] font-bold text-[#333]'>
                 {auction ? auction.productName : (product?.name || '')}
               </h1>
             </div>
@@ -828,38 +828,40 @@ const ProductInfo = ({ product, auction }: ProductInfoProps) => {
                                  <div className='flex flex-col gap-[8px] max-w-full'>
                    {/* 입찰가 입력 가능 범위 */}
                    <div className='flex justify-end'>
-                     <span className='text-[18px] font-semibold text-[#333]'>
+                     <span className='text-[14px] sm:text-[18px] font-semibold text-[#333]'>
                        입찰가 입력 가능 범위: {formatPrice(product?.startPrice || 0)}원 ~ {auction?.buyItNowPrice ? formatPrice(auction.buyItNowPrice - 1000) : '무제한'}원
                      </span>
                    </div>
                    
                    {/* 입찰가 입력 섹션 - 반응형 배치 */}
-                   <div className='flex flex-col lg:flex-row items-start lg:items-end gap-[6px] w-full'>
-                     <span className='text-[18px] font-semibold shrink-0 flex items-center h-[44px]'>입찰가</span>
-                     <input
-                       className='flex-1 min-w-0 border border-[#E0E0E0] px-[16px] py-[10px] text-[16px]/[22px] placeholder-[#9E9E9E]'
-                       placeholder='1,000원 단위로 입력해주세요.'
-                       value={bidAmount}
-                       onChange={handleBidAmountChange}
-                     />
-                     <button
-                       className={`h-[44px] shrink-0 px-4 text-[14px] font-bold text-white ${
-                         bidMutation.isPending ? 'bg-gray-400 cursor-not-allowed' : 'bg-black hover:bg-gray-800'
-                       }`}
-                       type='button'
-                       onClick={handleBid}
-                       disabled={bidMutation.isPending}
-                       key={`bid-button-${bidMutation.isPending ? 'loading' : 'ready'}`}
-                     >
-                       {bidMutation.isPending ? '입찰 중...' : isAutoBid ? '자동입찰' : '입찰하기'}
-                     </button>
-                     
-                     {/* 최소 입찰 가격 */}
-                     <div className='flex flex-col items-center gap-1 shrink-0'>
+                   <div className='flex flex-col gap-3 w-full'>
+                     {/* 입찰가 라벨과 입력 필드 */}
+                     <div className='flex flex-col sm:flex-row items-start sm:items-end gap-2 w-full'>
+                       <span className='text-[16px] sm:text-[18px] font-semibold shrink-0 flex items-center h-[44px]'>입찰가</span>
+                       <input
+                         className='flex-1 min-w-0 border border-[#E0E0E0] px-[16px] py-[10px] text-[16px]/[22px] placeholder-[#9E9E9E]'
+                         placeholder='1,000원 단위로 입력해주세요.'
+                         value={bidAmount}
+                         onChange={handleBidAmountChange}
+                       />
                        <button
-                         className='h-[44px] px-4 bg-black text-white text-[14px] font-bold hover:bg-gray-800'
+                         className={`h-[44px] shrink-0 px-4 text-[14px] font-bold text-white w-full sm:w-auto ${
+                           bidMutation.isPending ? 'bg-gray-400 cursor-not-allowed' : 'bg-black hover:bg-gray-800'
+                         }`}
+                         type='button'
+                         onClick={handleBid}
+                         disabled={bidMutation.isPending}
+                         key={`bid-button-${bidMutation.isPending ? 'loading' : 'ready'}`}
+                       >
+                         {bidMutation.isPending ? '입찰 중...' : isAutoBid ? '자동입찰' : '입찰하기'}
+                       </button>
+                     </div>
+                     
+                     {/* 빠른 입찰 버튼들 */}
+                     <div className='flex flex-col sm:flex-row gap-2'>
+                       <button
+                         className='h-[44px] px-4 bg-black text-white text-[14px] font-bold hover:bg-gray-800 flex-1'
                          onClick={() => {
-                           // 현재 입력된 값이 있으면 그 값을 기준으로, 없으면 현재가를 기준으로 계산
                            const currentInputAmount = bidAmount ? parseInt(bidAmount.replace(/,/g, '')) : 0;
                            const baseAmount = currentInputAmount > 0 ? currentInputAmount : (liveStatus?.currentHighestBid || auction?.currentHighestBid || auction?.minimumBid || 0);
                            const newAmount = baseAmount + 5000;
@@ -868,16 +870,12 @@ const ProductInfo = ({ product, auction }: ProductInfoProps) => {
                        >
                          +5,000원
                        </button>
-                     </div>
-                     
-                     <span className='text-[16px] text-[#666] mb-2 hidden lg:block'>~</span>
-                     
-                     {/* 최대 입찰 가격 */}
-                     <div className='flex flex-col items-center gap-1 shrink-0'>
+                       
+                       <span className='text-[16px] text-[#666] hidden sm:block self-center'>~</span>
+                       
                        <button
-                         className='h-[44px] px-4 bg-black text-white text-[14px] font-bold hover:bg-gray-800'
+                         className='h-[44px] px-4 bg-black text-white text-[14px] font-bold hover:bg-gray-800 flex-1'
                          onClick={() => {
-                           // 현재 입력된 값이 있으면 그 값을 기준으로, 없으면 현재가를 기준으로 계산
                            const currentInputAmount = bidAmount ? parseInt(bidAmount.replace(/,/g, '')) : 0;
                            const baseAmount = currentInputAmount > 0 ? currentInputAmount : (liveStatus?.currentHighestBid || auction?.currentHighestBid || auction?.minimumBid || 0);
                            const newAmount = baseAmount + 15000;
@@ -899,7 +897,7 @@ const ProductInfo = ({ product, auction }: ProductInfoProps) => {
 
           
                                  <button 
-                   className="h-[48px] w-full text-[16px]/[22px] font-bold text-white bg-black hover:bg-gray-800"
+                   className="h-[48px] w-full text-[14px] sm:text-[16px]/[22px] font-bold text-white bg-black hover:bg-gray-800"
                    onClick={handleBuyNow}
                  >
                    {`즉시 구매하기 (${formatPrice(auction?.buyItNowPrice || product?.buyNowPrice || 0)}원)`}

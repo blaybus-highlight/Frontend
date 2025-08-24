@@ -26,15 +26,15 @@ const getUserImage = (ranking: number) => {
 
 const RankingItem = ({ user, isTreeKeeper = false }: { user: RankingUser; isTreeKeeper?: boolean }) => (
   <div className="flex items-center justify-between py-2">
-    <div className="flex items-center space-x-3">
-      <div className="w-8 h-8 flex items-center justify-center">
+    <div className="flex items-center space-x-2 sm:space-x-3">
+      <div className="w-6 h-6 sm:w-8 sm:h-8 flex items-center justify-center">
         {user.ranking <= 3 ? (
-          <span className="text-lg">{getRankIcon(user.ranking)}</span>
+          <span className="text-base sm:text-lg">{getRankIcon(user.ranking)}</span>
         ) : (
-          <span className="text-sm font-medium text-gray-600">{user.ranking}</span>
+          <span className="text-xs sm:text-sm font-medium text-gray-600">{user.ranking}</span>
         )}
       </div>
-      <div className="w-8 h-8 rounded-full overflow-hidden bg-gray-200 flex items-center justify-center">
+      <div className="w-6 h-6 sm:w-8 sm:h-8 rounded-full overflow-hidden bg-gray-200 flex items-center justify-center">
         <Image
           src={getUserImage(user.ranking)}
           alt={`${user.ranking}위 프로필`}
@@ -48,10 +48,10 @@ const RankingItem = ({ user, isTreeKeeper = false }: { user: RankingUser; isTree
           }}
         />
       </div>
-      <span className="font-medium text-sm">{user.nickname}</span>
+      <span className="font-medium text-xs sm:text-sm truncate max-w-[80px] sm:max-w-none">{user.nickname}</span>
     </div>
     <div className="text-right">
-      <span className="text-sm text-gray-600">
+      <span className="text-xs sm:text-sm text-gray-600">
         {isTreeKeeper ? `${user.auctionCount}나팔꽃 기부` : `${user.auctionCount}회 경매 성공`}
       </span>
     </div>
@@ -100,9 +100,9 @@ const RankingSection = ({
   const nextSevenUsers = data.slice(3, 10);
 
   return (
-    <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 flex-1">
+    <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 sm:p-6 flex-1">
       <div className="mb-4">
-        <h2 className="text-xl font-bold text-gray-900">{title}</h2>
+        <h2 className="text-lg sm:text-xl font-bold text-gray-900">{title}</h2>
       </div>
       
       <div className="space-y-1">
@@ -140,9 +140,9 @@ const RankingSection = ({
 
 export const CombinedRanking = () => {
   return (
-    <section className="px-6 py-6">
+    <section className="px-4 py-6 sm:px-6">
       <div className="mx-auto max-w-7xl">
-        <div className="flex gap-6">
+        <div className="flex flex-col gap-4 sm:flex-row sm:gap-6">
           <RankingSection 
             title="사용자 거래 랭킹" 
             data={userRankingData} 

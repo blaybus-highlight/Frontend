@@ -20,7 +20,7 @@ export default function ProductDetailPageContent({ productId }: ProductDetailPag
 
   if (isLoading) {
     return (
-      <div className='mx-auto px-[100px] py-[64px]'>
+      <div className='mx-auto px-4 sm:px-[100px] py-8 sm:py-[64px]'>
         <div className='flex h-96 items-center justify-center'>
           <div className='text-center'>
             <div className='h-8 w-8 animate-spin rounded-full border-4 border-gray-200 border-t-blue-600 mx-auto mb-4'></div>
@@ -33,7 +33,7 @@ export default function ProductDetailPageContent({ productId }: ProductDetailPag
 
   if (error) {
     return (
-      <div className='mx-auto px-[100px] py-[64px]'>
+      <div className='mx-auto px-4 sm:px-[100px] py-8 sm:py-[64px]'>
         <div className='text-center'>
           <div className='text-red-500 text-lg mb-4'>오류가 발생했습니다.</div>
           <p className='text-gray-500'>상품 정보를 불러올 수 없습니다.</p>
@@ -47,7 +47,7 @@ export default function ProductDetailPageContent({ productId }: ProductDetailPag
 
   if (!data?.data) {
     return (
-      <div className='mx-auto px-[100px] py-[64px]'>
+      <div className='mx-auto px-4 sm:px-[100px] py-8 sm:py-[64px]'>
         <div className='text-center'>
           <div className='text-gray-500'>상품을 찾을 수 없습니다.</div>
           <p className='text-gray-400 text-sm mt-2'>경매 ID: {auctionId}</p>
@@ -57,14 +57,14 @@ export default function ProductDetailPageContent({ productId }: ProductDetailPag
   }
 
   return (
-    <div className='mx-auto px-[100px] py-[64px]'>
+    <div className='mx-auto px-4 sm:px-[100px] py-8 sm:py-[64px]'>
       <section>
         <ProductInfo auction={data.data} />
       </section>
 
       {/* Related Products Section */}
-      <section className='mt-[40px]'>
-        <h2 className='mb-[40px] text-[20px] font-bold text-[#333]'>
+      <section className='mt-8 sm:mt-[40px]'>
+        <h2 className='mb-6 sm:mb-[40px] text-[18px] sm:text-[20px] font-bold text-[#333]'>
           📦 다른 고객이 함께 본 상품
         </h2>
         
