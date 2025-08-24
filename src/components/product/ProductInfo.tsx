@@ -64,19 +64,70 @@ const ProductInfo = ({ product, auction }: ProductInfoProps) => {
   // 판매자 정보는 auction 데이터에 이미 포함되어 있음
   
   // 입찰 내역 조회
-  const { data: bidHistoryData, isLoading: isBidHistoryLoading } = useBidHistory(auction?.auctionId || 0);
+  const { data: bidHistoryData, isLoading: isBidHistoryLoading, error: bidHistoryError, isError: isBidHistoryError, status: bidHistoryStatus } = useBidHistory(auction?.auctionId || 0);
   
   // Debug: 입찰 내역 데이터 확인 (한 번만 로그)
   useEffect(() => {
     if (!isBidHistoryLoading) {
-      console.log('입찰 내역 데이터 로딩 완료:', {
+      console.log('📊 입찰 내역 데이터 로딩 완료:', {
         bidHistoryData,
         auctionId: auction?.auctionId,
         content: bidHistoryData?.data?.content,
-        contentLength: bidHistoryData?.data?.content?.length
+        contentLength: bidHistoryData?.data?.content?.length,
+        success: bidHistoryData?.success,
+        error: bidHistoryData?.error,
+        queryStatus: bidHistoryStatus,
+        isError: isBidHistoryError,
+        queryError: bidHistoryError
       });
+      
+      // 입찰 내역이 있는데 표시되지 않는 경우 상세 디버깅
+      if (bidHistoryData?.data?.content && bidHistoryData.data.content.length > 0) {
+        console.log('🔍 입찰 내역 상세:', bidHistoryData.data.content.map(bid => ({
+          bidId: bid.bidId,
+          bidAmount: bid.bidAmount,
+          bidderNickname: bid.bidderNickname,
+          bidTime: bid.bidTime,
+          isMyBid: bid.isMyBid,
+          isWinning: bid.isWinning,
+          isAutoBid: bid.isAutoBid
+        })));
+      } else {
+        console.log('⚠️ 입찰 내역이 비어있음 또는 로딩되지 않음');
+        
+        // JWT 토큰 및 수동 API 테스트 (한 번만)
+        if (auction?.auctionId && !window.__bidTestDone) {
+          window.__bidTestDone = true;
+          
+          // JWT 토큰 상태 확인
+          import('@/lib/tokenUtils').then(({ getAccessToken, isTokenExpired }) => {
+            const token = getAccessToken();
+            console.log('🔐 JWT 토큰 상태:', {
+              hasToken: !!token,
+              tokenLength: token?.length,
+              isExpired: token ? isTokenExpired(token) : null,
+              tokenPreview: token ? `${token.substring(0, 20)}...` : null
+            });
+            
+            console.log('🧪 수동 API 테스트 시작...');
+            productsApi.getBidHistory(auction.auctionId, 0, 50, ['bidTime', 'desc'])
+              .then(result => {
+                console.log('🧪 수동 API 테스트 결과 성공:', result);
+              })
+              .catch(error => {
+                console.log('🧪 수동 API 테스트 결과 실패:', error);
+                console.log('🧪 에러 상세:', {
+                  status: error.response?.status,
+                  statusText: error.response?.statusText,
+                  data: error.response?.data,
+                  headers: error.response?.headers
+                });
+              });
+          });
+        }
+      }
     }
-  }, [bidHistoryData, isBidHistoryLoading]);
+  }, [bidHistoryData, isBidHistoryLoading, auction?.auctionId]);
 
   // 실시간 경매 상태 조회
   const { data: auctionStatusData } = useAuctionStatus(auction?.auctionId || 0);
@@ -123,6 +174,9 @@ const ProductInfo = ({ product, auction }: ProductInfoProps) => {
           queryClient.invalidateQueries({ queryKey: ['auction', auction?.auctionId] });
           queryClient.invalidateQueries({ queryKey: ['auctionStatus', auction?.auctionId] });
           
+          // 즉시 refetch 실행
+          queryClient.refetchQueries({ queryKey: ['bidHistory', auction?.auctionId] });
+          
           setLiveNotification(`🔔 새로운 입찰: ${formatPrice(message.data.bidAmount || 0)}원`);
           setTimeout(() => setLiveNotification(null), 5000);
           break;
@@ -133,6 +187,9 @@ const ProductInfo = ({ product, auction }: ProductInfoProps) => {
           queryClient.invalidateQueries({ queryKey: ['bidHistory', auction?.auctionId] });
           queryClient.invalidateQueries({ queryKey: ['auction', auction?.auctionId] });
           queryClient.invalidateQueries({ queryKey: ['auctionStatus', auction?.auctionId] });
+          
+          // 즉시 refetch 실행
+          queryClient.refetchQueries({ queryKey: ['bidHistory', auction?.auctionId] });
           
           setLiveNotification(`🔥 입찰 경합: ${formatPrice(message.data.bidAmount || 0)}원으로 갱신!`);
           setTimeout(() => setLiveNotification(null), 5000);
@@ -232,6 +289,11 @@ const ProductInfo = ({ product, auction }: ProductInfoProps) => {
       queryClient.invalidateQueries({ queryKey: ['bidHistory', auction?.auctionId] });
       queryClient.invalidateQueries({ queryKey: ['auction', auction?.auctionId] });
       queryClient.invalidateQueries({ queryKey: ['auctionStatus', auction?.auctionId] });
+      
+      // 즉시 refetch 실행하여 최신 데이터 확보
+      queryClient.refetchQueries({ queryKey: ['bidHistory', auction?.auctionId] });
+      queryClient.refetchQueries({ queryKey: ['auction', auction?.auctionId] });
+      
       // 메인페이지 상품 목록도 새로고침 (입찰가 업데이트 반영)
       queryClient.invalidateQueries({ queryKey: ['products'] });
     },
@@ -963,7 +1025,15 @@ const ProductInfo = ({ product, auction }: ProductInfoProps) => {
                         </tr>
                       </thead>
                       <tbody>
-                        {bidHistoryData?.data?.content && bidHistoryData.data.content.length > 0 ? (
+                        {(() => {
+                          console.log('🔍 실시간 입찰가 렌더링 체크:', {
+                            hasData: !!bidHistoryData?.data,
+                            hasContent: !!bidHistoryData?.data?.content,
+                            contentLength: bidHistoryData?.data?.content?.length,
+                            fullData: bidHistoryData
+                          });
+                          return bidHistoryData?.data?.content && bidHistoryData.data.content.length > 0;
+                        })() ? (
                           bidHistoryData.data.content.map((bid, index) => (
                             <tr
                               key={bid.bidId}
@@ -1013,7 +1083,12 @@ const ProductInfo = ({ product, auction }: ProductInfoProps) => {
                         ) : (
                           <tr className='bg-[#EEE]'>
                             <td className='px-3 py-1'>
-                              입찰 내역이 없습니다
+                              {isBidHistoryLoading ? '입찰 내역 로딩 중...' : '입찰 내역이 없습니다'}
+                              {!isBidHistoryLoading && bidHistoryData?.success === false && (
+                                <div className='text-xs text-red-500 mt-1'>
+                                  데이터 로드 실패. 새로고침 해보세요.
+                                </div>
+                              )}
                             </td>
                             <td className='px-3 py-1 text-center'>
                               -
