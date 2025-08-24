@@ -430,6 +430,13 @@ export default function MyPage() {
     switch (rank) {
       case 'SEED':
         return { image: '/images/rank/seedRank.png', color: 'text-green-500', bgColor: 'bg-green-100', progressColor: 'bg-green-400' };
+        case 'Leaflet':
+        return { image: '/images/rank/leaflet.png', color: 'text-green-500', bgColor: 'bg-green-100', progressColor: 'bg-green-400' };
+        case 'Trunker':
+        return { image: '/images/rank/trunker.png', color: 'text-green-500', bgColor: 'bg-green-100', progressColor: 'bg-green-400' };
+        case 'Flower':
+        return { image: '/images/rank/flower.png', color: 'text-green-500', bgColor: 'bg-green-100', progressColor: 'bg-green-400' };
+
       // 다른 등급 케이스 추가...
       default:
         return { image: '/images/rank/seedRank.png', color: 'text-green-500', bgColor: 'bg-green-100', progressColor: 'bg-green-400' };
