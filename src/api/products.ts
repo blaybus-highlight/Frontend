@@ -82,18 +82,50 @@ export const productsApi = {
   },
 
   getBidHistory: async (auctionId: number, page: number = 0, size: number = 20, sort: string[] = ['bidTime', 'desc']): Promise<BidHistoryResponse> => {
-    const response = await api.get(`/api/auctions/${auctionId}/bids`, {
+    console.log('🔍 입찰 내역 API 호출 파라미터:', { auctionId, page, size, sort });
+    
+    // 인증된 API 사용 (내 입찰 표시용) + 정렬 복구
+    console.log('🔐 인증된 API 사용 (/with-user) + 정렬 활성화...');
+    const response = await axiosInstance.get(`/api/auctions/${auctionId}/bids/with-user`, {
       params: { 
         page, 
-        size, 
-        sort: `${sort[0]},${sort[1]}` // "bidTime,desc" 형식으로 변경
+        size,
+        sort: `${sort[0]},${sort[1]}` // 백엔드 매핑으로 bidTime -> createdAt 변환됨
       },
     });
 
-    console.log('📜 입찰 내역 로딩:', response.data?.data?.content?.length || 0, '개');
+    console.log('📜 입찰 내역 API 응답 (정렬 포함):', {
+      status: response.status,
+      success: response.data?.success,
+      message: response.data?.message,
+      hasData: !!response.data?.data,
+      hasContent: !!response.data?.data?.content,
+      contentLength: response.data?.data?.content?.length || 0,
+      totalElements: response.data?.data?.totalElements,
+      totalPages: response.data?.data?.totalPages
+    });
     
     if (response.data?.data?.content?.length > 0) {
       console.log('💰 최고가:', response.data.data.content[0].bidAmount + '원');
+      console.log('🔍 첫 번째 입찰 상세 (isMyBid 포함):', {
+        bidId: response.data.data.content[0].bidId,
+        bidAmount: response.data.data.content[0].bidAmount,
+        bidderNickname: response.data.data.content[0].bidderNickname,
+        isMyBid: response.data.data.content[0].isMyBid,
+        isWinning: response.data.data.content[0].isWinning,
+        isAutoBid: response.data.data.content[0].isAutoBid,
+        bidTime: response.data.data.content[0].bidTime
+      });
+      
+      // isMyBid가 true인 입찰이 있는지 확인
+      const myBids = response.data.data.content.filter((bid: any) => bid.isMyBid);
+      if (myBids.length > 0) {
+        console.log('✅ 내 입찰 발견:', myBids.length + '개');
+      } else {
+        console.log('ℹ️ 내 입찰 없음 (다른 사용자의 입찰만 있음)');
+      }
+    } else {
+      console.log('⚠️ 입찰 내역이 비어있습니다');
     }
 
     return response.data;
