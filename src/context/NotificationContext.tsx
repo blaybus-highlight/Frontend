@@ -14,6 +14,70 @@ export function NotificationProvider({ children }: { children: React.ReactNode }
   const { data: userData, error: userError } = useMyPage();
   const { data: productsData, error: productsError } = useProducts({ size: 50 }); // 최근 50개 상품 가져오기
 
+  // 실제 경매 데이터를 기반으로 현실적인 알림 생성
+  const generateRealisticNotification = (
+    product: any, 
+    startTime: Date | null, 
+    endTime: Date | null, 
+    currentTime: Date, 
+    randomSeed: number
+  ) => {
+    const timeDiffStart = startTime ? (currentTime.getTime() - startTime.getTime()) : 0;
+    const timeDiffEnd = endTime ? (endTime.getTime() - currentTime.getTime()) : 0;
+    
+    let notificationType: string;
+    let actualMinutesAgo: number;
+    let amount: number;
+    
+    // 경매 시작 전 (SCHEDULED)
+    if (timeDiffStart < 0) {
+      notificationType = 'AUCTION_START';
+      // 경매 시작까지 1-30분 남은 시점의 알림으로 설정
+      actualMinutesAgo = Math.abs(timeDiffStart / (1000 * 60)) + (randomSeed % 30);
+      amount = product.minimumBid || product.startPrice || 50000;
+    }
+    // 경매 종료 후 (ENDED)  
+    else if (endTime && timeDiffEnd < 0) {
+      const hoursSinceEnd = Math.abs(timeDiffEnd / (1000 * 60 * 60));
+      if (hoursSinceEnd < 24) { // 24시간 이내 종료
+        notificationType = 'AUCTION_WON';
+        actualMinutesAgo = Math.abs(timeDiffEnd / (1000 * 60)) + (randomSeed % 60);
+        amount = product.currentHighestBid || product.minimumBid || 50000;
+      } else {
+        notificationType = 'AUCTION_START'; // 오래된 경매는 시작 알림으로
+        actualMinutesAgo = randomSeed % 480; // 8시간 이내
+        amount = product.minimumBid || product.startPrice || 50000;
+      }
+    }
+    // 경매 진행 중
+    else {
+      const remainingHours = endTime ? (timeDiffEnd / (1000 * 60 * 60)) : 24;
+      
+      // 마감 1시간 이내
+      if (remainingHours < 1) {
+        notificationType = 'AUCTION_ENDING_SOON';
+        actualMinutesAgo = randomSeed % 60; // 1시간 이내 알림
+        amount = product.currentHighestBid || product.minimumBid || 50000;
+      }
+      // 마감 6시간 이내  
+      else if (remainingHours < 6) {
+        const types = ['BID_OUTBID', 'NEW_BID'];
+        notificationType = types[randomSeed % types.length];
+        actualMinutesAgo = randomSeed % 180; // 3시간 이내 알림
+        amount = product.currentHighestBid || product.minimumBid || 50000;
+      }
+      // 그 외 진행 중
+      else {
+        const types = ['NEW_BID', 'BID_OUTBID'];
+        notificationType = types[randomSeed % types.length];
+        actualMinutesAgo = randomSeed % 360; // 6시간 이내 알림
+        amount = product.currentHighestBid || product.minimumBid || 50000;
+      }
+    }
+    
+    return { notificationType, actualMinutesAgo, amount };
+  };
+
   // 사용자별 개인화된 알림 생성 (실제 등록된 상품만 사용)
   const generateUserSpecificNotifications = (userId: string): NotificationItem[] => {
     try {
@@ -46,11 +110,24 @@ export function NotificationProvider({ children }: { children: React.ReactNode }
       const productName = selectedProduct.productName;
       const productImage = selectedProduct.thumbnailUrl;
       const relatedId = selectedProduct.productId;
-      const amount = selectedProduct.currentHighestBid || ((seed + i) % 50 + 20) * 1000;
-      const minutesAgo = (seed + i) % 300 + 5; // 5분 ~ 305분 전
       
-      const types = ['BID_OUTBID', 'AUCTION_START', 'AUCTION_WON', 'AUCTION_ENDING_SOON', 'NEW_BID'] as const;
-      const type = types[(seed + i) % types.length];
+      // 현재 시간 기준으로 경매 시간 분석
+      const now = new Date();
+      const startTime = selectedProduct.scheduledStartTime ? new Date(selectedProduct.scheduledStartTime) : 
+                       selectedProduct.startTime ? new Date(selectedProduct.startTime) : null;
+      const endTime = selectedProduct.scheduledEndTime ? new Date(selectedProduct.scheduledEndTime) : 
+                     selectedProduct.endTime ? new Date(selectedProduct.endTime) : null;
+      
+      // 실제 시간 데이터를 기반으로 적절한 알림 생성
+      const { notificationType, actualMinutesAgo, amount } = generateRealisticNotification(
+        selectedProduct, 
+        startTime, 
+        endTime, 
+        now, 
+        seed + i
+      );
+      
+      const type = notificationType as 'BID_OUTBID' | 'AUCTION_START' | 'AUCTION_WON' | 'AUCTION_ENDING_SOON' | 'NEW_BID';
       
       let title = '';
       let message = '';
@@ -84,12 +161,12 @@ export function NotificationProvider({ children }: { children: React.ReactNode }
         title,
         message,
         isRead: (seed + i) % 3 === 0, // 약 1/3은 읽음 상태
-        createdAt: new Date(Date.now() - minutesAgo * 60 * 1000).toISOString(),
+        createdAt: new Date(Date.now() - actualMinutesAgo * 60 * 1000).toISOString(),
         relatedId: selectedProduct.auctionId, // 경매 상세 페이지용 auctionId 사용
         actionUrl: type === 'AUCTION_WON' ? '/successbid' : `/auction/${selectedProduct.auctionId}`,
         productName,
         productImage,
-        amount: type === 'AUCTION_START' ? undefined : amount
+        amount: amount
       });
     }
     

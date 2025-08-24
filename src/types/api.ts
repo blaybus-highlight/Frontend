@@ -15,7 +15,10 @@ export interface Product {
   bidCount: number;
   endTime: string;
   startTime?: string; // SCHEDULED 상태의 상품에 대한 시작 시간
+  scheduledStartTime?: string; // 경매 시작 예정 시간
+  scheduledEndTime?: string; // 경매 종료 예정 시간
   auctionStatus: string;
+  status?: string; // 경매 상태 (SCHEDULED, IN_PROGRESS, ENDING_SOON, ENDED)
   category?: string;
   brand?: string;
 }
