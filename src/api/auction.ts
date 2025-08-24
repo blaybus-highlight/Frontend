@@ -15,6 +15,64 @@ export interface AuctionItem {
   actualEndTime: string | null;
 }
 
+export interface AuctionDetailItem {
+  auctionId: number;
+  product: {
+    id: number;
+    productName: string;
+    shortDescription: string;
+    history: string;
+    size: string;
+    productCount: number;
+    material: string;
+    manufactureYear: number;
+    brand: string;
+    expectedEffects: string;
+    detailedInfo: string;
+    status: string;
+    statusDescription: string;
+    category: string;
+    registeredBy: number;
+    images: Array<{
+      id: number;
+      imageUrl: string;
+      originalFileName: string;
+      fileSize: number;
+      mimeType: string;
+      sortOrder: number;
+      createdAt: string;
+      primary: boolean;
+    }>;
+    primaryImageUrl: string;
+    isPremium: boolean;
+    createdAt: string;
+    updatedAt: string;
+  };
+  status: string;
+  statusDescription: string;
+  scheduledStartTime: string;
+  scheduledEndTime: string;
+  actualStartTime?: string;
+  actualEndTime?: string;
+  startPrice: number;
+  currentHighestBid: number;
+  buyItNowPrice: number;
+  minimumBid: number;
+  maxBid: number;
+  bidUnit: number;
+  shippingFee: number;
+  isPickupAvailable: boolean;
+  totalBidders: number;
+  totalBids: number;
+  createdBy: number;
+  startedBy?: number;
+  endedBy?: number;
+  endReason?: string;
+  description: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export interface AuctionListResponse {
   auctions: AuctionItem[];
   totalCount: number;
@@ -105,10 +163,17 @@ export const getAuctionList = async (
   }
 };
 
-export const getAuctionById = async (auctionId: string): Promise<AuctionItem> => {
+export const getAuctionById = async (auctionId: string): Promise<AuctionDetailItem> => {
   try {
     const response = await axiosInstance.get(`${API_BASE_URL}/api/admin/auctions/${auctionId}`);
-    const auctionData = response.data;
+    const responseData = response.data;
+    
+    // 응답 구조 확인
+    if (!responseData.success || !responseData.data) {
+      throw new Error('API 응답 구조가 올바르지 않습니다.');
+    }
+    
+    const auctionData = responseData.data;
     
     // 시간을 로컬 시간으로 변환
     if (auctionData.scheduledStartTime) {
@@ -123,7 +188,7 @@ export const getAuctionById = async (auctionId: string): Promise<AuctionItem> =>
     
     return auctionData;
   } catch (error) {
-    // console.error('경매 상세 조회 실패:', error);
+    console.error('경매 상세 조회 실패:', error);
     throw error;
   }
 };
@@ -161,24 +226,37 @@ export const createAuction = async (auctionData: CreateAuctionRequest) => {
   }
 };
 
+export interface UpdateAuctionRequest {
+  scheduledStartTime: string;
+  scheduledEndTime: string;
+  startPrice: number;
+  bidUnit: number;
+  maxBid: number;
+  minimumBid: number;
+  buyItNowPrice: number;
+  shippingFee: number;
+  isPickupAvailable: boolean;
+  description: string;
+}
+
 export const updateAuction = async (
-  auctionId: string,
-  auctionData: Partial<AuctionItem>
-): Promise<AuctionItem> => {
+  auctionId: number,
+  auctionData: UpdateAuctionRequest
+): Promise<any> => {
   try {
     // 시간을 UTC로 변환
-    const utcAuctionData = { ...auctionData };
-    if (auctionData.scheduledStartTime) {
-      utcAuctionData.scheduledStartTime = convertLocalToUTC(auctionData.scheduledStartTime);
-    }
-    if (auctionData.scheduledEndTime) {
-      utcAuctionData.scheduledEndTime = convertLocalToUTC(auctionData.scheduledEndTime);
-    }
+    const utcAuctionData = {
+      ...auctionData,
+      scheduledStartTime: convertLocalToUTC(auctionData.scheduledStartTime),
+      scheduledEndTime: convertLocalToUTC(auctionData.scheduledEndTime)
+    };
     
-    const response = await axiosInstance.put(`/auctions/${auctionId}`, utcAuctionData);
+    console.log('경매 수정 요청 (UTC 변환 후):', utcAuctionData);
+    
+    const response = await axiosInstance.put(`/api/admin/auctions/${auctionId}`, utcAuctionData);
     return response.data;
   } catch (error) {
-    // console.error('경매 수정 실패:', error);
+    console.error('경매 수정 실패:', error);
     throw error;
   }
 };
