@@ -11,23 +11,25 @@ const NotificationContext = createContext<NotificationContextType | undefined>(u
 export function NotificationProvider({ children }: { children: React.ReactNode }) {
   const [notifications, setNotifications] = useState<NotificationItem[]>([]);
   const [isOpen, setIsOpen] = useState(false);
-  const { data: userData } = useMyPage();
-  const { data: productsData } = useProducts({ size: 50 }); // 최근 50개 상품 가져오기
+  const { data: userData, error: userError } = useMyPage();
+  const { data: productsData, error: productsError } = useProducts({ size: 50 }); // 최근 50개 상품 가져오기
 
   // 사용자별 개인화된 알림 생성 (실제 등록된 상품만 사용)
   const generateUserSpecificNotifications = (userId: string): NotificationItem[] => {
-    const userIdNum = userId ? parseInt(userId.replace(/[^0-9]/g, '') || '1') : 1;
-    
-    // 사용자 ID 기반으로 시드 생성
-    const seed = userIdNum * 123;
-    
-    // 실제 등록된 상품 목록만 사용
-    const realProducts = productsData?.data?.content || [];
-    
-    // 실제 상품이 없으면 빈 배열 반환
-    if (realProducts.length === 0) {
-      return [];
-    }
+    try {
+      const userIdNum = userId ? parseInt(userId.replace(/[^0-9]/g, '') || '1') : 1;
+      
+      // 사용자 ID 기반으로 시드 생성
+      const seed = userIdNum * 123;
+      
+      // 실제 등록된 상품 목록만 사용 (안전하게 접근)
+      const realProducts = productsData?.data?.content || [];
+      
+      // 실제 상품이 없거나 에러가 있으면 빈 배열 반환
+      if (realProducts.length === 0 || productsError) {
+        console.log('상품 데이터 없음 또는 에러로 더미 알림 생성 건너뛰기');
+        return [];
+      }
     
     const availableProducts = realProducts;
     
@@ -91,7 +93,11 @@ export function NotificationProvider({ children }: { children: React.ReactNode }
       });
     }
     
-    return notifications.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+      return notifications.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+    } catch (error) {
+      console.error('더미 알림 생성 중 에러:', error);
+      return [];
+    }
   };
 
   // 알림 데이터 로드 (API 우선, 실패 시 더미 데이터)
@@ -109,18 +115,32 @@ export function NotificationProvider({ children }: { children: React.ReactNode }
       console.log(`⚠️ API 호출 실패, 더미 데이터로 대체: ${error}`);
     }
     
-    // API 실패 또는 데이터 없음 시 더미 데이터 사용
-    const userNotifications = generateUserSpecificNotifications(userId);
-    setNotifications(userNotifications);
-    console.log(`📝 사용자 ${userId}의 더미 알림 ${userNotifications.length}개 생성됨`);
+    try {
+      // API 실패 또는 데이터 없음 시 더미 데이터 사용
+      const userNotifications = generateUserSpecificNotifications(userId);
+      setNotifications(userNotifications);
+      console.log(`📝 사용자 ${userId}의 더미 알림 ${userNotifications.length}개 생성됨`);
+    } catch (error) {
+      console.error('더미 알림 생성 중 에러:', error);
+      // 더미 데이터 생성도 실패하면 빈 배열로 설정
+      setNotifications([]);
+    }
   };
 
   // 사용자 데이터 또는 상품 데이터 변경 시 알림 로드  
   useEffect(() => {
-    if (userData?.userId) {
-      loadNotifications(userData.userId);
+    // 에러가 있거나 사용자 데이터가 없으면 알림 로드 건너뛰기
+    if (userError || !userData?.userId) {
+      console.log('사용자 데이터 없음 또는 에러로 인해 알림 로드 건너뛰기:', { userError, userId: userData?.userId });
+      return;
     }
-  }, [userData?.userId, productsData]); // productsData도 감지하여 새 상품 등록 시 알림 업데이트
+
+    try {
+      loadNotifications(userData.userId);
+    } catch (error) {
+      console.error('알림 로드 중 에러:', error);
+    }
+  }, [userData?.userId, productsData, userError]); // userError도 감지
 
   const unreadCount = notifications.filter(n => !n.isRead).length;
 
