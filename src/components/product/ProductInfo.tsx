@@ -75,7 +75,6 @@ const ProductInfo = ({ product, auction }: ProductInfoProps) => {
         content: bidHistoryData?.data?.content,
         contentLength: bidHistoryData?.data?.content?.length,
         success: bidHistoryData?.success,
-        error: bidHistoryData?.error,
         queryStatus: bidHistoryStatus,
         isError: isBidHistoryError,
         queryError: bidHistoryError
@@ -95,36 +94,6 @@ const ProductInfo = ({ product, auction }: ProductInfoProps) => {
       } else {
         console.log('⚠️ 입찰 내역이 비어있음 또는 로딩되지 않음');
         
-        // JWT 토큰 및 수동 API 테스트 (한 번만)
-        if (auction?.auctionId && !window.__bidTestDone) {
-          window.__bidTestDone = true;
-          
-          // JWT 토큰 상태 확인
-          import('@/lib/tokenUtils').then(({ getAccessToken, isTokenExpired }) => {
-            const token = getAccessToken();
-            console.log('🔐 JWT 토큰 상태:', {
-              hasToken: !!token,
-              tokenLength: token?.length,
-              isExpired: token ? isTokenExpired(token) : null,
-              tokenPreview: token ? `${token.substring(0, 20)}...` : null
-            });
-            
-            console.log('🧪 수동 API 테스트 시작...');
-            productsApi.getBidHistory(auction.auctionId, 0, 50, ['bidTime', 'desc'])
-              .then(result => {
-                console.log('🧪 수동 API 테스트 결과 성공:', result);
-              })
-              .catch(error => {
-                console.log('🧪 수동 API 테스트 결과 실패:', error);
-                console.log('🧪 에러 상세:', {
-                  status: error.response?.status,
-                  statusText: error.response?.statusText,
-                  data: error.response?.data,
-                  headers: error.response?.headers
-                });
-              });
-          });
-        }
       }
     }
   }, [bidHistoryData, isBidHistoryLoading, auction?.auctionId]);
@@ -1025,15 +994,7 @@ const ProductInfo = ({ product, auction }: ProductInfoProps) => {
                         </tr>
                       </thead>
                       <tbody>
-                        {(() => {
-                          console.log('🔍 실시간 입찰가 렌더링 체크:', {
-                            hasData: !!bidHistoryData?.data,
-                            hasContent: !!bidHistoryData?.data?.content,
-                            contentLength: bidHistoryData?.data?.content?.length,
-                            fullData: bidHistoryData
-                          });
-                          return bidHistoryData?.data?.content && bidHistoryData.data.content.length > 0;
-                        })() ? (
+                        {bidHistoryData?.data?.content && bidHistoryData.data.content.length > 0 ? (
                           bidHistoryData.data.content.map((bid, index) => (
                             <tr
                               key={bid.bidId}
