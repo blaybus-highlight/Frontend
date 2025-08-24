@@ -18,6 +18,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { productsApi } from '@/api/products';
 import { buyItNow, BuyItNowRequest, getPaymentPreview } from '@/api/payments';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useNotificationCenter } from '@/context/NotificationContext';
 import AuctionResultModal from './AuctionResultModal';
 import BuyItNowModal from './BuyItNowModal';
 import AuctionExpiredModal from './AuctionExpiredModal';
@@ -54,6 +55,9 @@ const ProductInfo = ({ product, auction }: ProductInfoProps) => {
 
   // 인증 상태 확인
   const { isAuthenticated } = useAuth();
+  
+  // 알림 센터 접근
+  const { addNotification } = useNotificationCenter();
 
   // Use auction data if available, otherwise fall back to product data
   // const productDetails = auction || product;
@@ -547,14 +551,44 @@ const ProductInfo = ({ product, auction }: ProductInfoProps) => {
       return;
     }
 
-    // brand 정보와 함께 찜 토글 요청
-    const requestData = {
-      auctionId: auction.auctionId,
-      brand: auction.brand || product?.brand || ''
-    };
-    
-    console.log('찜 토글 요청 (브랜드 포함):', requestData);
-    wishlistToggle.mutate(auction.auctionId);
+    wishlistToggle.mutate(auction.auctionId, {
+      onSuccess: (data) => {
+        const isWishlisted = data.data?.wishlisted;
+        const message = isWishlisted ? '찜 목록에 추가되었습니다!' : '찜 목록에서 제거되었습니다.';
+        
+        // 토스트 알림 표시
+        if ((window as any).showNotificationToast) {
+          (window as any).showNotificationToast({
+            type: isWishlisted ? 'success' : 'info',
+            message: message,
+            productName: auction?.productName,
+            duration: 3000
+          });
+        }
+        
+        // 알림 히스토리에 추가
+        addNotification({
+          type: isWishlisted ? 'WISHLIST_ADDED' : 'WISHLIST_REMOVED',
+          title: isWishlisted ? '찜 추가 완료' : '찜 제거 완료',
+          message: message,
+          isRead: false,
+          actionUrl: `/auction/${auction.auctionId}`,
+          productName: auction?.productName,
+          productImage: auction?.images[0]?.imageUrl
+        });
+        
+        // 찜 상태 캐시 무효화 (메인과 상세페이지 동기화)
+        queryClient.invalidateQueries({ queryKey: ['wishlist', auction.auctionId] });
+      },
+      onError: (error: any) => {
+        const status = error?.response?.status;
+        if (status === 401 || status === 403) {
+          alert('로그인 후 이용해주세요.');
+        } else {
+          alert('찜하기 처리 중 오류가 발생했습니다.');
+        }
+      }
+    });
   };
 
   // Debug: 가격 정보 확인 (초기 로딩 시 한 번만)

@@ -2,6 +2,8 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useWishlistStatus, useWishlistToggle } from '@/hooks/useWishlist';
 import { useNotificationStatus, useNotificationToggle } from '@/hooks/useNotification';
+import { useNotificationCenter } from '@/context/NotificationContext';
+import { useQueryClient } from '@tanstack/react-query';
 
 interface ProductCardProps {
   id: string; // auctionId for navigation
@@ -36,30 +38,72 @@ export function ProductCard({
   category,
   brandName,
 }: ProductCardProps) {
-  // 찜 상태 조회 및 토글 기능
+  // 찜 상태 조회 및 토글 기능 (auctionId로 통일)
   const { data: wishlistData, isLoading: isWishlistLoading } = useWishlistStatus(
-    productId ? parseInt(productId) : parseInt(id)
+    parseInt(id) // id = auctionId로 통일
   );
   const wishlistToggle = useWishlistToggle();
 
   // 알림 상태 조회 및 토글 기능 (경매 예정 상품만)
   const { data: notificationData, isLoading: isNotificationLoading } = useNotificationStatus(
-    brand === 'SCHEDULED' ? (productId ? parseInt(productId) : parseInt(id)) : 0
+    brand === 'SCHEDULED' ? parseInt(id) : 0 // id = auctionId로 통일
   );
   const notificationToggle = useNotificationToggle();
+  
+  // 알림 센터 접근
+  const { addNotification } = useNotificationCenter();
+  
+  // React Query 클라이언트
+  const queryClient = useQueryClient();
 
   // 찜 토글 핸들러
   const handleWishlistToggle = (e: React.MouseEvent) => {
     e.preventDefault(); // Link 내비게이션 방지
     e.stopPropagation();
     
-    const targetId = productId || id;
-    if (!targetId) {
+    if (!id) {
       alert('상품 정보를 찾을 수 없습니다.');
       return;
     }
 
-    wishlistToggle.mutate(parseInt(targetId));
+    wishlistToggle.mutate(parseInt(id), {
+      onSuccess: (data) => {
+        const isWishlisted = data.data?.wishlisted;
+        const message = isWishlisted ? '찜 목록에 추가되었습니다!' : '찜 목록에서 제거되었습니다.';
+        
+        // 토스트 알림 표시
+        if ((window as any).showNotificationToast) {
+          (window as any).showNotificationToast({
+            type: isWishlisted ? 'success' : 'info',
+            message: message,
+            productName: productName,
+            duration: 3000
+          });
+        }
+        
+        // 알림 히스토리에 추가
+        addNotification({
+          type: isWishlisted ? 'WISHLIST_ADDED' : 'WISHLIST_REMOVED',
+          title: isWishlisted ? '찜 추가 완료' : '찜 제거 완료',
+          message: message,
+          isRead: false,
+          actionUrl: `/auction/${id}`,
+          productName: productName,
+          productImage: image
+        });
+        
+        // 찜 상태 캐시 무효화 (메인과 상세페이지 동기화)
+        queryClient.invalidateQueries({ queryKey: ['wishlist', parseInt(id)] });
+      },
+      onError: (error: any) => {
+        const status = error?.response?.status;
+        if (status === 401 || status === 403) {
+          alert('로그인 후 이용해주세요.');
+        } else {
+          alert('찜하기 처리 중 오류가 발생했습니다.');
+        }
+      }
+    });
   };
 
   // 알림 토글 핸들러
@@ -67,16 +111,36 @@ export function ProductCard({
     e.preventDefault();
     e.stopPropagation();
     
-    const targetId = productId || id;
-    if (!targetId) {
+    if (!id) {
       alert('상품 정보를 찾을 수 없습니다.');
       return;
     }
 
-    notificationToggle.mutate(parseInt(targetId), {
+    notificationToggle.mutate(parseInt(id), {
       onSuccess: (data) => {
         const isActive = data.data?.active;
-        alert(isActive ? '경매 시작 알림이 설정되었습니다!' : '경매 시작 알림이 해제되었습니다.');
+        const message = isActive ? '경매 시작 알림이 설정되었습니다!' : '경매 시작 알림이 해제되었습니다.';
+        
+        // 토스트 알림 표시
+        if ((window as any).showNotificationToast) {
+          (window as any).showNotificationToast({
+            type: isActive ? 'success' : 'info',
+            message: message,
+            productName: productName,
+            duration: 3000
+          });
+        }
+        
+        // 알림 히스토리에 추가
+        addNotification({
+          type: 'AUCTION_START',
+          title: isActive ? '알림 설정 완료' : '알림 해제 완료',
+          message: message,
+          isRead: false,
+          actionUrl: `/auction/${id}`,
+          productName: productName,
+          productImage: image
+        });
       },
       onError: (error: any) => {
         const status = error?.response?.status;

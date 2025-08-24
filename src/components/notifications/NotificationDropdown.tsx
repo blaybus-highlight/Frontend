@@ -115,7 +115,11 @@ export function NotificationDropdown() {
           </div>
         ) : (
           notifications.map((notification) => {
-            const config = NotificationConfig[notification.type];
+            const config = NotificationConfig[notification.type] || {
+              icon: '🔔',
+              color: 'text-gray-600',
+              bgColor: 'bg-gray-50'
+            };
             return (
               <div
                 key={notification.id}

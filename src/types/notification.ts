@@ -1,6 +1,6 @@
 export interface NotificationItem {
   id: string;
-  type: 'BID_OUTBID' | 'AUCTION_WON' | 'AUCTION_LOST' | 'AUCTION_START' | 'AUCTION_ENDING_SOON' | 'NEW_BID' | 'AUCTION_ENDED' | 'PRICE_DROP';
+  type: 'BID_OUTBID' | 'AUCTION_WON' | 'AUCTION_LOST' | 'AUCTION_START' | 'AUCTION_ENDING_SOON' | 'NEW_BID' | 'AUCTION_ENDED' | 'PRICE_DROP' | 'WISHLIST_ADDED' | 'WISHLIST_REMOVED';
   title: string;
   message: string;
   isRead: boolean;
@@ -64,5 +64,15 @@ export const NotificationConfig = {
     icon: '📉',
     color: 'text-purple-600',
     bgColor: 'bg-purple-50'
+  },
+  WISHLIST_ADDED: {
+    icon: '❤️',
+    color: 'text-red-600',
+    bgColor: 'bg-red-50'
+  },
+  WISHLIST_REMOVED: {
+    icon: '💔',
+    color: 'text-gray-600',
+    bgColor: 'bg-gray-50'
   }
 } as const;

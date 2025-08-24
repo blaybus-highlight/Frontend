@@ -88,7 +88,7 @@ export const markNotificationAsRead = async (notificationId: string): Promise<bo
 // 모든 알림 읽음 처리
 export const markAllNotificationsAsRead = async (): Promise<boolean> => {
   try {
-    const response = await axiosInstance.put('/api/notifications/read-all');
+    const response = await axiosInstance.put('/api/user/notifications/read-all');
     return response.data.success;
   } catch (error) {
     console.error('전체 알림 읽음 처리 실패:', error);
@@ -99,7 +99,7 @@ export const markAllNotificationsAsRead = async (): Promise<boolean> => {
 // 알림 삭제
 export const deleteNotification = async (notificationId: string): Promise<boolean> => {
   try {
-    const response = await axiosInstance.delete(`/api/notifications/${notificationId}`);
+    const response = await axiosInstance.delete(`/api/user/notifications/${notificationId}`);
     return response.data.success;
   } catch (error) {
     console.error('알림 삭제 실패:', error);
@@ -110,7 +110,7 @@ export const deleteNotification = async (notificationId: string): Promise<boolea
 // 모든 알림 삭제
 export const deleteAllNotifications = async (): Promise<boolean> => {
   try {
-    const response = await axiosInstance.delete('/api/notifications');
+    const response = await axiosInstance.delete('/api/user/notifications');
     return response.data.success;
   } catch (error) {
     console.error('전체 알림 삭제 실패:', error);
