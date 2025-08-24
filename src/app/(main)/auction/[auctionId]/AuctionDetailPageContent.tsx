@@ -77,16 +77,17 @@ export default function ProductDetailPageContent({ productId }: ProductDetailPag
           <div className='grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-5'>
             {viewTogetherData.data.content.map((product) => (
               <ProductCard
-                key={product.id}
-                id={String(product.id)}
+                key={product.auctionId}
+                id={String(product.auctionId)}
                 brand={product.brand || product.auctionStatus}
                 productName={product.productName}
-                startPrice={product.startPrice || 0}
+                startPrice={product.currentHighestBid || 0}
                 buyNowPrice={product.buyNowPrice || 0}
                 image={product.primaryImageUrl || '/placeholder.jpg'}
                 bidCount={product.bidCount}
                 timeLeft={product.endTime}
                 category={product.category}
+                brandName={product.brand}
               />
             ))}
           </div>

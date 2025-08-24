@@ -59,7 +59,7 @@ export const getUserNotifications = async (
     });
 
     const response = await axiosInstance.get<NotificationsResponse>(
-      `/api/notifications?${params.toString()}`
+      `/api/user/notifications?${params.toString()}`
     );
 
     if (response.data.success) {
@@ -77,7 +77,7 @@ export const getUserNotifications = async (
 // 알림 읽음 처리
 export const markNotificationAsRead = async (notificationId: string): Promise<boolean> => {
   try {
-    const response = await axiosInstance.put(`/api/notifications/${notificationId}/read`);
+    const response = await axiosInstance.put(`/api/user/notifications/${notificationId}/read`);
     return response.data.success;
   } catch (error) {
     console.error('알림 읽음 처리 실패:', error);

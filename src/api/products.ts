@@ -18,7 +18,8 @@ export const productsApi = {
       ...params,
       page: params.page || 0,
       size: params.size || 20,
-      sortCode: params.sortCode || 'newest',
+      // sortCode는 명시적으로 전달된 경우에만 포함
+      ...(params.sortCode && { sortCode: params.sortCode }),
     };
 
     console.log('🚀 API 호출:', { params, requestParams });

@@ -81,23 +81,24 @@ export function ProductGrid({ title, searchParams = {} }: ProductGridProps) {
             </div>
           </div>
         ) : (
-          <div className={`grid ${getGridClass()}`}>
-            {products.map((product) => (
-                             <ProductCard
-                 key={product.id}
-                 bidCount={product.bidCount}
-                 brand={product.auctionStatus}
-                 buyNowPrice={product.buyNowPrice}
-                 id={String(product.id)}
-                 image={product.thumbnailUrl}
-                 productName={product.productName}
-                 startPrice={product.currentHighestBid || product.minimumBid}
-                 timeLeft={product.endTime}
-                 category={product.category}
-                 brandName={product.brand}
-               />
-            ))}
-          </div>
+                     <div className={`grid ${getGridClass()}`}>
+             {products.map((product) => (
+                              <ProductCard
+                  key={product.auctionId}
+                  bidCount={product.bidCount}
+                  brand={product.auctionStatus}
+                  buyNowPrice={product.buyNowPrice}
+                  id={String(product.auctionId)}
+                  productId={String(product.productId)}
+                  image={product.thumbnailUrl}
+                  productName={product.productName}
+                  startPrice={product.currentPrice || product.startPrice}
+                  timeLeft={product.auctionStatus === 'SCHEDULED' ? product.startTime : product.endTime}
+                  category={product.category}
+                  brandName={product.brand}
+                />
+             ))}
+           </div>
         )}
       </div>
     </section>

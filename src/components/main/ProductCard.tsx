@@ -4,7 +4,8 @@ import { useWishlistStatus, useWishlistToggle } from '@/hooks/useWishlist';
 import { useNotificationStatus, useNotificationToggle } from '@/hooks/useNotification';
 
 interface ProductCardProps {
-  id: string;
+  id: string; // auctionId for navigation
+  productId?: string; // productId for wishlist/notification
   brand: string; // 경매 상태 (SCHEDULED, IN_PROGRESS 등)
   productName: string; // 상품명 (e.g., '침대 위 블랭킷')
   startPrice: number | null;
@@ -23,6 +24,7 @@ interface ProductCardProps {
  */
 export function ProductCard({
   id,
+  productId,
   brand = '라이프집 집스터 geun_k.zip',
   productName = '침대 위 블랭킷',
   startPrice = 25000,
@@ -36,13 +38,13 @@ export function ProductCard({
 }: ProductCardProps) {
   // 찜 상태 조회 및 토글 기능
   const { data: wishlistData, isLoading: isWishlistLoading } = useWishlistStatus(
-    parseInt(id)
+    productId ? parseInt(productId) : parseInt(id)
   );
   const wishlistToggle = useWishlistToggle();
 
   // 알림 상태 조회 및 토글 기능 (경매 예정 상품만)
   const { data: notificationData, isLoading: isNotificationLoading } = useNotificationStatus(
-    brand === 'SCHEDULED' ? parseInt(id) : 0
+    brand === 'SCHEDULED' ? (productId ? parseInt(productId) : parseInt(id)) : 0
   );
   const notificationToggle = useNotificationToggle();
 
@@ -51,12 +53,13 @@ export function ProductCard({
     e.preventDefault(); // Link 내비게이션 방지
     e.stopPropagation();
     
-    if (!id) {
+    const targetId = productId || id;
+    if (!targetId) {
       alert('상품 정보를 찾을 수 없습니다.');
       return;
     }
 
-    wishlistToggle.mutate(parseInt(id));
+    wishlistToggle.mutate(parseInt(targetId));
   };
 
   // 알림 토글 핸들러
@@ -64,12 +67,13 @@ export function ProductCard({
     e.preventDefault();
     e.stopPropagation();
     
-    if (!id) {
+    const targetId = productId || id;
+    if (!targetId) {
       alert('상품 정보를 찾을 수 없습니다.');
       return;
     }
 
-    notificationToggle.mutate(parseInt(id), {
+    notificationToggle.mutate(parseInt(targetId), {
       onSuccess: (data) => {
         const isActive = data.data?.active;
         alert(isActive ? '경매 시작 알림이 설정되었습니다!' : '경매 시작 알림이 해제되었습니다.');
@@ -101,12 +105,9 @@ export function ProductCard({
     if (!timeLeft) return '정보 없음';
     
     try {
-      // 잘못된 날짜 포맷 수정 (083D -> 08-03T)
-      let correctedTimeLeft = timeLeft.replace(/(\d{4})-(\d{2})(\d)D/, '$1-$2-0$3T');
-      
       // ISO 날짜 형식인지 확인하고 시간 계산
-      if (correctedTimeLeft.includes('T')) {
-        const targetDate = new Date(correctedTimeLeft);
+      if (timeLeft.includes('T')) {
+        const targetDate = new Date(timeLeft);
         if (isNaN(targetDate.getTime())) {
           return timeLeft; // 변환 실패시 원래 값 반환
         }
@@ -114,12 +115,21 @@ export function ProductCard({
         const now = new Date();
         const diffMs = targetDate.getTime() - now.getTime();
         
-        // 경매 예정 상품 (SCHEDULED)의 경우 오픈까지의 D-Day 계산
+        // 경매 예정 상품 (SCHEDULED)의 경우 오픈까지의 시간 계산
         if (brand === 'SCHEDULED') {
-          if (diffMs <= 0) return 'D-Day';
+          if (diffMs <= 0) return '오픈 예정';
           
-          const diffDays = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
-          return `오픈 예정 D-${diffDays}`;
+          const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+          const diffHours = Math.floor((diffMs % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+          
+          if (diffDays > 0) {
+            return `오픈까지 ${diffDays}일 ${diffHours}시간`;
+          } else if (diffHours > 0) {
+            return `오픈까지 ${diffHours}시간`;
+          } else {
+            const diffMinutes = Math.floor(diffMs / (1000 * 60));
+            return `오픈까지 ${Math.max(1, diffMinutes)}분`;
+          }
         }
         
         // 진행 중인 경매의 경우 마감까지의 시간 계산
@@ -157,7 +167,7 @@ export function ProductCard({
   };
 
   return (
-    <Link className='block' href={`/product/${id}`}>
+    <Link className='block' href={`/auction/${id}`}>
       {/* 아래 div에서 배경색과 그림자 클래스를 제거했습니다. */}
       <div className='relative cursor-pointer overflow-hidden rounded-lg'>
         <div className='relative'>

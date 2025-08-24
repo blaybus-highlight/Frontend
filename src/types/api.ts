@@ -3,15 +3,18 @@ export const API_BASE_URL =
   'http://ec2-52-78-128-131.ap-northeast-2.compute.amazonaws.com:8085';
 
 export interface Product {
-  id: number;
+  productId: number;
+  auctionId: number;
   thumbnailUrl: string;
   productName: string;
+  startPrice: number;
   currentPrice: number;
   buyNowPrice: number;
   minimumBid: number;
   currentHighestBid?: number;
   bidCount: number;
   endTime: string;
+  startTime?: string; // SCHEDULED 상태의 상품에 대한 시작 시간
   auctionStatus: string;
   category?: string;
   brand?: string;
@@ -319,11 +322,12 @@ export interface NotificationStatus {
 export type NotificationStatusResponse = ApiResponse<NotificationStatus>;
 
 export interface ViewTogetherProduct {
-  id: number;
+  productId: number;
+  auctionId: number;
   productName: string;
   category: string;
   primaryImageUrl: string;
-  startPrice: number;
+  currentHighestBid: number;
   buyNowPrice: number;
   brand: string;
   auctionStatus: 'SCHEDULED' | 'IN_PROGRESS' | 'ENDED';
