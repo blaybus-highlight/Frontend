@@ -1,6 +1,6 @@
 export interface NotificationItem {
   id: string;
-  type: 'BID_OUTBID' | 'AUCTION_WON' | 'AUCTION_LOST' | 'AUCTION_START' | 'AUCTION_ENDING_SOON' | 'NEW_BID' | 'AUCTION_ENDED' | 'PRICE_DROP';
+  type: 'BID_OUTBID' | 'AUCTION_WON' | 'AUCTION_LOST' | 'AUCTION_START' | 'AUCTION_ENDING_SOON' | 'NEW_BID' | 'AUCTION_ENDED' | 'PRICE_DROP' | 'WISHLIST_ADDED' | 'WISHLIST_REMOVED';
   title: string;
   message: string;
   isRead: boolean;
@@ -26,43 +26,53 @@ export interface NotificationContextType {
 // 알림 타입별 설정
 export const NotificationConfig = {
   BID_OUTBID: {
-    icon: '🔥',
+    icon: '!',
     color: 'text-orange-600',
     bgColor: 'bg-orange-50'
   },
   AUCTION_WON: {
-    icon: '🎉',
+    icon: '✓',
     color: 'text-green-600',
     bgColor: 'bg-green-50'
   },
   AUCTION_LOST: {
-    icon: '😔',
+    icon: 'X',
     color: 'text-gray-600',
     bgColor: 'bg-gray-50'
   },
   AUCTION_START: {
-    icon: '🚀',
+    icon: '▶',
     color: 'text-blue-600',
     bgColor: 'bg-blue-50'
   },
   AUCTION_ENDING_SOON: {
-    icon: '⏰',
+    icon: '⏱',
     color: 'text-red-600',
     bgColor: 'bg-red-50'
   },
   NEW_BID: {
-    icon: '💰',
+    icon: '$',
     color: 'text-green-600',
     bgColor: 'bg-green-50'
   },
   AUCTION_ENDED: {
-    icon: '🏁',
+    icon: '■',
     color: 'text-gray-600',
     bgColor: 'bg-gray-50'
   },
   PRICE_DROP: {
-    icon: '📉',
+    icon: '↓',
     color: 'text-purple-600',
     bgColor: 'bg-purple-50'
+  },
+  WISHLIST_ADDED: {
+    icon: '♥',
+    color: 'text-red-600',
+    bgColor: 'bg-red-50'
+  },
+  WISHLIST_REMOVED: {
+    icon: '♡',
+    color: 'text-gray-600',
+    bgColor: 'bg-gray-50'
   }
 } as const;

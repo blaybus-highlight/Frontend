@@ -110,12 +110,21 @@ export function NotificationDropdown() {
       <div className="max-h-80 overflow-y-auto">
         {notifications.length === 0 ? (
           <div className="p-8 text-center">
-            <div className="text-gray-400 text-4xl mb-2">🔔</div>
+            <div className="text-gray-400 text-2xl mb-2">
+              <svg className="w-12 h-12 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-5 5-5-5h5V7h-5z" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9" />
+              </svg>
+            </div>
             <p className="text-gray-500 text-sm">새로운 알림이 없습니다</p>
           </div>
         ) : (
           notifications.map((notification) => {
-            const config = NotificationConfig[notification.type];
+            const config = NotificationConfig[notification.type] || {
+              icon: 'i',
+              color: 'text-gray-600',
+              bgColor: 'bg-gray-50'
+            };
             return (
               <div
                 key={notification.id}
@@ -131,7 +140,7 @@ export function NotificationDropdown() {
                 <div className="flex items-start space-x-3">
                   {/* 아이콘 */}
                   <div className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center ${config.bgColor}`}>
-                    <span className="text-sm">{config.icon}</span>
+                    <span className={`text-sm font-semibold ${config.color}`}>{config.icon}</span>
                   </div>
                   
                   {/* 내용 */}
@@ -146,12 +155,12 @@ export function NotificationDropdown() {
                         </p>
                         {notification.productName && (
                           <p className="text-xs text-blue-600 mt-1 font-medium">
-                            📦 {notification.productName}
+                            상품: {notification.productName}
                           </p>
                         )}
                         {notification.amount && (
                           <p className="text-xs text-green-600 mt-1 font-medium">
-                            💰 {notification.amount.toLocaleString()}원
+                            금액: {notification.amount.toLocaleString()}원
                           </p>
                         )}
                       </div>
@@ -174,20 +183,6 @@ export function NotificationDropdown() {
         )}
       </div>
 
-      {/* 푸터 */}
-      {notifications.length > 5 && (
-        <div className="px-4 py-3 border-t border-gray-100 bg-gray-50 text-center">
-          <button 
-            className="text-sm text-blue-600 hover:text-blue-800 font-medium"
-            onClick={() => {
-              toggleDropdown();
-              router.push('/notifications');
-            }}
-          >
-            모든 알림 보기
-          </button>
-        </div>
-      )}
     </div>
   );
 }

@@ -18,6 +18,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { productsApi } from '@/api/products';
 import { buyItNow, BuyItNowRequest, getPaymentPreview } from '@/api/payments';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useNotificationCenter } from '@/context/NotificationContext';
 import AuctionResultModal from './AuctionResultModal';
 import BuyItNowModal from './BuyItNowModal';
 import AuctionExpiredModal from './AuctionExpiredModal';
@@ -54,6 +55,9 @@ const ProductInfo = ({ product, auction }: ProductInfoProps) => {
 
   // 인증 상태 확인
   const { isAuthenticated } = useAuth();
+  
+  // 알림 센터 접근
+  const { addNotification } = useNotificationCenter();
 
   // Use auction data if available, otherwise fall back to product data
   // const productDetails = auction || product;
@@ -547,14 +551,44 @@ const ProductInfo = ({ product, auction }: ProductInfoProps) => {
       return;
     }
 
-    // brand 정보와 함께 찜 토글 요청
-    const requestData = {
-      auctionId: auction.auctionId,
-      brand: auction.brand || product?.brand || ''
-    };
-    
-    console.log('찜 토글 요청 (브랜드 포함):', requestData);
-    wishlistToggle.mutate(auction.auctionId);
+    wishlistToggle.mutate(auction.auctionId, {
+      onSuccess: (data) => {
+        const isWishlisted = data.data?.wishlisted;
+        const message = isWishlisted ? '찜 목록에 추가되었습니다!' : '찜 목록에서 제거되었습니다.';
+        
+        // 토스트 알림 표시
+        if ((window as any).showNotificationToast) {
+          (window as any).showNotificationToast({
+            type: isWishlisted ? 'success' : 'info',
+            message: message,
+            productName: auction?.productName,
+            duration: 3000
+          });
+        }
+        
+        // 알림 히스토리에 추가
+        addNotification({
+          type: isWishlisted ? 'WISHLIST_ADDED' : 'WISHLIST_REMOVED',
+          title: isWishlisted ? '찜 추가 완료' : '찜 제거 완료',
+          message: message,
+          isRead: false,
+          actionUrl: `/auction/${auction.auctionId}`,
+          productName: auction?.productName,
+          productImage: auction?.images[0]?.imageUrl
+        });
+        
+        // 찜 상태 캐시 무효화 (메인과 상세페이지 동기화)
+        queryClient.invalidateQueries({ queryKey: ['wishlist', auction.auctionId] });
+      },
+      onError: (error: any) => {
+        const status = error?.response?.status;
+        if (status === 401 || status === 403) {
+          alert('로그인 후 이용해주세요.');
+        } else {
+          alert('찜하기 처리 중 오류가 발생했습니다.');
+        }
+      }
+    });
   };
 
   // Debug: 가격 정보 확인 (초기 로딩 시 한 번만)
@@ -1044,7 +1078,21 @@ const ProductInfo = ({ product, auction }: ProductInfoProps) => {
                         ) : (
                           <tr className='bg-[#EEE]'>
                             <td className='px-3 py-1'>
-                              {isBidHistoryLoading ? '입찰 내역 로딩 중...' : '입찰 내역이 없습니다'}
+                              {isBidHistoryLoading ? '입찰 내역 로딩 중...' : (() => {
+                                const currentStatus = liveStatus?.status || auction?.status;
+                                const isEnded = currentStatus === 'ENDED' || timeLeft === '경매 종료';
+                                const isCancelled = currentStatus === 'CANCELLED';
+                                
+                                if (isCancelled) {
+                                  return '취소된 경매입니다';
+                                } else if (isEnded) {
+                                  return '경매가 종료되었습니다';
+                                } else if (!isAuthenticated) {
+                                  return '로그인하시면 입찰 내역을 확인할 수 있습니다';
+                                } else {
+                                  return '아직 입찰 내역이 없습니다';
+                                }
+                              })()}
                               {!isBidHistoryLoading && bidHistoryData?.success === false && (
                                 <div className='text-xs text-red-500 mt-1'>
                                   데이터 로드 실패. 새로고침 해보세요.
@@ -1075,41 +1123,146 @@ const ProductInfo = ({ product, auction }: ProductInfoProps) => {
                     <div className='space-y-4'>
                       <h4 className='font-semibold text-gray-700'>입찰가 변화</h4>
                       <div className='relative h-48 bg-gray-50 rounded p-4'>
-                        {/* 간단한 라인 차트 시뮬레이션 */}
-                        <div className='h-full flex items-end justify-between space-x-2'>
-                          {bidHistoryData.data.content.slice(-10).map((bid, _index) => {
-                                                         const maxBid = Math.max(...bidHistoryData.data.content.map(b => b.bidAmount));
-                             const minBid = auction?.startPrice || 0;
-                             const height = ((bid.bidAmount - minBid) / (maxBid - minBid)) * 100;
+                        {/* 선 그래프 (라인 차트) */}
+                        <svg className='w-full h-full' viewBox="0 0 400 160">
+                          {/* 배경 그리드 및 그라데이션 */}
+                          <defs>
+                            <pattern id="grid" width="40" height="32" patternUnits="userSpaceOnUse">
+                              <path d="M 40 0 L 0 0 0 32" fill="none" stroke="#e5e7eb" strokeWidth="1"/>
+                            </pattern>
+                            <linearGradient id="lineGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                              <stop offset="0%" style={{stopColor:'#10b981', stopOpacity:0.8}} />
+                              <stop offset="50%" style={{stopColor:'#16a34a', stopOpacity:1}} />
+                              <stop offset="100%" style={{stopColor:'#15803d', stopOpacity:0.9}} />
+                            </linearGradient>
+                          </defs>
+                          <rect width="100%" height="100%" fill="url(#grid)" />
+                          
+                          {(() => {
+                            const bids = bidHistoryData.data.content.slice(-10);
+                            const maxBid = Math.max(...bidHistoryData.data.content.map(b => b.bidAmount));
+                            const minBid = auction?.startPrice || Math.min(...bidHistoryData.data.content.map(b => b.bidAmount));
+                            const range = maxBid - minBid || 1;
+                            
+                            // 포인트들 계산
+                            const points = bids.map((bid, index) => ({
+                              x: (index / (bids.length - 1)) * 360 + 20, // 좌우 여백 20px
+                              y: 140 - ((bid.bidAmount - minBid) / range) * 120, // 상하 여백 20px
+                              bid
+                            }));
+                            
+                            // 부드러운 곡선 경로 생성 (베지어 곡선)
+                            const createSmoothPath = (points: Array<{x: number, y: number, bid: any}>) => {
+                              if (points.length < 2) return '';
+                              
+                              let path = `M ${points[0].x} ${points[0].y}`;
+                              
+                              for (let i = 1; i < points.length; i++) {
+                                const prev = points[i - 1];
+                                const curr = points[i];
+                                const next = points[i + 1];
+                                
+                                // 제어점 계산 (부드러운 곡선을 위해)
+                                const cp1x = prev.x + (curr.x - (points[i - 2] || prev).x) * 0.2;
+                                const cp1y = prev.y + (curr.y - (points[i - 2] || prev).y) * 0.2;
+                                const cp2x = curr.x - (next || curr).x * 0.2 + curr.x * 0.2;
+                                const cp2y = curr.y - (next || curr).y * 0.2 + curr.y * 0.2;
+                                
+                                if (i === 1) {
+                                  // 첫 번째 곡선은 quadratic 사용
+                                  path += ` Q ${cp1x} ${cp1y} ${curr.x} ${curr.y}`;
+                                } else {
+                                  // 나머지는 cubic bezier 사용
+                                  path += ` C ${cp1x} ${cp1y} ${cp2x} ${cp2y} ${curr.x} ${curr.y}`;
+                                }
+                              }
+                              
+                              return path;
+                            };
+                            
+                            const pathData = createSmoothPath(points);
+                            
+                            // 최고가 Y 좌표 계산
+                            const maxBidY = 140 - ((maxBid - minBid) / range) * 120;
                             
                             return (
-                              <div key={bid.bidId} className='flex flex-col items-center'>
-                                <div 
-                                  className={`w-8 rounded-t ${
-                                    bid.isMyBid 
-                                      ? 'bg-blue-600 ring-2 ring-blue-300' // 내 입찰 강조
-                                      : bid.isWinning 
-                                      ? 'bg-green-500' // 최고가
-                                      : 'bg-gray-400'
-                                  }`}
-                                  style={{ height: `${Math.max(height, 10)}%` }}
-                                  title={`${formatPrice(bid.bidAmount)}원 - ${bid.bidderNickname} ${bid.isMyBid ? '(내 입찰)' : ''}`}
+                              <>
+                                {/* 최고가 곡선 (점선) */}
+                                <path
+                                  d={`M 20 ${maxBidY} Q 100 ${maxBidY - 5} 200 ${maxBidY} Q 300 ${maxBidY + 3} 380 ${maxBidY}`}
+                                  stroke="#ef4444"
+                                  strokeWidth="2"
+                                  strokeDasharray="5,5"
+                                  fill="none"
+                                  opacity="0.8"
                                 />
-                                <span className={`text-xs mt-1 transform rotate-45 origin-left ${
-                                  bid.isMyBid ? 'text-blue-600 font-bold' : 'text-gray-500'
-                                }`}>
-                                  {new Date(bid.bidTime).toLocaleTimeString('ko-KR', { 
-                                    hour: '2-digit', 
-                                    minute: '2-digit' 
-                                  })}
-                                </span>
-                              </div>
+                                
+                                {/* 최고가 레이블 */}
+                                <text
+                                  x="25"
+                                  y={Math.max(15, maxBidY - 8)}
+                                  className="text-xs fill-red-500 font-semibold"
+                                >
+                                  최고가 {formatPrice(maxBid)}원
+                                </text>
+                                
+                                {/* 선 그래프 (부드러운 곡선) */}
+                                <path 
+                                  d={pathData} 
+                                  stroke="url(#lineGradient)" 
+                                  strokeWidth="3" 
+                                  fill="none"
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  className="drop-shadow-sm"
+                                />
+                                
+                                {/* 포인트들 */}
+                                {points.map((point, index) => (
+                                  <g key={point.bid.bidId}>
+                                    <circle
+                                      cx={point.x}
+                                      cy={point.y}
+                                      r="4"
+                                      fill={point.bid.isMyBid ? '#2563eb' : point.bid.isWinning ? '#16a34a' : '#6b7280'}
+                                      stroke="white"
+                                      strokeWidth="2"
+                                      className="drop-shadow cursor-pointer"
+                                    />
+                                    {/* 내 입찰 강조 */}
+                                    {point.bid.isMyBid && (
+                                      <circle
+                                        cx={point.x}
+                                        cy={point.y}
+                                        r="6"
+                                        fill="none"
+                                        stroke="#2563eb"
+                                        strokeWidth="2"
+                                        opacity="0.5"
+                                      />
+                                    )}
+                                  </g>
+                                ))}
+                                
+                                {/* X축 레이블 (시간) */}
+                                {points.map((point, index) => (
+                                  <text
+                                    key={`time-${point.bid.bidId}`}
+                                    x={point.x}
+                                    y="155"
+                                    textAnchor="middle"
+                                    className="text-xs fill-gray-500"
+                                  >
+                                    {new Date(point.bid.bidTime).toLocaleTimeString('ko-KR', { 
+                                      hour: '2-digit', 
+                                      minute: '2-digit' 
+                                    })}
+                                  </text>
+                                ))}
+                              </>
                             );
-                          })}
-                        </div>
-                        <div className='absolute top-2 right-2 text-sm text-gray-600'>
-                          최고: {formatPrice(Math.max(...bidHistoryData.data.content.map(b => b.bidAmount)))}원
-                        </div>
+                          })()}
+                        </svg>
                       </div>
                       <div className='text-xs text-gray-500 text-center'>
                         최근 {Math.min(bidHistoryData.data.content.length, 10)}개 입찰 내역
@@ -1117,8 +1270,41 @@ const ProductInfo = ({ product, auction }: ProductInfoProps) => {
                     </div>
                   ) : (
                     <div className='text-center text-gray-500 py-8'>
-                      <p>입찰 내역이 없어 그래프를 표시할 수 없습니다.</p>
-                      <p className='text-sm mt-1'>첫 입찰을 해보세요!</p>
+                      {(() => {
+                        const currentStatus = liveStatus?.status || auction?.status;
+                        const isEnded = currentStatus === 'ENDED' || timeLeft === '경매 종료';
+                        const isCancelled = currentStatus === 'CANCELLED';
+                        
+                        if (isCancelled) {
+                          return (
+                            <>
+                              <p>취소된 경매입니다.</p>
+                              <p className='text-sm mt-1'>그래프를 표시할 수 없습니다.</p>
+                            </>
+                          );
+                        } else if (isEnded) {
+                          return (
+                            <>
+                              <p>경매가 종료되었습니다.</p>
+                              <p className='text-sm mt-1'>입찰 내역이 없어 그래프를 표시할 수 없습니다.</p>
+                            </>
+                          );
+                        } else if (!isAuthenticated) {
+                          return (
+                            <>
+                              <p>로그인하시면 입찰가 그래프를 확인할 수 있습니다.</p>
+                              <p className='text-sm mt-1'>지금 로그인하고 경매에 참여해보세요!</p>
+                            </>
+                          );
+                        } else {
+                          return (
+                            <>
+                              <p>아직 입찰 내역이 없어 그래프를 표시할 수 없습니다.</p>
+                              <p className='text-sm mt-1'>첫 입찰을 해보세요!</p>
+                            </>
+                          );
+                        }
+                      })()}
                     </div>
                   )}
                 </div>

@@ -23,7 +23,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
               <AuthHeader />
               <div className='pt-40 sm:pt-32'>{children}</div>
               <Footer />
-              {/* 알림 매니저 - 로그인된 사용자에게만 표시 */}
+              {/* 알림 매니저 - 실제 알림용 */}
               <NotificationManager />
             </NotificationProvider>
           </TokenRefreshProvider>
