@@ -1139,7 +1139,8 @@ const ProductInfo = ({ product, auction }: ProductInfoProps) => {
                           <rect width="100%" height="100%" fill="url(#grid)" />
                           
                           {(() => {
-                            const bids = bidHistoryData.data.content.slice(-10);
+                            // API에서 최신순으로 오므로, 그래프에서는 시간순으로 표시하기 위해 역순으로 처리
+                            const bids = bidHistoryData.data.content.slice(-10).reverse();
                             const maxBid = Math.max(...bidHistoryData.data.content.map(b => b.bidAmount));
                             const minBid = auction?.startPrice || Math.min(...bidHistoryData.data.content.map(b => b.bidAmount));
                             const range = maxBid - minBid || 1;
