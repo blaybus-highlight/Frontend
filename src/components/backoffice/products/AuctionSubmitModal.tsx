@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from "react"
 import { createAuction, CreateAuctionRequest } from "@/api/auction"
 import { ProductListItem } from "@/types/auction"
+import { convertLocalToUTC, getCurrentLocalTime } from "@/utils/timeUtils"
 
 interface AuctionSubmitModalProps {
     isOpen: boolean;
@@ -57,26 +58,16 @@ export default function AuctionSubmitModal({ isOpen, onClose, selectedProduct }:
     };
 
     const setCurrentDateTime = () => {
-        // 한국 시간대로 현재 시간 계산
-        const now = new Date();
-        const koreaTimeOffset = 9 * 60; // 한국은 UTC+9
-        const localTimeOffset = now.getTimezoneOffset(); // 로컬 시간대 오프셋 (분)
-        const koreaTime = new Date(now.getTime() + (koreaTimeOffset + localTimeOffset) * 60 * 1000);
+        // timeUtils의 함수를 사용하여 현재 한국 시간 가져오기
+        const currentKoreaTime = getCurrentLocalTime(); // YYYY-MM-DDTHH:mm 형식
         
-        // 한국 시간 기준으로 날짜와 시간 추출
-        const year = koreaTime.getFullYear();
-        const month = String(koreaTime.getMonth() + 1).padStart(2, '0');
-        const day = String(koreaTime.getDate()).padStart(2, '0');
-        const hours = String(koreaTime.getHours()).padStart(2, '0');
-        const minutes = String(koreaTime.getMinutes()).padStart(2, '0');
-        
-        const currentDate = `${year}-${month}-${day}`; // YYYY-MM-DD 형식
-        const currentTime = `${hours}:${minutes}`; // HH:MM 형식
+        // 날짜와 시간 분리
+        const [date, time] = currentKoreaTime.split('T');
         
         setFormData(prev => ({
             ...prev,
-            startDate: currentDate,
-            startTime: currentTime
+            startDate: date,
+            startTime: time
         }));
     };
 
@@ -97,34 +88,30 @@ export default function AuctionSubmitModal({ isOpen, onClose, selectedProduct }:
         if (!formData.pickupOption) errors.pickupOption = '픽업 여부를 선택해주세요';
         if (!formData.shippingCost) errors.shippingCost = '배송비용을 입력해주세요';
         
-        // 날짜 유효성 검사
-        if (formData.startDate && formData.startTime && formData.endDate && formData.endTime) {
-            const startDateTime = new Date(`${formData.startDate}T${formData.startTime}`);
-            const endDateTime = new Date(`${formData.endDate}T${formData.endTime}`);
-            
-            // 한국 시간으로 현재 시간 계산
-            const now = new Date();
-            const koreaTime = new Date(now.getTime() + (9 * 60 * 60 * 1000)); // UTC+9 (한국 시간)
-            
-            // 현재 날짜와 시작 날짜가 같은 경우, 시간만 비교
-            const today = koreaTime.toISOString().split('T')[0]; // YYYY-MM-DD 형식
-            const startDateOnly = formData.startDate;
-            
-            if (startDateOnly === today) {
-                // 오늘 날짜인 경우, 현재 시간보다 이후인지만 확인
-                const currentTime = koreaTime.toTimeString().split(' ')[0]; // HH:MM:SS 형식
-                if (formData.startTime <= currentTime) {
-                    errors.startTime = '오늘 날짜를 선택한 경우, 시작 시간은 현재 시간보다 이후여야 합니다';
-                }
-            } else if (startDateOnly < today) {
-                // 과거 날짜인 경우
-                errors.startDate = '시작 날짜는 오늘 이후여야 합니다';
-            }
-            
-            if (endDateTime <= startDateTime) {
-                errors.endDate = '마감 시간은 시작 시간보다 이후여야 합니다';
-            }
-        }
+                 // 날짜 유효성 검사
+         if (formData.startDate && formData.startTime && formData.endDate && formData.endTime) {
+             const startDateTime = new Date(`${formData.startDate}T${formData.startTime}`);
+             const endDateTime = new Date(`${formData.endDate}T${formData.endTime}`);
+             
+             // timeUtils의 함수를 사용하여 현재 한국 시간 가져오기
+             const currentKoreaTime = getCurrentLocalTime(); // YYYY-MM-DDTHH:mm 형식
+             const [today, currentTime] = currentKoreaTime.split('T');
+             const startDateOnly = formData.startDate;
+             
+             if (startDateOnly === today) {
+                 // 오늘 날짜인 경우, 현재 시간보다 크거나 같아야 함
+                 if (formData.startTime < currentTime) {
+                     errors.startTime = '오늘 날짜를 선택한 경우, 시작 시간은 현재 시간보다 크거나 같아야 합니다';
+                 }
+             } else if (startDateOnly < today) {
+                 // 과거 날짜인 경우
+                 errors.startDate = '시작 날짜는 오늘 이후여야 합니다';
+             }
+             
+             if (endDateTime <= startDateTime) {
+                 errors.endDate = '마감 시간은 시작 시간보다 이후여야 합니다';
+             }
+         }
         
         setFieldErrors(errors);
         
@@ -142,12 +129,11 @@ export default function AuctionSubmitModal({ isOpen, onClose, selectedProduct }:
                 return;
             }
 
-            // 날짜와 시간을 합쳐서 UTC 시간으로 변환
+            // 날짜와 시간을 합쳐서 한국 시간 형식으로 만들고 UTC로 변환
             const formatDateTime = (date: string, time: string) => {
                 if (!date || !time) return '';
-                // 한국 시간을 UTC로 변환 (9시간 빼기)
-                const koreaDateTime = new Date(`${date}T${time}:00+09:00`);
-                return koreaDateTime.toISOString();
+                const koreaDateTime = `${date}T${time}`;
+                return convertLocalToUTC(koreaDateTime);
             };
 
             const scheduledStartTime = formatDateTime(formData.startDate, formData.startTime);
